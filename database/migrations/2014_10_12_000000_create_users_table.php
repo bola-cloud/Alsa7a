@@ -24,7 +24,34 @@ return new class extends Migration
             $table->rememberToken();
             $table->foreignId('current_team_id')->nullable();
             $table->string('profile_photo_path', 2048)->nullable();
+
+            // Profile / player / provider fields (nullable)
+            $table->string('profile_title')->nullable();
+            $table->text('bio')->nullable();
+            $table->decimal('rate', 10, 2)->nullable();
+            $table->decimal('rating', 3, 2)->nullable();
+            $table->string('city')->nullable();
+            $table->string('country')->nullable();
+
+            // Optional links to team/club if user is a player/postulant
+            $table->unsignedBigInteger('team_id')->nullable();
+            $table->unsignedBigInteger('club_id')->nullable();
+
+            // Player-like fields stored on users
+            $table->string('position')->nullable();
+            $table->integer('number')->nullable();
+            $table->string('nationality')->nullable();
+            $table->json('stats')->nullable();
+            $table->boolean('is_featured')->default(false);
+
+            // Availability or schedule for providers
+            $table->json('availability')->nullable();
+
             $table->timestamps();
+
+            // Foreign keys to teams and clubs
+            $table->foreign('team_id')->references('id')->on('teams')->onDelete('set null');
+            $table->foreign('club_id')->references('id')->on('clubs')->onDelete('set null');
             $table->foreign('category_id')->references('id')->on('categories')->onDelete('set null');
         });
     }

@@ -31,6 +31,21 @@ class User extends Authenticatable
         'phone_verified_at',
         'phone_verification_code',
         'category_id',
+        // profile / player / provider fields
+        'profile_title',
+        'bio',
+        'rate',
+        'rating',
+        'city',
+        'country',
+        'team_id',
+        'club_id',
+        'position',
+        'number',
+        'nationality',
+        'stats',
+        'is_featured',
+        'availability',
     ];
 
     public function projects(): HasMany
@@ -38,9 +53,58 @@ class User extends Authenticatable
         return $this->hasMany(Project::class);
     }
 
+    public function services()
+    {
+        return $this->hasMany(Service::class, 'provider_id');
+    }
+
+    public function serviceRequestsMade()
+    {
+        return $this->hasMany(ServiceRequest::class, 'requester_id');
+    }
+
+    public function serviceRequestsReceived()
+    {
+        return $this->hasMany(ServiceRequest::class, 'provider_id');
+    }
+
     public function category()
     {
         return $this->belongsTo(Category::class);
+    }
+
+    public function team()
+    {
+        return $this->belongsTo(Team::class);
+    }
+
+    public function club()
+    {
+        return $this->belongsTo(Club::class);
+    }
+
+    /**
+     * Media attached to the user (gallery, certificates, profile media)
+     */
+    public function media()
+    {
+        return $this->morphMany(Media::class, 'mediaable');
+    }
+
+    /**
+     * Service reviews written by the user
+     */
+    public function serviceReviews()
+    {
+        return $this->hasMany(ServiceReview::class, 'user_id');
+    }
+
+    /**
+     * Bookings made by the user
+     */
+    public function bookings()
+    {
+        return $this->hasMany(Booking::class, 'user_id');
     }
 
     /**
@@ -63,6 +127,9 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
         'phone_verified_at' => 'datetime',
+        'stats' => 'array',
+        'availability' => 'array',
+        'is_featured' => 'boolean',
     ];
 
     /**
