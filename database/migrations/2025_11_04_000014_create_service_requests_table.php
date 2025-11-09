@@ -23,7 +23,8 @@ return new class extends Migration
             $table->foreign('service_id')->references('id')->on('services')->onDelete('cascade');
             $table->foreign('requester_id')->references('id')->on('users')->onDelete('cascade');
             $table->foreign('provider_id')->references('id')->on('users')->onDelete('cascade');
-            $table->index(['service_id', 'requester_id', 'provider_id', 'status']);
+            // Use a short index name to avoid MySQL identifier length limits
+            $table->index(['service_id', 'requester_id', 'provider_id', 'status'], 'sr_idx_s_r_p_st');
         });
     }
 
