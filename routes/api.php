@@ -2,7 +2,8 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\V1\Auth\AuthController;
+use App\Http\Controllers\Api\V1\HomeController;
 
 /*
 |--------------------------------------------------------------------------
@@ -15,15 +16,23 @@ use App\Http\Controllers\Api\AuthController;
 |
 */
 
-Route::post('register', [AuthController::class, 'register']);
-Route::post('login', [AuthController::class, 'login']);
-
-// Protected Routes (Require authentication)
-Route::middleware('auth:sanctum')->group(function () {
-    Route::get('/user', function (Request $request) {
-        return $request->user();
+Route::prefix('v1')->group(function () {
+    // Auth routes grouped under /api/v1/auth
+    Route::prefix('auth')->group(function () {
+        Route::post('register', [AuthController::class, 'register']);
+        Route::post('login', [AuthController::class, 'login']);
     });
 
-    // Logout route
-    Route::post('logout', [AuthController::class, 'logout']);
+    // Public home endpoint for guests
+    Route::get('home', [HomeController::class, 'index']);
+
+    // Protected Routes (Require authentication)
+    Route::middleware('auth:sanctum')->group(function () {
+        Route::get('/user', function (Request $request) {
+            return $request->user();
+        });
+
+        // Logout route under /api/v1/auth/logout
+        Route::post('auth/logout', [AuthController::class, 'logout']);
+    });
 });
