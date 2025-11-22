@@ -28,7 +28,7 @@ Route::prefix('v1')->group(function () {
     Route::get('home', [HomeController::class, 'index']);
 
     // Questions endpoints
-    Route::get('categories/{category}/questions', [QuestionController::class, 'index']);
+    // Route::get('categories/{category}/questions', [QuestionController::class, 'index']);
     Route::get('questions', [QuestionController::class, 'index']);
 
 

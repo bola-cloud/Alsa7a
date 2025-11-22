@@ -24,7 +24,12 @@ class HomeController extends Controller
 
         $topClubs = Club::where('is_featured', true)->with('media')->take(8)->get();
 
-        $topPlayers = User::where('is_featured', true)->select('id','name','profile_title','bio','city','profile_photo_path')->take(8)->get();
+        // Only return users belonging to the 'Player' category (category_id = 1)
+        $topPlayers = User::where('category_id', 1)
+            ->where('is_featured', true)
+            ->select('id','name','profile_title','bio','city','profile_photo_path')
+            ->take(8)
+            ->get();
 
         // featured services omitted from this response (not part of mobile home spec)
 
