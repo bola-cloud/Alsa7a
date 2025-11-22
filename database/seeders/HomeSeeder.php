@@ -13,6 +13,7 @@ use App\Models\Media;
 use App\Models\Service;
 use App\Models\ServiceMedia;
 use App\Models\User;
+use App\Models\Slider;
 use Illuminate\Support\Str;
 
 class HomeSeeder extends Seeder
@@ -69,6 +70,11 @@ class HomeSeeder extends Seeder
 
         // additional featured services/events to show up on home
         Service::create(['provider_id' => $provider2->id, 'title' => 'Goalkeeping Clinic', 'slug' => Str::slug('Goalkeeping Clinic'), 'description' => 'Group clinic', 'price' => 15.00, 'duration_minutes' => 120, 'currency' => 'USD']);
+
+        // demo sliders (ads) for home hero
+        Slider::create(['title' => 'Football Champion League Celebration', 'image' => 'storage/sliders/slider1.jpg']);
+        Slider::create(['title' => 'Basketball Championship Highlights', 'image' => 'storage/sliders/slider2.jpg']);
+        Slider::create(['title' => 'Join Our Training Camps', 'image' => 'storage/sliders/slider3.jpg']);
 
     }
 }

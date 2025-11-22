@@ -13,6 +13,8 @@ return new class extends Migration
             $table->unsignedBigInteger('category_id');
             $table->string('question');
             $table->text('meta')->nullable();
+            $table->string('type')->default('text'); //text, multiple_choice, boolean
+            $table->json('choices')->nullable();
             $table->timestamps();
 
             $table->foreign('category_id')->references('id')->on('categories')->onDelete('cascade');

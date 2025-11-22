@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\V1\Auth\AuthController;
 use App\Http\Controllers\Api\V1\HomeController;
+use App\Http\Controllers\Api\V1\QuestionController;
 
 /*
 |--------------------------------------------------------------------------
@@ -26,6 +27,11 @@ Route::prefix('v1')->group(function () {
     // Public home endpoint for guests
     Route::get('home', [HomeController::class, 'index']);
 
+    // Questions endpoints
+    Route::get('categories/{category}/questions', [QuestionController::class, 'index']);
+    Route::get('questions', [QuestionController::class, 'index']);
+
+
     // Protected Routes (Require authentication)
     Route::middleware('auth:sanctum')->group(function () {
         Route::get('/user', function (Request $request) {
@@ -34,5 +40,8 @@ Route::prefix('v1')->group(function () {
 
         // Logout route under /api/v1/auth/logout
         Route::post('auth/logout', [AuthController::class, 'logout']);
+
+        // submit answers
+        Route::post('questions/answers', [QuestionController::class, 'submit']);
     });
 });

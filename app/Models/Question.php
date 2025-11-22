@@ -13,6 +13,13 @@ class Question extends Model
         'category_id',
         'question',
         'meta',
+        'type',
+        'choices',
+    ];
+
+    protected $casts = [
+        'meta' => 'array',
+        'choices' => 'array',
     ];
 
     public function category()
