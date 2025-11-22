@@ -16,6 +16,9 @@ class Slider extends Model
     // Append computed full image URL
     protected $appends = ['image_url'];
 
+    // Hide the raw stored image path from API responses; clients should use `image_url`.
+    protected $hidden = ['image'];
+
     /**
      * Accessor for full image URL
      */
