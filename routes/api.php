@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\V1\Auth\AuthController;
 use App\Http\Controllers\Api\V1\HomeController;
 use App\Http\Controllers\Api\V1\QuestionController;
+use App\Http\Controllers\Api\V1\CategoryController;
 
 /*
 |--------------------------------------------------------------------------
@@ -30,6 +31,9 @@ Route::prefix('v1')->group(function () {
     // Questions endpoints
     // Route::get('categories/{category}/questions', [QuestionController::class, 'index']);
     Route::get('questions', [QuestionController::class, 'index']);
+
+    // Categories listing
+    Route::get('categories', [CategoryController::class, 'index']);
 
 
     // Protected Routes (Require authentication)
