@@ -4,10 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Traits\Translatable;
 
 class Club extends Model
 {
-    use HasFactory;
+    use HasFactory, Translatable;
 
     protected $fillable = ['name', 'slug', 'description', 'logo_url', 'banner_url', 'city', 'country', 'founded_year', 'website', 'rating', 'is_featured', 'meta'];
 

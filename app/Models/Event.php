@@ -4,10 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Traits\Translatable;
 
 class Event extends Model
 {
-    use HasFactory;
+    use HasFactory, Translatable;
 
     protected $fillable = ['club_id', 'sport_id', 'title', 'slug', 'description', 'start_at', 'end_at', 'venue', 'price', 'capacity', 'tickets_sold', 'featured_image', 'is_featured', 'meta'];
 

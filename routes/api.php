@@ -18,7 +18,7 @@ use App\Http\Controllers\Api\V1\CategoryController;
 |
 */
 
-Route::prefix('v1')->group(function () {
+Route::prefix('v1')->middleware('set.api.locale')->group(function () {
     // Auth routes grouped under /api/v1/auth
     Route::prefix('auth')->group(function () {
         Route::post('register', [AuthController::class, 'register']);
