@@ -9,6 +9,8 @@ use Illuminate\Notifications\Notifiable;
 use Laravel\Fortify\TwoFactorAuthenticatable;
 use Laravel\Jetstream\HasProfilePhoto;
 use Laravel\Sanctum\HasApiTokens;
+use App\Models\Question;
+use App\Models\QuestionAnswer;
 
 class User extends Authenticatable
 {
@@ -140,5 +142,38 @@ class User extends Authenticatable
      */
     protected $appends = [
         'profile_photo_url',
+        'answered_question_ids',
+        'questions_complete',
     ];
+
+    public function getAnsweredQuestionIdsAttribute()
+    {
+        if (! $this->id || ! $this->category_id) {
+            return [];
+        }
+
+        $questionIds = Question::where('category_id', $this->category_id)->pluck('id')->toArray();
+        if (empty($questionIds)) return [];
+
+        $answered = QuestionAnswer::where('user_id', $this->id)
+            ->whereIn('question_id', $questionIds)
+            ->pluck('question_id')
+            ->unique()
+            ->values()
+            ->toArray();
+
+        return $answered;
+    }
+
+    public function getQuestionsCompleteAttribute()
+    {
+        if (! $this->category_id) return false;
+
+        $total = Question::where('category_id', $this->category_id)->count();
+        if ($total === 0) return false;
+
+        $answeredCount = count($this->answered_question_ids ?? []);
+
+        return $answeredCount >= $total;
+    }
 }

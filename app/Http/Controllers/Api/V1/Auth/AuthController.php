@@ -37,7 +37,17 @@ class AuthController extends Controller
 
         $token = $user->createToken('api-token')->plainTextToken;
 
-        return response()->json(['user' => $user, 'token' => $token], 200);
+        // include question completion info and redirect hint
+        $answered = $user->answered_question_ids;
+        $complete = $user->questions_complete;
+
+        return response()->json([
+            'user' => $user,
+            'token' => $token,
+            'answered_question_ids' => $answered,
+            'questions_complete' => (bool) $complete,
+            'redirect_to' => $complete ? null : 'questions',
+        ], 200);
     }
 
     public function login(Request $request)
@@ -60,7 +70,16 @@ class AuthController extends Controller
 
         $token = $user->createToken('api-token')->plainTextToken;
 
-        return response()->json(['user' => $user, 'token' => $token]);
+        $answered = $user->answered_question_ids;
+        $complete = $user->questions_complete;
+
+        return response()->json([
+            'user' => $user,
+            'token' => $token,
+            'answered_question_ids' => $answered,
+            'questions_complete' => (bool) $complete,
+            'redirect_to' => $complete ? null : 'questions',
+        ]);
     }
 
     public function logout(Request $request)

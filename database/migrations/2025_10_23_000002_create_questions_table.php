@@ -13,7 +13,7 @@ return new class extends Migration
             $table->unsignedBigInteger('category_id');
             $table->string('question');
             $table->text('meta')->nullable();
-            $table->string('type')->default('text'); //text, multiple_choice, boolean
+            $table->string('type')->default('text'); //text, multiple_choice, boolean, number only
             $table->json('choices')->nullable();
             $table->timestamps();
 

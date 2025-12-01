@@ -119,7 +119,7 @@ class CategoriesAndQuestionsSeeder extends Seeder
                 'name' => $item['name'],
                 'name_en' => $item['name'],
                 'name_ar' => $item['name_ar'] ?? $item['name'],
-                'slug' => $item['slug'],
+                'image' => $item['image'] ?? null,
                 'description' => $item['description'] ?? null,
                 'description_en' => $item['description'] ?? null,
                 'description_ar' => $item['description_ar'] ?? null,

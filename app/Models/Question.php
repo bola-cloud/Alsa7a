@@ -14,7 +14,7 @@ class Question extends Model
         'category_id',
         'question',
         'meta',
-        'type',
+        'type', //text, multiple_choice, boolean, number only
         'choices',
     ];
 
