@@ -115,17 +115,37 @@ class CategoriesAndQuestionsSeeder extends Seeder
         ];
 
         foreach ($data as $item) {
-            $cat = Category::create([
-                'name' => $item['name'],
-                'name_en' => $item['name'],
-                'name_ar' => $item['name_ar'] ?? $item['name'],
-                'image' => $item['image'] ?? null,
-                'description' => $item['description'] ?? null,
-                'description_en' => $item['description'] ?? null,
-                'description_ar' => $item['description_ar'] ?? null,
-            ]);
+            // find existing category by English name or create it (idempotent)
+            $cat = Category::where('name_en', $item['name'])->first();
+            if (! $cat) {
+                $cat = Category::create([
+                    'name' => $item['name'],
+                    'name_en' => $item['name'],
+                    'name_ar' => $item['name_ar'] ?? $item['name'],
+                    'image' => $item['image'] ?? null,
+                    'description' => $item['description'] ?? null,
+                    'description_en' => $item['description'] ?? null,
+                    'description_ar' => $item['description_ar'] ?? null,
+                ]);
+            } else {
+                // ensure localized fields exist (in case older seeding missed them)
+                $cat->fill([
+                    'name_ar' => $item['name_ar'] ?? $cat->name_ar ?? $item['name'],
+                    'description_en' => $item['description'] ?? $cat->description_en ?? $item['description'],
+                    'description_ar' => $item['description_ar'] ?? $cat->description_ar ?? $item['description_ar'] ?? $item['description'],
+                ]);
+                $cat->save();
+            }
 
+            // Insert text questions from the dataset only if they don't already exist
             foreach ($item['questions'] as $q) {
+                $exists = Question::where('category_id', $cat->id)
+                    ->where('question_en', $q['en'] ?? null)
+                    ->exists();
+                if ($exists) {
+                    continue;
+                }
+
                 Question::create([
                     'category_id' => $cat->id,
                     'question' => $q['en'] ?? null,
@@ -133,6 +153,58 @@ class CategoriesAndQuestionsSeeder extends Seeder
                     'question_ar' => $q['ar'] ?? null,
                     'type' => $q['type'] ?? 'text',
                     'choices' => $q['choices'] ?? null,
+                ]);
+            }
+
+            // Add example questions of other types if they don't exist for this category
+            // Types to ensure: multiple_choice, boolean, number
+
+            // 1) multiple_choice example
+            $hasMcq = Question::where('category_id', $cat->id)
+                ->where('type', 'multiple_choice')
+                ->exists();
+            if (! $hasMcq) {
+                Question::create([
+                    'category_id' => $cat->id,
+                    'question' => 'Which of the following best describes you?',
+                    'question_en' => 'Which of the following best describes you?',
+                    'question_ar' => 'أي مما يلي يصفك بشكل أفضل؟',
+                    'type' => 'multiple_choice',
+                    'choices' => [
+                        'Option 1',
+                        'Option 2',
+                        'Option 3',
+                    ],
+                ]);
+            }
+
+            // 2) boolean example
+            $hasBool = Question::where('category_id', $cat->id)
+                ->where('type', 'boolean')
+                ->exists();
+            if (! $hasBool) {
+                Question::create([
+                    'category_id' => $cat->id,
+                    'question' => 'Are you available for contact?',
+                    'question_en' => 'Are you available for contact?',
+                    'question_ar' => 'هل أنت متاح للتواصل؟',
+                    'type' => 'boolean',
+                    'choices' => null,
+                ]);
+            }
+
+            // 3) number example
+            $hasNumber = Question::where('category_id', $cat->id)
+                ->where('type', 'number')
+                ->exists();
+            if (! $hasNumber) {
+                Question::create([
+                    'category_id' => $cat->id,
+                    'question' => 'How many years of experience do you have? (enter a number)',
+                    'question_en' => 'How many years of experience do you have? (enter a number)',
+                    'question_ar' => 'كم سنة من الخبرة لديك؟ (أدخل رقما)',
+                    'type' => 'number',
+                    'choices' => null,
                 ]);
             }
         }
