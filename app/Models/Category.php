@@ -16,9 +16,6 @@ class Category extends Model
         'description',
     ];
 
-    // Expose full image URL and keep compatibility key
-    protected $appends = ['image_url'];
-
     /**
      * Return `image` as full URL for API consumers.
      * Eloquent will pass the raw stored value as $value.
@@ -34,21 +31,7 @@ class Category extends Model
         return url(ltrim($value, '/'));
     }
 
-    /**
-     * Accessor for full image URL (alias) kept for other consumers.
-     */
-    public function getImageUrlAttribute()
-    {
-        // Reuse the image accessor logic by reading raw attribute and converting
-        $raw = $this->attributes['image'] ?? null;
-        if (! $raw) {
-            return null;
-        }
-        if (preg_match('#^https?://#i', $raw)) {
-            return $raw;
-        }
-        return url(ltrim($raw, '/'));
-    }
+
 
     /**
      * Mutator: store relative path when possible, keep external URLs as-is
