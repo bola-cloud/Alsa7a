@@ -13,14 +13,13 @@ class AuthController extends Controller
 {
     public function register(Request $request)
     {
-        $data = $request->only(['name','email','phone','password','category_id']);
+        $data = $request->only(['name','email','phone','password']);
 
         $validator = Validator::make($data, [
             'name' => 'required|string|max:255',
             'email' => 'nullable|email|unique:users,email',
             'phone' => 'required|string|unique:users,phone',
             'password' => 'required|string|min:6',
-            'category_id' => 'nullable|exists:categories,id',
         ]);
 
         if ($validator->fails()) {
@@ -32,7 +31,6 @@ class AuthController extends Controller
             'email' => $data['email'] ?? null,
             'phone' => $data['phone'],
             'password' => Hash::make($data['password']),
-            'category_id' => $data['category_id'] ?? null,
         ]);
 
         $token = $user->createToken('api-token')->plainTextToken;

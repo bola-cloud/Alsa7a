@@ -34,6 +34,7 @@ class QuestionController extends Controller
     public function submit(Request $request)
     {
         $validator = Validator::make($request->all(), [
+            'category_id' => 'required|integer|exists:categories,id',
             'answers' => 'required|array|min:1',
             'answers.*.question_id' => 'required|integer|exists:questions,id',
             'answers.*.answer' => 'nullable',
@@ -45,8 +46,24 @@ class QuestionController extends Controller
 
         $user = $request->user();
 
+        $categoryId = $request->input('category_id');
+
+        // If user is authenticated, set their category_id to the provided one
+        if ($user) {
+            $user->category_id = $categoryId;
+            $user->save();
+        }
+
         $created = [];
         foreach ($request->input('answers') as $item) {
+            $question = Question::find($item['question_id']);
+            // ensure the question belongs to the category provided
+            if (! $question || $question->category_id != $categoryId) {
+                return response()->json([
+                    'message' => 'Question id '.($item['question_id'] ?? 'null').' does not belong to category '.$categoryId
+                ], 422);
+            }
+
             $answerValue = $item['answer'] ?? null;
             // normalize to JSON-storable value
             if (is_array($answerValue)) {
