@@ -15,6 +15,7 @@ class DatabaseSeeder extends Seeder
         $this->call([
             \Database\Seeders\CategoriesAndQuestionsSeeder::class,
             \Database\Seeders\HomeSeeder::class,
+            \Database\Seeders\SettingsSeeder::class,
         ]);
     }
 }

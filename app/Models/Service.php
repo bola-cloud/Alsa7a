@@ -9,9 +9,27 @@ class Service extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['provider_id', 'club_id', 'sport_id', 'title', 'slug', 'description', 'price', 'duration_minutes', 'currency', 'is_active', 'meta'];
+    protected $fillable = [
+        'provider_id',
+        'club_id',
+        'sport_id',
+        'title',
+        'slug',
+        'description',
+        'location',
+        'days_available',
+        'price',
+        'duration_minutes',
+        'currency',
+        'is_active',
+        'meta'
+    ];
 
-    protected $casts = ['meta' => 'array', 'is_active' => 'boolean'];
+    protected $casts = [
+        'meta' => 'array',
+        'days_available' => 'array',
+        'is_active' => 'boolean'
+    ];
 
     public function provider()
     {

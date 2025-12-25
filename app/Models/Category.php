@@ -14,6 +14,11 @@ class Category extends Model
         'name',
         'image',
         'description',
+        'is_service_provider',
+    ];
+
+    protected $casts = [
+        'is_service_provider' => 'boolean',
     ];
 
     /**
@@ -22,7 +27,7 @@ class Category extends Model
      */
     public function getImageAttribute($value)
     {
-        if (! $value) {
+        if (!$value) {
             return null;
         }
         if (preg_match('#^https?://#i', $value)) {
@@ -38,13 +43,13 @@ class Category extends Model
      */
     public function setImageAttribute($value)
     {
-        if (! $value) {
+        if (!$value) {
             $this->attributes['image'] = $value;
             return;
         }
 
         // If already relative, normalize
-        if (! preg_match('#^https?://#i', $value)) {
+        if (!preg_match('#^https?://#i', $value)) {
             $this->attributes['image'] = ltrim($value, '/');
             return;
         }

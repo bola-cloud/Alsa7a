@@ -48,6 +48,8 @@ class User extends Authenticatable
         'stats',
         'is_featured',
         'availability',
+        'birth_date',
+        'cover_photo_path',
     ];
 
     public function projects(): HasMany
@@ -110,6 +112,32 @@ class User extends Authenticatable
     }
 
     /**
+     * Posts (Gallery)
+     */
+    public function posts()
+    {
+        return $this->hasMany(Post::class);
+    }
+
+    /**
+     * Users satisfying (Followers)
+     */
+    public function followers()
+    {
+        return $this->belongsToMany(User::class, 'followers', 'following_id', 'follower_id')
+            ->withTimestamps();
+    }
+
+    /**
+     * Users being followed (Following)
+     */
+    public function following()
+    {
+        return $this->belongsToMany(User::class, 'followers', 'follower_id', 'following_id')
+            ->withTimestamps();
+    }
+
+    /**
      * The attributes that should be hidden for serialization.
      *
      * @var array<int, string>
@@ -148,12 +176,13 @@ class User extends Authenticatable
 
     public function getAnsweredQuestionIdsAttribute()
     {
-        if (! $this->id || ! $this->category_id) {
+        if (!$this->id || !$this->category_id) {
             return [];
         }
 
         $questionIds = Question::where('category_id', $this->category_id)->pluck('id')->toArray();
-        if (empty($questionIds)) return [];
+        if (empty($questionIds))
+            return [];
 
         $answered = QuestionAnswer::where('user_id', $this->id)
             ->whereIn('question_id', $questionIds)
@@ -167,10 +196,12 @@ class User extends Authenticatable
 
     public function getQuestionsCompleteAttribute()
     {
-        if (! $this->category_id) return false;
+        if (!$this->category_id)
+            return false;
 
         $total = Question::where('category_id', $this->category_id)->count();
-        if ($total === 0) return false;
+        if ($total === 0)
+            return false;
 
         $answeredCount = count($this->answered_question_ids ?? []);
 

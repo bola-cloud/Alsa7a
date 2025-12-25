@@ -23,8 +23,9 @@
     display: none;
 }
 
-.checkbox-wrapper input[type="checkbox"] + label::before {
-    content: "\2713"; /* Unicode for the checkmark */
+.checkbox-wrapper input[type="checkbox"]+label::before {
+    content: "\2713";
+    /* Unicode for the checkmark */
     color: white;
     background-color: transparent;
     border: 1px solid #000;
@@ -36,16 +37,181 @@
     line-height: 20px;
 }
 
-.checkbox-wrapper input[type="checkbox"]:checked + label::before {
+.checkbox-wrapper input[type="checkbox"]:checked+label::before {
     background-color: green;
     color: white;
 }
 
-.checkbox-wrapper input[type="checkbox"]:checked + label::after {
+.checkbox-wrapper input[type="checkbox"]:checked+label::after {
     content: "✔";
     position: absolute;
     top: 2px;
     right: 2px;
     color: white;
     font-size: 16px;
+}
+
+/* -- Custom App-Like Styling -- */
+
+/* Sidebar Navigation Pilled & Gradient */
+.main-menu .navigation .nav-item {
+    margin: 0.2rem 1rem !important;
+}
+
+.main-menu .navigation .nav-item a {
+    border-radius: 12px;
+    transition: all 0.3s ease;
+}
+
+/* Active State - Gradient */
+.main-menu .navigation>li.active>a {
+    background: linear-gradient(90deg, #34d399 0%, #0ea5e9 100%) !important;
+    box-shadow: 0 4px 15px 0 rgba(14, 165, 233, 0.4) !important;
+    color: #fff !important;
+}
+
+/* Override Icon Color in Active State */
+.main-menu .navigation>li.active>a i {
+    color: #fff !important;
+}
+
+/* Hover Effect for non-active items */
+.main-menu .navigation .nav-item:not(.active) a:hover {
+    background-color: #f3f4f6 !important;
+    color: #0ea5e9 !important;
+}
+
+/* Cards - Rounded & Soft Shadow */
+.card {
+    border-radius: 20px !important;
+    box-shadow: 0 4px 24px 0 rgba(34, 41, 47, 0.05) !important;
+    border: none !important;
+}
+
+/* Content Body Background */
+body {
+    background-color: #f8f9fa;
+    /* Slightly lighter bg */
+}
+
+.content-wrapper {
+    padding-top: 2rem;
+}
+
+/* -- Modern Button Overrides -- */
+.btn {
+    border-radius: 50rem !important;
+    /* Pill shape */
+    padding: 0.6rem 1.5rem;
+    font-weight: 600;
+    transition: all 0.3s ease-in-out;
+    border: none;
+    box-shadow: 0 4px 6px rgba(50, 50, 93, 0.11), 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 7px 14px rgba(50, 50, 93, 0.1), 0 3px 6px rgba(0, 0, 0, 0.08);
+}
+
+.btn-primary {
+    background: linear-gradient(90deg, #34d399 0%, #0ea5e9 100%) !important;
+    color: white !important;
+}
+
+.btn-primary:hover {
+    background: linear-gradient(90deg, #10b981 0%, #0284c7 100%) !important;
+}
+
+.btn-danger {
+    background: linear-gradient(45deg, #ef4444, #f87171) !important;
+    color: white !important;
+}
+
+.btn-secondary {
+    background: #e5e7eb !important;
+    color: #374151 !important;
+}
+
+/* -- Modern Card Grid Layout -- */
+.modern-card {
+    border-radius: 20px;
+    border: none;
+    transition: all 0.3s ease;
+    background: #fff;
+    overflow: hidden;
+    position: relative;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+.modern-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+.modern-card .card-img-top-wrapper {
+    height: 180px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f3f4f6;
+    position: relative;
+}
+
+.modern-card .card-img-top {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+}
+
+.modern-card:hover .card-img-top {
+    transform: scale(1.05);
+}
+
+.modern-card .card-body {
+    padding: 1.5rem;
+    text-align: center;
+}
+
+.modern-card .card-title {
+    font-weight: 700;
+    font-size: 1.1rem;
+    margin-bottom: 0.5rem;
+    color: #1f2937;
+}
+
+.modern-card .card-actions {
+    margin-top: 1rem;
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.modern-card .status-badge {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: bold;
+    color: white;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.modern-card .icon-wrapper {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    margin: -40px auto 10px;
+    /* Pull up to overlap image area if needed, or just center */
+    position: relative;
+    z-index: 10;
 }

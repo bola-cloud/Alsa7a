@@ -9,9 +9,24 @@ class Booking extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['user_id', 'event_id', 'seats', 'price_paid', 'status', 'payment_meta'];
+    protected $fillable = [
+        'user_id',
+        'event_id',
+        'ticket_number',
+        'ticket_type',
+        'name',
+        'email',
+        'phone',
+        'seats',
+        'price_paid',
+        'status',
+        'payment_meta'
+    ];
 
     protected $casts = ['payment_meta' => 'array'];
+
+    const TICKET_TYPE_REGULAR = 'regular';
+    const TICKET_TYPE_VIP = 'vip';
 
     public function user()
     {

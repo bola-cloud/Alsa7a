@@ -10,9 +10,9 @@ class Event extends Model
 {
     use HasFactory, Translatable;
 
-    protected $fillable = ['club_id', 'sport_id', 'title', 'slug', 'description', 'start_at', 'end_at', 'venue', 'price', 'capacity', 'tickets_sold', 'featured_image', 'is_featured', 'meta'];
+    protected $fillable = ['club_id', 'sport_id', 'title_en', 'title_ar', 'slug', 'description_en', 'description_ar', 'start_at', 'end_at', 'venue', 'price', 'capacity', 'tickets_sold', 'featured_image', 'is_featured', 'meta', 'ticket_types'];
 
-    protected $casts = ['meta' => 'array', 'is_featured' => 'boolean'];
+    protected $casts = ['meta' => 'array', 'ticket_types' => 'array', 'is_featured' => 'boolean'];
 
     public function club()
     {
@@ -40,15 +40,23 @@ class Event extends Model
     public function getFeaturedImageAttribute()
     {
         $val = $this->attributes['featured_image'] ?? null;
-        if (! $val) return null;
-        if (preg_match('#^https?://#i', $val)) return $val;
+        if (!$val)
+            return null;
+        if (preg_match('#^https?://#i', $val))
+            return $val;
         return url(ltrim($val, '/'));
     }
 
     public function setFeaturedImageAttribute($value)
     {
-        if (! $value) { $this->attributes['featured_image'] = $value; return; }
-        if (! preg_match('#^https?://#i', $value)) { $this->attributes['featured_image'] = ltrim($value, '/'); return; }
+        if (!$value) {
+            $this->attributes['featured_image'] = $value;
+            return;
+        }
+        if (!preg_match('#^https?://#i', $value)) {
+            $this->attributes['featured_image'] = ltrim($value, '/');
+            return;
+        }
         $appHost = parse_url(config('app.url') ?? url('/'), PHP_URL_HOST);
         $givenHost = parse_url($value, PHP_URL_HOST);
         if ($appHost && $givenHost && strtolower($appHost) === strtolower($givenHost)) {

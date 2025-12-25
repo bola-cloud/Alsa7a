@@ -14,7 +14,9 @@ class CategoriesAndQuestionsSeeder extends Seeder
             [
                 'name' => 'Player',
                 'name_ar' => 'لاعب',
-                'slug' => 'player',
+                'slug' => 'player', // kept for reference, mapped to image if needed or ignored
+                'image' => 'images-demo/player_category.jpg',
+                'is_service_provider' => false,
                 'description' => 'Players (amateur/professional)',
                 'description_ar' => 'اللاعبون (هواة/محترفون)',
                 'questions' => [
@@ -29,6 +31,8 @@ class CategoriesAndQuestionsSeeder extends Seeder
                 'name' => 'Coach',
                 'name_ar' => 'مدرب',
                 'slug' => 'coach',
+                'image' => null,
+                'is_service_provider' => true,
                 'description' => 'Coaches and trainers',
                 'description_ar' => 'المدربون والمدربات',
                 'questions' => [
@@ -42,6 +46,8 @@ class CategoriesAndQuestionsSeeder extends Seeder
                 'name' => 'Club',
                 'name_ar' => 'نادي',
                 'slug' => 'club',
+                'image' => null,
+                'is_service_provider' => false,
                 'description' => 'Clubs and academies',
                 'description_ar' => 'الأندية والأكاديميات',
                 'questions' => [
@@ -55,6 +61,8 @@ class CategoriesAndQuestionsSeeder extends Seeder
                 'name' => 'Photographer',
                 'name_ar' => 'مصور',
                 'slug' => 'photographer',
+                'image' => null,
+                'is_service_provider' => true,
                 'description' => 'Event photographers and videographers',
                 'description_ar' => 'مصورو الفعاليات والفيديوغرافيون',
                 'questions' => [
@@ -68,6 +76,8 @@ class CategoriesAndQuestionsSeeder extends Seeder
                 'name' => 'Physiotherapist',
                 'name_ar' => 'أخصائي علاج طبيعي',
                 'slug' => 'physiotherapist',
+                'image' => null,
+                'is_service_provider' => true,
                 'description' => 'Sports therapists and physios',
                 'description_ar' => 'أخصائيو العلاج الطبيعي والفيزيوثيرابيين',
                 'questions' => [
@@ -81,6 +91,8 @@ class CategoriesAndQuestionsSeeder extends Seeder
                 'name' => 'Parent',
                 'name_ar' => 'ولي أمر',
                 'slug' => 'parent',
+                'image' => null,
+                'is_service_provider' => false,
                 'description' => 'Parents of players',
                 'description_ar' => 'أولياء أمور اللاعبين',
                 'questions' => [
@@ -93,6 +105,8 @@ class CategoriesAndQuestionsSeeder extends Seeder
                 'name' => 'Fan',
                 'name_ar' => 'مشجع',
                 'slug' => 'fan',
+                'image' => null,
+                'is_service_provider' => false,
                 'description' => 'Fans and supporters',
                 'description_ar' => 'المشجعون والمؤيدون',
                 'questions' => [
@@ -104,6 +118,8 @@ class CategoriesAndQuestionsSeeder extends Seeder
                 'name' => 'Agent',
                 'name_ar' => 'وكيل',
                 'slug' => 'agent',
+                'image' => null,
+                'is_service_provider' => false,
                 'description' => 'Player agents and scouts',
                 'description_ar' => 'وكلاء اللاعبين والكشافون',
                 'questions' => [
@@ -115,22 +131,26 @@ class CategoriesAndQuestionsSeeder extends Seeder
         ];
 
         foreach ($data as $item) {
-            // find existing category by English name or create it (idempotent)
+            // find existing category by name (en)
             $cat = Category::where('name_en', $item['name'])->first();
-            if (! $cat) {
+            if (!$cat) {
+                // If not found, create matching SQL dump logic
                 $cat = Category::create([
                     'name' => $item['name'],
                     'name_en' => $item['name'],
                     'name_ar' => $item['name_ar'] ?? $item['name'],
                     'image' => $item['image'] ?? null,
+                    'is_service_provider' => $item['is_service_provider'] ?? false,
                     'description' => $item['description'] ?? null,
                     'description_en' => $item['description'] ?? null,
                     'description_ar' => $item['description_ar'] ?? null,
                 ]);
             } else {
-                // ensure localized fields exist (in case older seeding missed them)
+                // ensure localized fields and flags exist
                 $cat->fill([
                     'name_ar' => $item['name_ar'] ?? $cat->name_ar ?? $item['name'],
+                    'image' => $item['image'] ?? $cat->image,
+                    'is_service_provider' => $item['is_service_provider'] ?? $cat->is_service_provider,
                     'description_en' => $item['description'] ?? $cat->description_en ?? $item['description'],
                     'description_ar' => $item['description_ar'] ?? $cat->description_ar ?? $item['description_ar'] ?? $item['description'],
                 ]);
@@ -163,7 +183,7 @@ class CategoriesAndQuestionsSeeder extends Seeder
             $hasMcq = Question::where('category_id', $cat->id)
                 ->where('type', 'multiple_choice')
                 ->exists();
-            if (! $hasMcq) {
+            if (!$hasMcq) {
                 Question::create([
                     'category_id' => $cat->id,
                     'question' => 'Which of the following best describes you?',
@@ -182,7 +202,7 @@ class CategoriesAndQuestionsSeeder extends Seeder
             $hasBool = Question::where('category_id', $cat->id)
                 ->where('type', 'boolean')
                 ->exists();
-            if (! $hasBool) {
+            if (!$hasBool) {
                 Question::create([
                     'category_id' => $cat->id,
                     'question' => 'Are you available for contact?',
@@ -197,7 +217,7 @@ class CategoriesAndQuestionsSeeder extends Seeder
             $hasNumber = Question::where('category_id', $cat->id)
                 ->where('type', 'number')
                 ->exists();
-            if (! $hasNumber) {
+            if (!$hasNumber) {
                 Question::create([
                     'category_id' => $cat->id,
                     'question' => 'How many years of experience do you have? (enter a number)',
