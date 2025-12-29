@@ -7,6 +7,8 @@ use App\Models\Service;
 use App\Models\ServiceRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use App\Notifications\ServiceRequested;
+use App\Models\Conversation;
 
 class ServiceRequestController extends Controller
 {
@@ -48,11 +50,59 @@ class ServiceRequestController extends Controller
             'payment_status' => 'pending',
         ]);
 
+        // Notify Provider
+        if ($serviceRequest->provider) {
+            $serviceRequest->provider->notify(new ServiceRequested($serviceRequest));
+        }
+
         return response()->json([
             'status' => true,
             'message' => 'Service requested successfully',
             'data' => $serviceRequest
         ], 201);
+    }
+
+    /**
+     * Pay for a service request (Mock).
+     */
+    public function pay(Request $request, $id)
+    {
+        $serviceRequest = ServiceRequest::where('requester_id', $request->user()->id)->find($id);
+
+        if (!$serviceRequest) {
+            return response()->json(['status' => false, 'message' => 'Request not found'], 404);
+        }
+
+        if ($serviceRequest->status !== 'accepted') {
+            return response()->json(['status' => false, 'message' => 'Request must be accepted before payment'], 400);
+        }
+
+        if ($serviceRequest->payment_status === 'paid') {
+            return response()->json(['status' => false, 'message' => 'Already paid'], 400);
+        }
+
+        // Mock Payment Logic
+        $serviceRequest->payment_status = 'paid';
+        $serviceRequest->payment_transaction_id = 'TXN_' . uniqid();
+        $serviceRequest->save();
+
+        // Create Chat Conversation automatically upon payment?
+        // Or create it on first message. Let's create it here to enable the chat button.
+        $conversation = Conversation::firstOrCreate([
+            'service_request_id' => $serviceRequest->id
+        ], [
+            'user_one_id' => $serviceRequest->requester_id,
+            'user_two_id' => $serviceRequest->provider_id
+        ]);
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Payment successful',
+            'data' => [
+                'service_request' => $serviceRequest,
+                'conversation_id' => $conversation->id
+            ]
+        ]);
     }
 
     /**

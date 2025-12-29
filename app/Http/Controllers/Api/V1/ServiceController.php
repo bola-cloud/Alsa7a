@@ -27,10 +27,17 @@ class ServiceController extends Controller
             $query->where('location', 'like', '%' . $request->location . '%');
         }
 
+        // Filter by Category (via Provider)
+        if ($request->has('category_id') && $request->category_id !== 'all') {
+            $query->whereHas('provider', function ($q) use ($request) {
+                $q->where('category_id', $request->category_id);
+            });
+        }
+
         $services = $query->latest()->paginate(10);
 
         // Append average rating to each service
-        $services->through(function ($service) {
+        $services->getCollection()->transform(function ($service) {
             $service->average_rating = $service->reviews->avg('rating') ?? 0;
             return $service;
         });

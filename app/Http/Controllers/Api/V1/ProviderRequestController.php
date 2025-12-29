@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\ServiceRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use App\Notifications\RequestStatusUpdated;
 
 class ProviderRequestController extends Controller
 {
@@ -56,6 +57,11 @@ class ProviderRequestController extends Controller
 
         $serviceRequest->status = $request->status;
         $serviceRequest->save();
+
+        // Notify Requester
+        if ($serviceRequest->requester) {
+            $serviceRequest->requester->notify(new RequestStatusUpdated($serviceRequest));
+        }
 
         return response()->json([
             'status' => true,

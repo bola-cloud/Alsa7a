@@ -68,8 +68,14 @@ Route::prefix('v1')->middleware('set.api.locale')->group(function () {
 
         // --- Service User Actions ---
         Route::post('services/{id}/request', [App\Http\Controllers\Api\V1\ServiceRequestController::class, 'store']);
+        Route::post('requests/{id}/pay', [App\Http\Controllers\Api\V1\ServiceRequestController::class, 'pay']); // Payment
         Route::get('my-requests', [App\Http\Controllers\Api\V1\ServiceRequestController::class, 'index']);
         Route::post('services/{id}/rate', [App\Http\Controllers\Api\V1\ServiceReviewController::class, 'store']);
+
+        // --- Chat Routes ---
+        Route::get('chat/conversations', [App\Http\Controllers\Api\V1\ChatController::class, 'index']);
+        Route::get('chat/conversations/{id}', [App\Http\Controllers\Api\V1\ChatController::class, 'show']);
+        Route::post('chat/conversations/{id}/messages', [App\Http\Controllers\Api\V1\ChatController::class, 'store']);
 
         // --- Provider Actions ---
         Route::get('provider/requests', [App\Http\Controllers\Api\V1\ProviderRequestController::class, 'index']);

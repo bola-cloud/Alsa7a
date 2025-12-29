@@ -63,6 +63,7 @@ Accepts optional filters.
 **Params:**
 - `page`: int (default 1)
 - `sport_id`: int (optional)
+- `category_id`: int | 'all' (optional) - Filter by Provider's Category. 'all' returns everything.
 - `location`: string (optional, search term)
 
 **Response:**
@@ -70,19 +71,34 @@ Accepts optional filters.
 {
     "status": true,
     "data": {
+        "current_page": 1,
         "data": [
             {
                 "id": 1,
-                "title": "Football Training",
-                "price": 50,
+                "provider_id": 5,
+                "club_id": 2,
+                "sport_id": 1,
+                "title": "Professional Football Training",
+                "slug": "professional-football-training",
+                "description": "High intensity training for elite players...",
+                "location": "Amman International Stadium",
+                "days_available": ["Monday", "Wednesday", "Friday"],
+                "price": 50.00,
                 "currency": "JOD",
-                "location": "Amman",
-                "days_available": ["Monday", "Wednesday"],
-                "average_rating": 4.5,
-                "provider": { "id": 5, "name": "Coach Ahmed" }
+                "is_active": true,
+                "average_rating": 4.8,
+                "provider": {
+                    "id": 5,
+                    "name": "Coach Ahmed",
+                    "profile_photo_url": "http://domain.com/storage/profiles/photo.jpg",
+                    "category_id": 3
+                },
+                "sport": { "id": 1, "name": "Football" },
+                "club": { "id": 2, "name": "Amman FC" }
             }
         ],
-        "meta": { "total": 10, "per_page": 10 }
+        "total": 15,
+        "per_page": 10
     },
     "message": "Services retrieved successfully"
 }
@@ -146,6 +162,30 @@ Lists all requests made by the authenticated user.
     "message": "Review submitted successfully"
 }
 ```
+
+### Pay for Service
+**POST** `/requests/{id}/pay`
+**Response:**
+```json
+{
+    "status": true,
+    "message": "Payment successful",
+    "data": { "service_request": {...}, "conversation_id": 10 }
+}
+```
+
+### Chat (Conversations)
+**GET** `/chat/conversations`
+**Response:** List of conversations.
+
+### Get Messages
+**GET** `/chat/conversations/{id}`
+**Response:** List of messages.
+
+### Send Message
+**POST** `/chat/conversations/{id}/messages`
+**Body:** `body` (string)
+**Response:** Message object.
 
 ---
 
