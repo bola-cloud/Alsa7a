@@ -44,12 +44,32 @@ class ProfileController extends Controller
             'data' => [
                 'id' => $user->id,
                 'name' => $user->name,
-                'username' => $user->email, // Using email as username placeholder or add username field
+                'username' => $user->email,
                 'profile_title' => $user->profile_title,
                 'bio' => $user->bio,
                 'image' => $user->profile_photo_url,
-                'club' => $user->club->name ?? null,
-                'stats' => [
+                'cover_photo' => $user->cover_photo_path ? url('storage/' . $user->cover_photo_path) : null,
+                'category' => $user->category ? [
+                    'id' => $user->category->id,
+                    'name' => $user->category->name,
+                    'is_service_provider' => $user->category->is_service_provider
+                ] : null,
+
+                // Professional Details
+                'professional' => [
+                    'club' => $user->club ? [
+                        'id' => $user->club->id,
+                        'name' => $user->club->name,
+                        'logo' => $user->club->logo_url
+                    ] : null,
+                    'team_id' => $user->team_id,
+                    'position' => $user->position,
+                    'number' => $user->number,
+                    'nationality' => $user->nationality,
+                    'stats' => $user->stats,
+                ],
+
+                'stats' => [ // Social Stats
                     'posts' => $user->posts_count,
                     'followers' => $user->followers_count,
                     'following' => $user->following_count,
@@ -58,8 +78,8 @@ class ProfileController extends Controller
                 'gallery' => $user->posts->map(function ($post) {
                     return [
                         'id' => $post->id,
-                        'image' => $post->image, // Accessor should handle full URL
-                        'type' => 'image', // Assuming posts are images for now
+                        'image' => $post->image,
+                        'type' => 'image',
                     ];
                 }),
             ],

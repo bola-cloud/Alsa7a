@@ -77,6 +77,10 @@ Route::prefix('v1')->middleware('set.api.locale')->group(function () {
         Route::get('chat/conversations/{id}', [App\Http\Controllers\Api\V1\ChatController::class, 'show']);
         Route::post('chat/conversations/{id}/messages', [App\Http\Controllers\Api\V1\ChatController::class, 'store']);
 
+        // --- Club Routes ---
+        Route::get('clubs', [App\Http\Controllers\Api\V1\ClubController::class, 'index']);
+        Route::get('clubs/{id}', [App\Http\Controllers\Api\V1\ClubController::class, 'show']);
+
         // --- Provider Actions ---
         Route::get('provider/requests', [App\Http\Controllers\Api\V1\ProviderRequestController::class, 'index']);
         Route::post('provider/requests/{id}/status', [App\Http\Controllers\Api\V1\ProviderRequestController::class, 'updateStatus']);
@@ -93,5 +97,9 @@ Route::prefix('v1')->middleware('set.api.locale')->group(function () {
 
         // --- Event Booking ---
         Route::post('events/{id}/book', [App\Http\Controllers\Api\V1\EventBookingController::class, 'store']);
+
+        // --- Verification ---
+        Route::post('users/verification/upload', [App\Http\Controllers\Api\V1\VerificationController::class, 'upload']);
+        Route::get('users/verification/status', [App\Http\Controllers\Api\V1\VerificationController::class, 'status']);
     });
 });

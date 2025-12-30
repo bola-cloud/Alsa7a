@@ -15,10 +15,12 @@ class Category extends Model
         'image',
         'description',
         'is_service_provider',
+        'requires_verification',
     ];
 
     protected $casts = [
         'is_service_provider' => 'boolean',
+        'requires_verification' => 'boolean',
     ];
 
     /**

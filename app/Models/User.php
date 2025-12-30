@@ -50,6 +50,11 @@ class User extends Authenticatable
         'availability',
         'birth_date',
         'cover_photo_path',
+        // Verification & Approval
+        'is_approved',
+        'verification_status',
+        'verification_documents',
+        'rejection_reason',
     ];
 
     public function projects(): HasMany
@@ -161,6 +166,8 @@ class User extends Authenticatable
         'stats' => 'array',
         'availability' => 'array',
         'is_featured' => 'boolean',
+        'is_approved' => 'boolean',
+        'verification_documents' => 'array',
     ];
 
     /**

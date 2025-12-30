@@ -38,6 +38,15 @@ Route::group([
         Route::resource('leagues', \App\Http\Controllers\Admin\LeagueController::class);
         Route::resource('events', \App\Http\Controllers\Admin\EventController::class);
 
+        // Club Management
+        Route::resource('clubs', \App\Http\Controllers\Admin\ClubController::class);
+
+        // User Verification & Management
+        Route::get('users', [\App\Http\Controllers\Admin\UserController::class, 'index'])->name('users.index');
+        Route::get('users/{user}', [\App\Http\Controllers\Admin\UserController::class, 'show'])->name('users.show');
+        Route::post('users/{user}/approve', [\App\Http\Controllers\Admin\UserController::class, 'approve'])->name('users.approve');
+        Route::post('users/{user}/verify', [\App\Http\Controllers\Admin\UserController::class, 'verifyDocuments'])->name('users.verify');
+
         // Community
         Route::resource('news', \App\Http\Controllers\Admin\NewsController::class);
         Route::get('posts', [\App\Http\Controllers\Admin\PostController::class, 'index'])->name('posts.index');
@@ -48,7 +57,7 @@ Route::group([
 
         // Services & Tickets
         Route::resource('services', \App\Http\Controllers\Admin\ServiceController::class)->only(['index', 'show', 'destroy']);
-        Route::resource('service_requests', \App\Http\Controllers\Admin\ServiceRequestController::class)->only(['index', 'show']);
+        Route::resource('service_requests', \App\Http\Controllers\Admin\ServiceRequestController::class)->only(['index', 'show', 'update']); // Added update
         Route::resource('tickets', \App\Http\Controllers\Admin\TicketController::class)->only(['index', 'show', 'update']);
     });
 });

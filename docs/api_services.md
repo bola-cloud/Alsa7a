@@ -187,9 +187,46 @@ Lists all requests made by the authenticated user.
 **Body:** `body` (string)
 **Response:** Message object.
 
+### Send Message
+**POST** `/chat/conversations/{id}/messages`
+**Body:** `body` (string)
+**Response:** Message object.
+
 ---
 
-## 3. Provider Endpoints (Protected)
+## 3. Club & Profiles
+
+### List Clubs
+**GET** `/clubs`
+
+### Club Details (Roster & Staff)
+**GET** `/clubs/{id}`
+**Response:**
+```json
+{
+    "status": true,
+    "data": {
+        "club": { "id": 1, "name": "Amman FC", "logo_url": "..." },
+        "roster": {
+            "Player": [
+                { "id": 5, "name": "Rami", "position": "GK", "image": "..." }
+            ],
+            "Coach": [
+                { "id": 8, "name": "Coach Ali", "image": "..." }
+            ]
+        }
+    }
+}
+```
+
+### User Profile (Dual View)
+**GET** `/users/{id}/profile`
+**Response:**
+Returns both social `stats` (posts, followers) and `professional` details (club, position, number).
+
+---
+
+## 4. Provider Endpoints (Protected)
 
 ### List Incoming Requests
 **GET** `/provider/requests`
@@ -273,6 +310,33 @@ Lists requests where the logged-in user is the **Provider**.
 }
 ```
 
+### Upload Verification Documents (Protected)
+**POST** `/users/verification/upload`
+**Body:**
+- `documents[]`: file (Required, PDF/Images)
+**Response:**
+```json
+{
+    "status": true,
+    "message": "Documents uploaded. Please wait for admin approval.",
+    "data": { "verification_status": "pending" }
+}
+```
+
+### Check Verification Status (Protected)
+**GET** `/users/verification/status`
+**Response:**
+```json
+{
+    "status": true,
+    "data": {
+        "verification_status": "pending",
+        "is_approved": false,
+        "rejection_reason": null
+    }
+}
+```
+
 ---
 
 ## 5. Community API
@@ -349,3 +413,72 @@ Lists requests where the logged-in user is the **Provider**.
 }
 ```
 
+
+---
+
+## 7. Scenarios & Workflows
+
+### Scenario 1: Service Booking Workflow
+This scenario describes how a user books a service, pays for it, and communicates with the provider.
+
+1.  **Request Service**:
+    - User calls `POST /services/{id}/request` with `scheduled_at`.
+    - **Status**: `pending`.
+    - **Notification**: Provider receives `ServiceRequested`.
+
+2.  **Provider Decision**:
+    - Provider calls `POST /provider/requests/{id}/status`.
+    - **Status**: `accepted` (or `rejected`).
+    - **Notification**: User receives `RequestStatusUpdated`.
+
+3.  **Payment**:
+    - User calls `POST /requests/{id}/pay` (Mock payment).
+    - **Logic**: Can only pay if status is `accepted`.
+    - **Result**: `payment_status` becomes `paid`. Chat `Conversation` is created/unlocked.
+
+4.  **Chat**:
+    - User/Provider calls `GET /chat/conversations` to find the chat.
+    - They exchange messages via `POST /chat/conversations/{id}/messages`.
+    - Real-time updates via `MessageSent` event (Laravel Reverb).
+
+### Scenario 2: Club & Player Dual Profiles
+This scenario details the structure of Club Rosters and Player Profiles.
+
+1.  **Club Profile**:
+    - `GET /clubs/{id}` returns the club's details (Logo, City, etc.).
+    - **Roster**:The API automatically groups all users belonging to this club by their `Category`.
+    - **Example Response**:
+      ```json
+      "roster": {
+          "Player": [ ... ],
+          "Coach": [ ... ],
+          "Physiotherapist": [ ... ]
+      }
+      ```
+
+2.  **Player (Dual) Profile**:
+    - Players are `Users` with a specific `category_id`.
+    - `GET /users/{id}/profile` returns a response split into two sections:
+        - **Social**: "Instagram-like" data (Bio, Followers, Gallery).
+        - **Professional**: "Player Card" data (Club, Position, Number, Stats).
+    - This allows usage in different contexts (Social Feed vs Match Lineup).
+
+### Scenario 3: User Verification & Approval
+This scenario describes the strict user onboarding process.
+
+1.  **Registration (Pending Approval)**:
+    - User registers via `POST /auth/register`.
+    - Response includes `"requires_approval": true`.
+    - User **cannot login** yet (returns 403).
+
+2.  **Document Verification (If Verified Category)**:
+    - If user selected a constrained Category (e.g., "Coach"):
+    - User calls `POST /users/verification/upload` with ID/Certificate files.
+    - Status updates to `pending` in Admin Panel.
+
+3.  **Admin Approval**:
+    - Admin reviews documents in Dashboard.
+    - Admin clicks "Approve". `is_approved` becomes `true`.
+
+4.  **Access Granted**:
+    - User can now successfully `POST /auth/login`.
