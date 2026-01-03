@@ -53,6 +53,7 @@ return [
         'service_commission' => 'عمولة الخدمة (%)',
         'general' => 'إعدادات عامة',
         'commission' => 'إعدادات العمولة',
+        'contact' => 'إعدادات التواصل',
     ],
 
     'leagues' => [

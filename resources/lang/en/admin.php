@@ -53,6 +53,7 @@ return [
         'service_commission' => 'Service Commission (%)',
         'general' => 'General Settings',
         'commission' => 'Commission Settings',
+        'contact' => 'Contact Settings',
     ],
 
     'leagues' => [
