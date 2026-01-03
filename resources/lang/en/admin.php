@@ -46,6 +46,13 @@ return [
 
     'settings' => [
         'index' => 'Settings',
+        'site_name' => 'Site Name',
+        'site_logo' => 'Site Logo',
+        'site_icon' => 'Site Icon',
+        'manual_user_approval' => 'Manual User Approval',
+        'service_commission' => 'Service Commission (%)',
+        'general' => 'General Settings',
+        'commission' => 'Commission Settings',
     ],
 
     'leagues' => [

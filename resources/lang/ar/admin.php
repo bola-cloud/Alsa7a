@@ -46,6 +46,13 @@ return [
 
     'settings' => [
         'index' => 'الإعدادات',
+        'site_name' => 'اسم الموقع',
+        'site_logo' => 'شعار الموقع',
+        'site_icon' => 'أيقونة الموقع',
+        'manual_user_approval' => 'الموافقة اليدوية على المستخدمين',
+        'service_commission' => 'عمولة الخدمة (%)',
+        'general' => 'إعدادات عامة',
+        'commission' => 'إعدادات العمولة',
     ],
 
     'leagues' => [

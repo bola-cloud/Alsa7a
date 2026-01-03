@@ -35,6 +35,9 @@ Route::prefix('v1')->middleware('set.api.locale')->group(function () {
     // Categories listing
     Route::get('categories', [CategoryController::class, 'index']);
 
+    // General Settings
+    Route::get('settings', [App\Http\Controllers\Api\V1\SettingController::class, 'index']);
+
     // --- Services Routes ---
 
     // Public Services
@@ -68,7 +71,10 @@ Route::prefix('v1')->middleware('set.api.locale')->group(function () {
 
         // --- Service User Actions ---
         Route::post('services/{id}/request', [App\Http\Controllers\Api\V1\ServiceRequestController::class, 'store']);
-        Route::post('requests/{id}/pay', [App\Http\Controllers\Api\V1\ServiceRequestController::class, 'pay']); // Payment
+        // Route::post('requests/{id}/pay', [App\Http\Controllers\Api\V1\ServiceRequestController::class, 'pay']); // Payment Old
+        Route::post('requests/pay', [App\Http\Controllers\Api\V1\PaymentController::class, 'pay']); // New Thawani Payload
+        Route::get('payment/status', [App\Http\Controllers\Api\V1\PaymentController::class, 'checkStatus']);
+        Route::post('payment/webhook', [App\Http\Controllers\Api\V1\PaymentController::class, 'webhook']);
         Route::get('my-requests', [App\Http\Controllers\Api\V1\ServiceRequestController::class, 'index']);
         Route::post('services/{id}/rate', [App\Http\Controllers\Api\V1\ServiceReviewController::class, 'store']);
 

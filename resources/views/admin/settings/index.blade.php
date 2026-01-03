@@ -15,14 +15,14 @@
                 @foreach($settings as $group => $groupSettings)
                     <div class="card modern-card mb-4">
                         <div class="card-header">
-                            <h4 class="card-title text-capitalize">{{ $group }} Settings</h4>
+                            <h4 class="card-title text-capitalize">{{ __('admin.settings.' . $group) }}</h4>
                         </div>
                         <div class="card-body">
                             <div class="row">
                                 @foreach($groupSettings as $setting)
                                     <div class="col-md-6 mb-3">
                                         <label for="{{ $setting->key }}"
-                                            class="form-label font-weight-bold">{{ $setting->label ?? $setting->key }}</label>
+                                            class="form-label font-weight-bold">{{ __($setting->label) ?? $setting->key }}</label>
 
                                         @if($setting->type === 'text')
                                             <input type="text" name="{{ $setting->key }}" id="{{ $setting->key }}" class="form-control"
@@ -31,6 +31,15 @@
                                         @elseif($setting->type === 'textarea')
                                             <textarea name="{{ $setting->key }}" id="{{ $setting->key }}" class="form-control"
                                                 rows="3">{{ $setting->value }}</textarea>
+
+                                        @elseif($setting->type === 'select')
+                                            <select name="{{ $setting->key }}" id="{{ $setting->key }}" class="form-control">
+                                                @foreach($setting->options as $value => $label)
+                                                    <option value="{{ $value }}" {{ $setting->value == $value ? 'selected' : '' }}>
+                                                        {{ __($label) }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
 
                                         @elseif($setting->type === 'image')
                                             <div class="d-flex align-items-center">

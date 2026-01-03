@@ -15,13 +15,26 @@ class SettingController extends Controller
 
     public function update(Request $request)
     {
-        // Save settings to DB or JSON file
-        // For now, this is a placeholder implementation as 'setting()' helper was a mock.
-        // Real implementation would involve: Setting::updateOrCreate(['key' => $key], ['value' => $val]);
+        $inputs = $request->except('_token');
 
-        // Example:
-        // Setting::set('manual_user_approval', $request->has('manual_user_approval'));
-        // Setting::set('service_commission_rate', $request->service_commission_rate);
+        foreach ($inputs as $key => $value) {
+            $setting = \App\Models\Setting::where('key', $key)->first();
+
+            if ($setting) {
+                if ($request->hasFile($key)) {
+                    // Handle File Upload
+                    $path = $request->file($key)->store('settings', 'public'); // Store in storage/app/public/settings
+                    $setting->value = 'storage/' . $path; // or just $path if you use accessor handles 'storage/'
+                    // Note: In Setting model accessor, I used 'storage/' prefix, so here I should store relative path? 
+                    // Let's check Accessor: return asset('storage/' . $this->value);
+                    // If I store 'settings/filename.jpg', it becomes asset('storage/settings/filename.jpg'). Correct.
+                    $setting->value = $path;
+                } else {
+                    $setting->value = $value;
+                }
+                $setting->save();
+            }
+        }
 
         return redirect()->back()->with('success', 'Settings updated successfully');
     }

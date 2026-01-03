@@ -35,8 +35,8 @@ Route::group([
         Route::resource('categories', CategoryController::class);
         Route::resource('sports', SportController::class);
         Route::resource('sliders', SliderController::class);
-        Route::resource('leagues', \App\Http\Controllers\Admin\LeagueController::class);
-        Route::resource('events', \App\Http\Controllers\Admin\EventController::class);
+        Route::resource('leagues', LeagueController::class);
+        Route::resource('events', EventController::class);
 
         // Club Management
         Route::resource('clubs', \App\Http\Controllers\Admin\ClubController::class);
@@ -54,6 +54,9 @@ Route::group([
         Route::post('posts/{post}/toggle', [\App\Http\Controllers\Admin\PostController::class, 'toggle'])->name('posts.toggle');
         Route::get('settings', [App\Http\Controllers\Admin\SettingController::class, 'index'])->name('settings.index');
         Route::post('settings', [App\Http\Controllers\Admin\SettingController::class, 'update'])->name('settings.update');
+
+        // Reports
+        Route::get('reports/financial', [App\Http\Controllers\Admin\ReportController::class, 'financial'])->name('reports.financial');
 
         // Services & Tickets
         Route::resource('services', \App\Http\Controllers\Admin\ServiceController::class)->only(['index', 'show', 'destroy']);

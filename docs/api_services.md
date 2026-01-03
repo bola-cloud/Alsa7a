@@ -149,6 +149,22 @@ Lists all requests made by the authenticated user.
 }
 ```
 
+### Global Settings
+**GET** `/settings`
+**Response:**
+```json
+{
+    "status": true,
+    "data": {
+        "site_name": "Alsa7a",
+        "site_logo": "http://...",
+        "site_icon": "http://...",
+        "service_commission": "10",
+        "currency": "EGP"
+    }
+}
+```
+
 ### Rate a Service
 **POST** `/services/{id}/rate`
 **Body:**
@@ -163,16 +179,28 @@ Lists all requests made by the authenticated user.
 }
 ```
 
-### Pay for Service
-**POST** `/requests/{id}/pay`
+### Pay for Service (Thawani)
+**POST** `/requests/pay`
+**Body:**
+- `service_request_id`: int (Required)
+
 **Response:**
 ```json
 {
     "status": true,
-    "message": "Payment successful",
-    "data": { "service_request": {...}, "conversation_id": 10 }
+    "message": "Payment session created",
+    "data": {
+        "session_id": "sess_12345",
+        "redirect_url": "https://uatcheckout.thawani.al/pay/sess_12345?key=..."
+    }
 }
 ```
+**Flow:**
+1. Call API -> Get `redirect_url`.
+2. Open URL in WebView.
+3. User pays.
+4. Thawani redirects to `success_url` (or `cancel_url`).
+5. Webhook updates status in background.
 
 ### Chat (Conversations)
 **GET** `/chat/conversations`
