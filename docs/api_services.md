@@ -615,3 +615,94 @@ This scenario describes the strict user onboarding process.
 
 4.  **Access Granted**:
     - User can now successfully `POST /auth/login`.
+
+---
+
+## 8. Real-time Chat & WebSockets
+
+The application uses **Laravel Reverb** for real-time WebSocket communication.
+Chat conversations are automatically created when a Service Request is **Accepted**.
+
+### 1. Connection Details
+Frontend clients (e.g., Flutter/React) should connect using a WebSocket client (like `laravel-echo` + `pusher-js`).
+
+*   **Host**: `saha.wasl-x.com`
+*   **Port**: `443`
+*   **Scheme**: `wss` (Secure WebSocket)
+*   **App Key**: (From `.env` or API config)
+*   **Cluster**: `mt1` (Default)
+
+### 2. Channels & Events
+*   **Channel Name**: `private-chat.{conversation_id}`
+    *   *Note*: Laravel Echo automatically prefixes `private-` to the name `chat.{id}`.
+*   **Event Name**: `App\Events\MessageSent` (Default namespace) OR just `.MessageSent` if using dot notation in Echo.
+*   **Payload**:
+    ```json
+    {
+        "message": {
+            "id": 12,
+            "sender_id": 5,
+            "body": "Hello!",
+            "created_at": "...",
+            "sender": { "id": 5, "name": "..." }
+        }
+    }
+    ```
+
+### 3. Chat API Endpoints
+
+#### List Conversations
+**GET** `/chat/conversations`
+Returns a list of conversations for the authenticated user (both Provider and Users).
+**Response:**
+```json
+{
+    "status": true,
+    "data": [
+        {
+            "id": 1,
+            "user_one_id": 5,
+            "user_two_id": 8,
+            "last_message": "Hello...",
+            "updated_at": "...",
+            "user_one": { "id": 5, "name": "Provider" },
+            "user_two": { "id": 8, "name": "User" }
+        }
+    ]
+}
+```
+
+#### Get Messages (History)
+**GET** `/chat/conversations/{id}`
+**Response:** Paginated list of messages (latest first).
+```json
+{
+    "status": true,
+    "data": {
+        "current_page": 1,
+        "data": [
+            {
+                "id": 102,
+                "body": "I am arriving now.",
+                "sender_id": 5,
+                "created_at": "..."
+            }
+        ]
+    }
+}
+```
+
+#### Send Message
+**POST** `/chat/conversations/{id}/messages`
+**Body:**
+- `body`: string (Required)
+
+**Response (201):**
+```json
+{
+    "status": true,
+    "message": "Message sent",
+    "data": { "id": 103, "body": "Ok great!", ... }
+}
+```
+**Side Effect**: Triggers `MessageSent` event on channel `private-chat.{id}`.

@@ -79,6 +79,8 @@ class PaymentController extends Controller
                     'data' => [
                         'session_id' => $session['data']['session_id'],
                         'redirect_url' => $redirectUrl,
+                        'success_url' => route('payment.success'),
+                        'cancel_url' => route('payment.cancel'),
                     ]
                 ]);
             }
