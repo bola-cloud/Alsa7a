@@ -45,13 +45,20 @@ Route::prefix('v1')->middleware('set.api.locale')->group(function () {
     Route::get('services/{id}', [App\Http\Controllers\Api\V1\ServiceController::class, 'show']);
 
     // Public Profile
+    // Public Profile
     Route::get('users/{id}/profile', [App\Http\Controllers\Api\V1\ProfileController::class, 'show']);
+    Route::get('users/{id}/posts', [App\Http\Controllers\Api\V1\PostController::class, 'userPosts']);
 
     // --- Community Routes (Public) ---
     Route::get('news', [App\Http\Controllers\Api\V1\NewsController::class, 'index']);
     Route::get('news/{id}', [App\Http\Controllers\Api\V1\NewsController::class, 'show']);
-    Route::get('posts', [App\Http\Controllers\Api\V1\PostController::class, 'index']);
+    Route::get('posts', [App\Http\Controllers\Api\V1\PostController::class, 'index']); // Public Feed of Profile Posts
     Route::get('posts/{id}', [App\Http\Controllers\Api\V1\PostController::class, 'show']);
+
+    // Community Blogs (Categorized)
+    Route::get('community/categories', [App\Http\Controllers\Api\V1\CommunityController::class, 'getCategories']);
+    Route::get('community/posts', [App\Http\Controllers\Api\V1\CommunityController::class, 'index']);
+    Route::get('community/posts/{id}', [App\Http\Controllers\Api\V1\CommunityController::class, 'show']);
 
     // --- Events Routes (Public) ---
     Route::get('events', [App\Http\Controllers\Api\V1\EventController::class, 'index']);
@@ -63,6 +70,8 @@ Route::prefix('v1')->middleware('set.api.locale')->group(function () {
             return $request->user();
         });
 
+        Route::get('my-profile', [App\Http\Controllers\Api\V1\ProfileController::class, 'me']);
+
         // Logout route under /api/v1/auth/logout
         Route::post('auth/logout', [AuthController::class, 'logout']);
 
@@ -70,6 +79,7 @@ Route::prefix('v1')->middleware('set.api.locale')->group(function () {
         Route::post('questions/answers', [QuestionController::class, 'submit']);
 
         // --- Service User Actions ---
+        Route::post('services', [App\Http\Controllers\Api\V1\ServiceController::class, 'store']); // Create Service
         Route::post('services/{id}/request', [App\Http\Controllers\Api\V1\ServiceRequestController::class, 'store']);
         // Route::post('requests/{id}/pay', [App\Http\Controllers\Api\V1\ServiceRequestController::class, 'pay']); // Payment Old
         Route::post('requests/pay', [App\Http\Controllers\Api\V1\PaymentController::class, 'pay']); // New Thawani Payload
@@ -95,11 +105,17 @@ Route::prefix('v1')->middleware('set.api.locale')->group(function () {
         Route::post('users/profile', [App\Http\Controllers\Api\V1\ProfileController::class, 'update']);
         Route::post('users/{id}/follow', [App\Http\Controllers\Api\V1\ProfileController::class, 'follow']);
 
-        // --- Community Actions ---
-        Route::post('posts', [App\Http\Controllers\Api\V1\PostController::class, 'store']);
+        // --- Post/Community Actions ---
+        Route::post('posts', [App\Http\Controllers\Api\V1\PostController::class, 'store']); // Profile Posts (Instagram)
+        Route::post('posts/{id}', [App\Http\Controllers\Api\V1\PostController::class, 'update']);
         Route::delete('posts/{id}', [App\Http\Controllers\Api\V1\PostController::class, 'destroy']);
         Route::post('posts/{id}/like', [App\Http\Controllers\Api\V1\PostController::class, 'like']);
         Route::post('posts/{id}/comment', [App\Http\Controllers\Api\V1\PostController::class, 'comment']);
+
+        // --- Community Blog Actions ---
+        Route::post('community/posts', [App\Http\Controllers\Api\V1\CommunityController::class, 'store']);
+        Route::post('community/posts/{id}', [App\Http\Controllers\Api\V1\CommunityController::class, 'update']);
+        Route::delete('community/posts/{id}', [App\Http\Controllers\Api\V1\CommunityController::class, 'destroy']);
 
         // --- Event Booking ---
         Route::post('events/{id}/book', [App\Http\Controllers\Api\V1\EventBookingController::class, 'store']);

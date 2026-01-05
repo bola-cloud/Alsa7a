@@ -143,6 +143,14 @@ class User extends Authenticatable
     }
 
     /**
+     * Answers submitted by the user
+     */
+    public function answers()
+    {
+        return $this->hasMany(QuestionAnswer::class);
+    }
+
+    /**
      * The attributes that should be hidden for serialization.
      *
      * @var array<int, string>

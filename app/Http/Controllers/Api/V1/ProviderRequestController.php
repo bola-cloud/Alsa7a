@@ -63,6 +63,18 @@ class ProviderRequestController extends Controller
             $serviceRequest->requester->notify(new RequestStatusUpdated($serviceRequest));
         }
 
+        // Create Chat Conversation if Accepted
+        if ($request->status === 'accepted') {
+            $existingStub = \App\Models\Conversation::where('service_request_id', $serviceRequest->id)->exists();
+            if (!$existingStub) {
+                \App\Models\Conversation::create([
+                    'service_request_id' => $serviceRequest->id,
+                    'user_one_id' => $request->user()->id, // Provider
+                    'user_two_id' => $serviceRequest->user_id, // Requester
+                ]);
+            }
+        }
+
         return response()->json([
             'status' => true,
             'message' => 'Request status updated to ' . $request->status,

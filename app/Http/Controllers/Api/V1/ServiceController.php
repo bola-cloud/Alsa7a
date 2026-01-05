@@ -74,4 +74,61 @@ class ServiceController extends Controller
             'message' => 'Service details retrieved successfully'
         ]);
     }
+    /**
+     * Create a new service (Protected: Provider).
+     */
+    public function store(Request $request)
+    {
+        $user = $request->user();
+
+        // Optional: Check if user is a provider or approved
+        // if (!$user->is_approved) { ... }
+
+        $validator = \Illuminate\Support\Facades\Validator::make($request->all(), [
+            'title' => 'required|string|max:255',
+            'description' => 'required|string',
+            'sport_id' => 'required|exists:sports,id',
+            'price' => 'required|numeric|min:0',
+            'days_available' => 'required|array', // ['MON', 'TUE']
+            'days_available.*' => 'string|in:SUN,MON,TUE,WED,THU,FRI,SAT',
+            'location' => 'nullable|string|max:255',
+            'gallery' => 'nullable|array',
+            'gallery.*' => 'image|max:10240', // Limit 10MB per image
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['status' => false, 'errors' => $validator->errors()], 422);
+        }
+
+        $service = Service::create([
+            'provider_id' => $user->id,
+            'club_id' => $user->club_id, // If associated with a club
+            'sport_id' => $request->sport_id,
+            'title' => $request->title,
+            'slug' => \Illuminate\Support\Str::slug($request->title . '-' . uniqid()),
+            'description' => $request->description,
+            'location' => $request->location,
+            'days_available' => $request->days_available,
+            'price' => $request->price,
+            'currency' => 'JOD', // Default or from settings
+            'is_active' => true,
+        ]);
+
+        // Handle Gallery
+        if ($request->hasFile('gallery')) {
+            foreach ($request->file('gallery') as $file) {
+                $path = $file->store('services', 'public');
+                $service->media()->create([
+                    'url' => 'storage/' . $path,
+                    'type' => 'image', // Assuming mostly images from context, but could check mime
+                ]);
+            }
+        }
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Service created successfully',
+            'data' => $service->load('media')
+        ], 201);
+    }
 }

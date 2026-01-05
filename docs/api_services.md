@@ -256,6 +256,30 @@ Returns both social `stats` (posts, followers) and `professional` details (club,
 
 ## 4. Provider Endpoints (Protected)
 
+### Create Service
+**POST** `/services`
+**Body:**
+- `title`: string
+- `description`: string
+- `sport_id`: int
+- `price`: number
+- `days_available`: array of strings (e.g., `["MON", "WED"]`, valid: SUN..SAT)
+- `location`: string (optional)
+- `gallery[]`: array of images
+
+**Response:**
+```json
+{
+    "status": true,
+    "message": "Service created successfully",
+    "data": {
+        "id": 15,
+        "title": "My New Service",
+        "media": [ ... ]
+    }
+}
+```
+
 ### List Incoming Requests
 **GET** `/provider/requests`
 Lists requests where the logged-in user is the **Provider**.
@@ -290,6 +314,14 @@ Lists requests where the logged-in user is the **Provider**.
         "profile_title": "Pro Coach",
         "bio": "Experienced football coach...",
         "image": "http://...",
+        "questions_data": [
+            {
+                "question_id": 1,
+                "question": "Years of Experience?",
+                "type": "text",
+                "answer": "5 Years"
+            }
+        ],
         "stats": {
             "posts": 102,
             "followers": 5413,
@@ -302,6 +334,13 @@ Lists requests where the logged-in user is the **Provider**.
     }
 }
 ```
+
+### Get My Profile (Protected)
+**GET** `/my-profile`
+**Response:** Same structure as `/users/{id}/profile` but for the authenticated user, including:
+- `questions_data` (Questions answered by the user)
+- `professional` details
+- `gallery` (Posts)
 
 ### Update My Profile (Protected)
 **POST** `/users/profile`
@@ -324,6 +363,21 @@ Lists requests where the logged-in user is the **Provider**.
 {
     "status": true,
     "message": "Profile updated successfully"
+}
+```
+
+### Get User Posts (Pagination)
+**GET** `/users/{id}/posts`
+**Response:** Standard pagination (data property contains array of posts).
+```json
+{
+    "status": true,
+    "data": {
+        "current_page": 1,
+        "data": [
+            { "id": 1, "content": "Hello", "type": "text", "is_liked": false }
+        ]
+    }
 }
 ```
 
@@ -368,28 +422,8 @@ Lists requests where the logged-in user is the **Provider**.
 ---
 
 ## 5. Community API
-
-### Get News (Public)
-**GET** `/news`
-**Params:** `sport_id` (optional), `page`
-**Response:**
-```json
-{
-    "status": true,
-    "data": {
-        "data": [
-            {
-                "id": 1,
-                "title": "Football Match Result",
-                "content": "...",
-                "likes_count": 50,
-                "comments_count": 10,
-                "is_liked": false
-            }
-        ]
-    }
-}
-```
+### Profile Posts (Instagram-like)
+The interactions below apply to the `Post` entity (Profile/Media posts).
 
 ### Community Feed (Fan Zone)
 **GET** `/posts`
@@ -398,13 +432,84 @@ Lists requests where the logged-in user is the **Provider**.
 ### Create Post (Protected)
 **POST** `/posts`
 **Body:**
-- `content`: string
+- `content`: string (optional if media provided)
 - `image`: file (optional)
 - `video`: file (optional)
+
+**Response:**
+```json
+{
+    "status": true,
+    "message": "Post created successfully",
+    "data": { "id": 10, "type": "image", ... }
+}
+```
+
+### Update Post (Protected)
+**POST** `/posts/{id}` (Method spoofing for files)
+**Body:**
+- `content`: string (optional)
+- `image`: file (optional, replaces old)
+- `video`: file (optional, replaces old)
+
+**Response:**
+```json
+{
+    "status": true,
+    "message": "Post updated successfully"
+}
+```
+
+### Delete Post (Protected)
+**DELETE** `/posts/{id}`
+**Response:**
+```json
+{
+    "status": true,
+    "message": "Post deleted successfully"
+}
+```
 
 ### Interact (Protected)
 **POST** `/posts/{id}/like` - Toggle like.
 **POST** `/posts/{id}/comment` - **Body**: `body` (string).
+
+---
+
+### Community Blogs (Facebook-like)
+Categorized discussions and articles.
+
+### Get Categories
+**GET** `/community/categories`
+**Response:**
+```json
+{
+    "status": true,
+    "data": [
+        { "id": 1, "name": "General", "image": "..." }
+    ]
+}
+```
+
+### Get Community Posts
+**GET** `/community/posts`
+**Params:**
+- `category_id`: int (Optional filter)
+- `page`: int
+
+### Create Community Post
+**POST** `/community/posts`
+**Body:**
+- `community_category_id`: int
+- `content`: string
+- `image`: file (Optional)
+
+### Update Community Post
+**POST** `/community/posts/{id}` (Method spoofing)
+**Body:** `content`, `image`, `community_category_id`.
+
+### Delete Community Post
+**DELETE** `/community/posts/{id}`
 
 ---
 

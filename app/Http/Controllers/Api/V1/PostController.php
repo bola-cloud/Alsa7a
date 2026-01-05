@@ -41,6 +41,37 @@ class PostController extends Controller
     }
 
     /**
+     * List posts by a specific user (Public).
+     */
+    public function userPosts(Request $request, $id)
+    {
+        $query = Post::where('user_id', $id)
+            ->withCount(['likes', 'comments'])
+            ->where('is_hidden', false)
+            ->latest();
+
+        $posts = $query->paginate(9); // Pagination as requested
+
+        // Check is_liked status
+        if ($user = $request->user('sanctum')) {
+            $updatedItems = $posts->getCollection()->map(function ($post) use ($user) {
+                $post->is_liked = $post->likes()->where('user_id', $user->id)->exists();
+                return $post;
+            });
+            $posts->setCollection($updatedItems);
+        }
+
+        return response()->json([
+            'status' => true,
+            'data' => $posts,
+            'message' => 'User posts retrieved successfully'
+        ]);
+    }
+
+    /**
+     * Create a new post (Protected).
+     */
+    /**
      * Create a new post (Protected).
      */
     public function store(Request $request)
@@ -48,7 +79,7 @@ class PostController extends Controller
         $validator = Validator::make($request->all(), [
             'content' => 'nullable|string|max:1000',
             'image' => 'nullable|image|max:10240', // 10MB
-            'video' => 'nullable|mimetypes:video/avi,video/mpeg,video/quicktime,video/mp4|max:20480',
+            'video' => 'nullable|mimetypes:video/avi,video/mpeg,video/quicktime,video/mp4|max:51200', // 50MB
         ]);
 
         if ($validator->fails()) {
@@ -59,25 +90,87 @@ class PostController extends Controller
             return response()->json(['status' => false, 'message' => 'Post cannot be empty'], 422);
         }
 
-        $postData = [
-            'user_id' => $request->user()->id,
-            'content' => $request->input('content', ''),
-            'is_hidden' => false,
-        ];
+        $type = 'text';
+        $path = null;
 
         if ($request->hasFile('image')) {
-            $postData['image'] = $request->file('image')->store('posts', 'public');
+            $type = 'image';
+            $path = $request->file('image')->store('posts', 'public');
         } elseif ($request->hasFile('video')) {
-            $postData['image'] = $request->file('video')->store('posts/videos', 'public');
+            $type = 'video';
+            $path = $request->file('video')->store('posts/videos', 'public');
         }
 
-        $post = Post::create($postData);
+        $post = Post::create([
+            'user_id' => $request->user()->id,
+            'content' => $request->input('content', ''),
+            'image' => $path, // Used for both image and video path
+            'type' => $type,
+            'is_hidden' => false,
+        ]);
 
         return response()->json([
             'status' => true,
             'message' => 'Post created successfully',
             'data' => $post->load('user')
         ], 201);
+    }
+
+    /**
+     * Update a post (Protected).
+     */
+    public function update(Request $request, $id)
+    {
+        $post = Post::where('user_id', $request->user()->id)->find($id);
+
+        if (!$post) {
+            return response()->json(['status' => false, 'message' => 'Post not found or unauthorized'], 404);
+        }
+
+        $validator = Validator::make($request->all(), [
+            'content' => 'nullable|string|max:1000',
+            'image' => 'nullable|image|max:10240',
+            'video' => 'nullable|mimetypes:video/avi,video/mpeg,video/quicktime,video/mp4|max:51200',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['status' => false, 'errors' => $validator->errors()], 422);
+        }
+
+        if ($request->hasFile('image')) {
+            // Delete old file
+            if ($post->image) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($post->image);
+            }
+            $post->image = $request->file('image')->store('posts', 'public');
+            $post->type = 'image';
+        } elseif ($request->hasFile('video')) {
+            // Delete old file
+            if ($post->image) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($post->image);
+            }
+            $post->image = $request->file('video')->store('posts/videos', 'public');
+            $post->type = 'video';
+        }
+
+        if ($request->has('content')) {
+            $post->content = $request->input('content', '');
+        }
+
+        // If content is empty and no file exists (and user didn't upload new one), validation logic might be needed
+        // but let's assume if they update content to empty, they must have a file, or if they delete file...
+        // For now preventing completely empty post
+        if (empty($post->content) && empty($post->image)) {
+            return response()->json(['status' => false, 'message' => 'Post cannot be empty'], 422);
+        }
+
+        $post->save();
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Post updated successfully',
+            'data' => $post->load('user')
+        ]);
     }
 
     /**

@@ -11,18 +11,33 @@ use Illuminate\Support\Facades\Storage;
 class ProfileController extends Controller
 {
     /**
+     * Get Current Authenticated User Profile (Protected).
+     */
+    public function me(Request $request)
+    {
+        $user = $request->user();
+
+        // Eager load relationships
+        $user->loadCount(['followers', 'following', 'posts']);
+        $user->load([
+            'club',
+            'category',
+            'answers.question' // Load answers with their questions
+        ]);
+
+        return $this->formatProfileResponse($user, true);
+    }
+
+    /**
      * Get User Profile (Public).
      */
     public function show(Request $request, $id)
     {
         $user = User::withCount(['followers', 'following', 'posts'])
             ->with([
-                'posts' => function ($query) {
-                    // Return latest 9 posts for gallery preview
-                    $query->latest()->limit(9);
-                },
                 'club',
-                'category'
+                'category',
+                'answers.question' // Added answers
             ])
             ->find($id);
 
@@ -39,6 +54,14 @@ class ProfileController extends Controller
             $isFollowing = $request->user('sanctum')->following()->where('following_id', $user->id)->exists();
         }
 
+        return $this->formatProfileResponse($user, $isFollowing);
+    }
+
+    /**
+     * Helper to format profile response.
+     */
+    protected function formatProfileResponse($user, $isFollowing)
+    {
         return response()->json([
             'status' => true,
             'data' => [
@@ -69,19 +92,23 @@ class ProfileController extends Controller
                     'stats' => $user->stats,
                 ],
 
+                // Questions & Answers
+                'questions_data' => $user->answers->map(function ($answer) {
+                    return [
+                        'question_id' => $answer->question_id,
+                        'question' => $answer->question->question ?? null, // Ensure question relation is loaded
+                        'type' => $answer->question->type ?? null,
+                        'answer' => $answer->answer,
+                    ];
+                }),
+
                 'stats' => [ // Social Stats
                     'posts' => $user->posts_count,
                     'followers' => $user->followers_count,
                     'following' => $user->following_count,
                 ],
                 'is_following' => $isFollowing,
-                'gallery' => $user->posts->map(function ($post) {
-                    return [
-                        'id' => $post->id,
-                        'image' => $post->image,
-                        'type' => 'image',
-                    ];
-                }),
+                // 'gallery' removed as per request (use GET /users/{id}/posts)
             ],
             'message' => 'Profile retrieved successfully'
         ]);

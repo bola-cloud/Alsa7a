@@ -13,7 +13,8 @@ class Post extends Model
         'user_id',
         'content',
         'image',
-        'is_hidden'
+        'is_hidden',
+        'type'
     ];
 
     protected $casts = [
