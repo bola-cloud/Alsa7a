@@ -7,7 +7,8 @@
             <div class="row breadcrumbs-top">
                 <div class="breadcrumb-wrapper col-12">
                     <ol class="breadcrumb bg-transparent mb-0 pl-0">
-                        <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">{{ __('admin.menu.dashboard') }}</a>
+                        <li class="breadcrumb-item"><a
+                                href="{{ route('admin.dashboard') }}">{{ __('admin.menu.dashboard') }}</a>
                         </li>
                         <li class="breadcrumb-item"><a
                                 href="{{ route('admin.tickets.index') }}">{{ __('admin.tickets.title') }}</a></li>
@@ -25,7 +26,8 @@
                     <div class="card-header">
                         <h4 class="card-title">{{ $ticket->subject }}</h4>
                         <p class="text-muted mb-0">From: {{ $ticket->user->name ?? 'Unknown' }} | Date:
-                            {{ $ticket->created_at->format('Y-m-d H:i') }}</p>
+                            {{ $ticket->created_at->format('Y-m-d H:i') }}
+                        </p>
                     </div>
                     <div class="card-body">
                         <h5>Message:</h5>

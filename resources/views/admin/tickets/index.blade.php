@@ -7,7 +7,8 @@
             <div class="row breadcrumbs-top">
                 <div class="breadcrumb-wrapper col-12">
                     <ol class="breadcrumb bg-transparent mb-0 pl-0">
-                        <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">{{ __('admin.menu.dashboard') }}</a>
+                        <li class="breadcrumb-item"><a
+                                href="{{ route('admin.dashboard') }}">{{ __('admin.menu.dashboard') }}</a>
                         </li>
                         <li class="breadcrumb-item active">{{ __('admin.tickets.title') }}</li>
                     </ol>
@@ -34,33 +35,33 @@
                             </thead>
                             <tbody>
                                 @forelse($tickets as $ticket)
-                                                            <tr>
-                                                                <td>{{ $loop->iteration }}</td>
-                                                                <td>{{ $ticket->subject }}</td>
-                                                                <td>{{ $ticket->user->name ?? '-' }}</td>
-                                                                <td>
-                                                                    <span class="badge badge-warning">{{ $ticket->priority }}</span>
-                                                                </td>
-                                                                <td>
-                                                                    @php
-                                                                        $statusColor = match ($ticket->status) {
-                                                                            'open' => 'success',
-                                                                            'in_progress' => 'info',
-                                                                            'resolved' => 'primary',
-                                                                            'closed' => 'secondary',
-                                                                            default => 'secondary'
-                                                                        };
-                                                                    @endphp
-                                     <span
-                                                                        class="badge badge-{{ $statusColor }}">{{ __('admin.status.' . $ticket->status) }}</span>
-                                                                </td>
-                                                                <td>
-                                                                    <a href="{{ route('admin.tickets.show', $ticket->id) }}"
-                                                                        class="btn btn-sm btn-info">
-                                                                        <i class="la la-eye"></i>
-                                                                    </a>
-                                                                </td>
-                                                            </tr>
+                                    <tr>
+                                        <td>{{ $loop->iteration }}</td>
+                                        <td>{{ $ticket->subject }}</td>
+                                        <td>{{ $ticket->user->name ?? '-' }}</td>
+                                        <td>
+                                            <span class="badge badge-warning">{{ $ticket->priority }}</span>
+                                        </td>
+                                        <td>
+                                            @php
+                                                $statusColor = match ($ticket->status) {
+                                                    'open' => 'success',
+                                                    'in_progress' => 'info',
+                                                    'resolved' => 'primary',
+                                                    'closed' => 'secondary',
+                                                    default => 'secondary'
+                                                };
+                                            @endphp
+                                            <span
+                                                class="badge badge-{{ $statusColor }}">{{ __('admin.status.' . $ticket->status) }}</span>
+                                        </td>
+                                        <td>
+                                            <a href="{{ route('admin.tickets.show', $ticket->id) }}"
+                                                class="btn btn-sm btn-info">
+                                                <i class="la la-eye"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
                                 @empty
                                     <tr>
                                         <td colspan="6" class="text-center">{{ __('admin.categories.no_records') }}</td>

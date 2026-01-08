@@ -10,7 +10,7 @@
                         <div class="breadcrumb-wrapper col-12">
                             <ol class="breadcrumb">
                                 <li class="breadcrumb-item"><a
-                                        href="{{ route('dashboard') }}">{{ __('admin.menu.dashboard') }}</a></li>
+                                        href="{{ route('admin.dashboard') }}">{{ __('admin.menu.dashboard') }}</a></li>
                                 <li class="breadcrumb-item"><a
                                         href="{{ route('admin.events.index') }}">{{ __('admin.events.index') }}</a></li>
                                 <li class="breadcrumb-item active">{{ $event->title }}</li>

@@ -38,8 +38,7 @@
 
                     <div class="card-body">
                         <h5 class="card-title">{{ $category->name }}</h5>
-                        <p class="text-muted small">
-                            {{ Str::limit($category->description, 50) ?? 'No description' }}
+                        {{ Str::limit($category->description, 50) ?? __('admin.messages.no_description') }}
                         </p>
 
                         <div class="card-actions">

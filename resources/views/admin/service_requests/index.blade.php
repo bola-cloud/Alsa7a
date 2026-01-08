@@ -7,7 +7,7 @@
             <div class="row breadcrumbs-top">
                 <div class="breadcrumb-wrapper col-12">
                     <ol class="breadcrumb bg-transparent mb-0 pl-0">
-                        <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">{{ __('admin.menu.dashboard') }}</a></li>
+                        <li class="breadcrumb-item"><a href="{{ route('admin.dashboard') }}">{{ __('admin.menu.dashboard') }}</a></li>
                         <li class="breadcrumb-item active">{{ __('admin.service_requests.title') }}</li>
                     </ol>
                 </div>

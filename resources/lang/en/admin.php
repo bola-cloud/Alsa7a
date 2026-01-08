@@ -48,6 +48,9 @@ return [
         'yes' => 'Yes',
         'no' => 'No',
         'no_records' => 'No matching records found',
+        'provider' => 'Provider',
+        'description' => 'Description',
+        'is_service_provider' => 'Is Service Provider',
     ],
     'sports' => [
         'index' => 'Sports',
@@ -139,6 +142,7 @@ return [
         'updated_successfully' => 'Updated successfully',
         'deleted_successfully' => 'Deleted successfully',
         'confirm_delete' => 'Are you sure you want to delete this item?',
+        'no_description' => 'No description available',
     ],
     'status' => [
         'pending' => 'Pending',

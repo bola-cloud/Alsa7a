@@ -7,7 +7,8 @@
             <div class="row breadcrumbs-top">
                 <div class="breadcrumb-wrapper col-12">
                     <ol class="breadcrumb bg-transparent mb-0 pl-0">
-                        <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">{{ __('admin.menu.dashboard') }}</a>
+                        <li class="breadcrumb-item"><a
+                                href="{{ route('admin.dashboard') }}">{{ __('admin.menu.dashboard') }}</a>
                         </li>
                         <li class="breadcrumb-item active">{{ __('admin.news.title') }}</li>
                     </ol>
@@ -85,7 +86,8 @@
                                 @empty
                                     <tr>
                                         <td colspan="5" class="text-center p-3 text-muted">
-                                            {{ __('admin.categories.no_records') }}</td>
+                                            {{ __('admin.categories.no_records') }}
+                                        </td>
                                     </tr>
                                 @endforelse
                             </tbody>

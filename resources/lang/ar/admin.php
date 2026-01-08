@@ -48,6 +48,9 @@ return [
         'yes' => 'نعم',
         'no' => 'لا',
         'no_records' => 'لا توجد سجلات مطابقة',
+        'provider' => 'مزود خدمة',
+        'description' => 'الوصف',
+        'is_service_provider' => 'هو مزود خدمة',
     ],
     'sports' => [
         'index' => 'الرياضات',
@@ -139,6 +142,7 @@ return [
         'updated_successfully' => 'تم التحديث بنجاح',
         'deleted_successfully' => 'تم الحذف بنجاح',
         'confirm_delete' => 'هل أنت متأكد أنك تريد حذف هذا العنصر؟',
+        'no_description' => 'لا يوجد وصف متاح',
     ],
     'status' => [
         'pending' => 'قيد الانتظار',
