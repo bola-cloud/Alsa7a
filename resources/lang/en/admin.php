@@ -136,6 +136,13 @@ return [
         'index' => 'Settings',
         'general' => 'General Settings',
         'update' => 'Update Settings',
+        'site_name' => 'Site Name',
+        'site_logo' => 'Site Logo',
+        'site_icon' => 'Site Icon',
+        'manual_user_approval' => 'Manual User Approval',
+        'service_commission' => 'Service Commission (%)',
+        'commission' => 'Commission Settings',
+        'choose_file' => 'Choose file',
     ],
     'messages' => [
         'created_successfully' => 'Created successfully',

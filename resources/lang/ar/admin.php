@@ -136,6 +136,13 @@ return [
         'index' => 'الإعدادات',
         'general' => 'الإعدادات العامة',
         'update' => 'تحديث الإعدادات',
+        'site_name' => 'اسم الموقع',
+        'site_logo' => 'شعار الموقع',
+        'site_icon' => 'أيقونة الموقع',
+        'manual_user_approval' => 'الموافقة اليدوية على المستخدمين',
+        'service_commission' => 'عمولة الخدمة (%)',
+        'commission' => 'إعدادات العمولة',
+        'choose_file' => 'اختر ملف',
     ],
     'messages' => [
         'created_successfully' => 'تم الإنشاء بنجاح',

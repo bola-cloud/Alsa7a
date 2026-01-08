@@ -52,7 +52,8 @@
                                                 <div class="custom-file">
                                                     <input type="file" class="custom-file-input" name="{{ $setting->key }}"
                                                         id="{{ $setting->key }}">
-                                                    <label class="custom-file-label" for="{{ $setting->key }}">Choose file</label>
+                                                    <label class="custom-file-label"
+                                                        for="{{ $setting->key }}">{{ __('admin.settings.choose_file') }}</label>
                                                 </div>
                                             </div>
                                         @endif
