@@ -28,10 +28,10 @@ Route::group([
         'verified',
     ]
 ], function () {
-    Route::get('/', [Dashboard::class, 'index'])->name('dashboard');
-
     // Admin Routes
     Route::prefix('admin')->name('admin.')->group(function () {
+        Route::get('/dashboard', [Dashboard::class, 'index'])->name('dashboard');
+
         Route::resource('categories', CategoryController::class);
         Route::resource('sports', SportController::class);
         Route::resource('sliders', SliderController::class);
