@@ -28,6 +28,7 @@ class User extends Authenticatable
     protected $fillable = [
         'name',
         'email',
+        'is_admin',
         'password',
         'phone',
         'phone_verified_at',
@@ -175,6 +176,7 @@ class User extends Authenticatable
         'availability' => 'array',
         'is_featured' => 'boolean',
         'is_approved' => 'boolean',
+        'is_admin' => 'boolean',
         'verification_documents' => 'array',
     ];
 
