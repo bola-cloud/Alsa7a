@@ -25,6 +25,14 @@ class Dashboard extends Controller
             'tickets' => Ticket::count(),
         ];
 
-        return view('admin.dashboard', compact('stats'));
+        // dynamic progress calculation (assuming target of 100 for demo, or relative to max)
+        $target = 20; // Example target to show progress
+        $percentages = [];
+        foreach ($stats as $key => $value) {
+            $percent = ($value / $target) * 100;
+            $percentages[$key] = $percent > 100 ? 100 : $percent;
+        }
+
+        return view('admin.dashboard', compact('stats', 'percentages'));
     }
 }
