@@ -218,7 +218,7 @@
                                 <div class="dropdown-divider"></div>
                                 <a class="dropdown-item" href="{{ route('logout') }}"
                                     onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
-                                    <i class="ft-power"></i> {{ __('lang.logout') }}
+                                    <i class="ft-power"></i> {{ __('admin.buttons.logout') }}
                                 </a>
 
                                 <form id="logout-form" method="POST" action="{{ route('logout') }}">

@@ -37,6 +37,7 @@ return [
         'back' => 'Back',
         'submit' => 'Submit',
         'filter' => 'Filter',
+        'logout' => 'Logout',
     ],
     'categories' => [
         'index' => 'Categories',

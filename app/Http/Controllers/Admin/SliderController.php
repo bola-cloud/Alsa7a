@@ -9,6 +9,8 @@ use App\Http\Requests\Admin\Slider\UpdateSliderRequest;
 use App\Traits\HasAdminResponse;
 use App\Services\ImageService;
 
+use Illuminate\Http\Request;
+
 class SliderController extends Controller
 {
     use HasAdminResponse;
@@ -23,9 +25,19 @@ class SliderController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $sliders = Slider::latest()->paginate(10);
+        $query = Slider::latest();
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('title_en', 'like', "%{$search}%")
+                    ->orWhere('title_ar', 'like', "%{$search}%");
+            });
+        }
+
+        $sliders = $query->paginate(10)->withQueryString();
         return view('admin.sliders.index', compact('sliders'));
     }
 

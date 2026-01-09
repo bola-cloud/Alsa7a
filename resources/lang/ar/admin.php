@@ -36,7 +36,8 @@ return [
         'actions' => 'الاجراءات',
         'back' => 'رجوع',
         'submit' => 'إرسال',
-        'filter' => 'تصفية'
+        'filter' => 'تصفية',
+        'logout' => 'تسجيل الخروج',
     ],
     'categories' => [
         'index' => 'الأقسام',
