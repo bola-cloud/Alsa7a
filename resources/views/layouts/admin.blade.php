@@ -86,6 +86,59 @@
                 padding: 0px !important;
             }
         }
+        /* Search Dropdown CSS */
+        .search-results-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: #fff;
+            border-radius: 0 0 15px 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            z-index: 1000;
+            max-height: 400px;
+            overflow-y: auto;
+            display: none;
+            margin-top: 5px;
+        }
+        .search-item {
+            padding: 12px 20px;
+            border-bottom: 1px solid #f8f9fa;
+            display: flex;
+            align-items: center;
+            color: #4b5563;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+        .search-item:last-child { border-bottom: none; }
+        .search-item:hover {
+            background: #f3f4f6;
+            text-decoration: none;
+            color: #333;
+        }
+        .search-item i {
+            margin-right: 15px;
+            font-size: 1.2rem;
+            color: #9ca3af;
+        }
+        html[lang="ar"] .search-item i {
+            margin-right: 0;
+            margin-left: 15px;
+        }
+        .search-type {
+            font-size: 0.75rem;
+            color: #9ca3af;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-left: auto;
+            background: #f3f4f6;
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+        html[lang="ar"] .search-type {
+            margin-left: 0;
+            margin-right: auto;
+        }
     </style>
 </head>
 
@@ -124,12 +177,14 @@
                         <li class="nav-item d-none d-md-block nav-search-container"
                             style="margin-top: 10px; margin-left: 20px; width: 400px;">
                             <div class="position-relative">
-                                <input type="text" class="form-control round border-0 shadow-sm"
-                                    placeholder="Search for anything..."
+                                <input type="text" id="global-search-input" class="form-control round border-0 shadow-sm"
+                                    placeholder="{{ __('admin.buttons.actions') }}..." 
+                                    autocomplete="off"
                                     style="border-radius: 999px; padding-left: 1.5rem;">
                                 <div class="form-control-position" style="right: 10px; top: 2px;">
                                     <i class="la la-search primary font-medium-4"></i>
                                 </div>
+                                <div id="global-search-results" class="search-results-dropdown"></div>
                             </div>
                         </li>
                     </ul>
@@ -146,12 +201,12 @@
                         <li class="dropdown dropdown-user nav-item">
                             <a class="dropdown-toggle nav-link dropdown-user-link" href="#" data-toggle="dropdown">
                                 @auth
-                                    <span class="mr-1 text-white">{{ __('lang.hello') }},
+                                    <span class="mr-1 text-white">{{ __('admin.messages.hello') }},
                                         <span class="user-name text-bold-700 text-white">{{ Auth::user()->name }}</span>
                                     </span>
                                 @endauth
                                 @guest
-                                    <span class="mr-1 text-white">{{ __('lang.hello') }}, <span
+                                    <span class="mr-1 text-white">{{ __('admin.messages.hello') }}, <span
                                             class="user-name text-bold-700 text-white">{{ __('lang.guest') }}</span></span>
                                 @endguest
                                 <span class="avatar avatar-online">
@@ -368,10 +423,10 @@
         // Check for session messages and fire SweetAlert
         @if(session('swal_success'))
             Swal.fire({
-                title: '{{ __("Success!") }}',
+                title: '{{ __("admin.modal.success") }}',
                 text: '{{ session("swal_success") }}',
                 icon: 'success',
-                confirmButtonText: '{{ __("OK") }}',
+                confirmButtonText: '{{ __("admin.modal.ok") }}',
                 confirmButtonColor: '#34d399',
                 background: '#fff',
                 color: '#333'
@@ -380,13 +435,82 @@
 
         @if(session('swal_error'))
             Swal.fire({
-                title: '{{ __("Error!") }}',
+                title: '{{ __("admin.modal.error") }}',
                 text: '{{ session("swal_error") }}',
                 icon: 'error',
-                confirmButtonText: '{{ __("OK") }}',
+                confirmButtonText: '{{ __("admin.modal.ok") }}',
                 confirmButtonColor: '#d33',
             });
         @endif
+
+        @if($errors->any())
+            Swal.fire({
+                title: '{{ __("admin.modal.error") }}',
+                html: '<ul style="text-align: left;">@foreach($errors->all() as $error)<li>{{ $error }}</li>@endforeach</ul>',
+                icon: 'error',
+                confirmButtonText: '{{ __("admin.modal.ok") }}',
+                confirmButtonColor: '#d33',
+            });
+        @endif
+    </script>
+
+    <script>
+        $(document).ready(function() {
+            let timeout = null;
+            const searchInput = $('#global-search-input');
+            const resultsContainer = $('#global-search-results');
+
+            searchInput.on('keyup', function() {
+                clearTimeout(timeout);
+                const query = $(this).val();
+
+                if (query.length < 2) {
+                    resultsContainer.hide().html('');
+                    return;
+                }
+
+                timeout = setTimeout(function() {
+                    $.ajax({
+                        url: "{{ route('admin.global_search') }}",
+                        type: "GET",
+                        data: { query: query },
+                        success: function(data) {
+                            if (data.length > 0) {
+                                let html = '';
+                                data.forEach(item => {
+                                    html += `
+                                        <a href="${item.url}" class="search-item">
+                                            <i class="${item.icon}"></i>
+                                            <div class="d-flex flex-column">
+                                                <span class="font-weight-bold">${item.title}</span>
+                                            </div>
+                                            <span class="search-type">${item.type}</span>
+                                        </a>
+                                    `;
+                                });
+                                resultsContainer.html(html).slideDown(200);
+                            } else {
+                                resultsContainer.html('<div class="p-3 text-center text-muted small">{{ __("admin.categories.no_records") }}</div>').slideDown(200);
+                            }
+                        }
+                    });
+                }, 400); // 400ms debounce
+            });
+
+            // Close on click outside
+            $(document).on('click', function(e) {
+                if (!$(e.target).closest('.nav-search-container').length) {
+                    resultsContainer.slideUp(100);
+                }
+            });
+            
+            // Re-open on focus if has value
+            searchInput.on('focus', function() {
+                if($(this).val().length >= 2) {
+                    resultsContainer.slideDown(200);
+                }
+            });
+        });
     </script>
 
     @livewireScripts

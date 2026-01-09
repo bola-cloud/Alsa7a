@@ -22,10 +22,14 @@ class UpdateSportRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => 'required|string|max:255',
+            'name' => 'required|array',
+            'name.en' => 'required|string|max:255',
+            'name.ar' => 'required|string|max:255',
             'icon' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
             'active' => 'nullable|boolean',
-            'description' => 'nullable|string',
+            'description' => 'required|array',
+            'description.en' => 'nullable|string',
+            'description.ar' => 'nullable|string',
         ];
     }
 }

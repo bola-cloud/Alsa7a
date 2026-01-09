@@ -16,6 +16,27 @@
         </div>
     </div>
 
+    <div class="card mb-4 shadow-sm border-0">
+        <div class="card-body p-3">
+            <form action="{{ route('admin.posts.index') }}" method="GET">
+                <div class="row align-items-end">
+                    <div class="col-md-9 mb-2 mb-md-0">
+                        <label class="text-muted small mb-1">{{ __('admin.categories.search') }}</label>
+                        <div class="position-relative">
+                            <input type="text" name="search" class="form-control pl-4" placeholder="Search by content or user..." value="{{ request('search') }}">
+                            <i class="la la-search position-absolute" style="top: 10px; left: 10px; color: #b0afb5;"></i>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <button type="submit" class="btn btn-primary btn-block">
+                            <i class="la la-filter"></i> {{ __('admin.buttons.filter') }}
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <div class="">
         <div class="card shadow-sm border-0">
             <div class="card-content collapse show">

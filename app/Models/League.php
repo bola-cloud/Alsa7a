@@ -10,7 +10,7 @@ class League extends Model
 {
     use HasFactory, Translatable;
 
-    protected $fillable = ['sport_id', 'name', 'slug', 'description', 'season', 'start_date', 'end_date', 'is_active', 'meta', 'image'];
+    protected $fillable = ['sport_id', 'name', 'name_en', 'name_ar', 'slug', 'description', 'description_en', 'description_ar', 'season', 'start_date', 'end_date', 'is_active', 'meta', 'image'];
 
     protected $casts = ['meta' => 'array', 'is_active' => 'boolean'];
 
@@ -39,13 +39,13 @@ class League extends Model
      */
     public function getImageAttribute($value)
     {
-        if (! $value) {
+        if (!$value) {
             return null;
         }
         if (preg_match('#^https?://#i', $value)) {
             return $value;
         }
-        return url(ltrim($value, '/'));
+        return asset($value);
     }
 
     /**
@@ -53,28 +53,6 @@ class League extends Model
      */
     public function setImageAttribute($value)
     {
-        if (! $value) {
-            $this->attributes['image'] = $value;
-            return;
-        }
-
-        // If already relative, normalize
-        if (! preg_match('#^https?://#i', $value)) {
-            $this->attributes['image'] = ltrim($value, '/');
-            return;
-        }
-
-        // If absolute and same host as app.url, store only the path
-        $appHost = parse_url(config('app.url') ?? url('/'), PHP_URL_HOST);
-        $givenHost = parse_url($value, PHP_URL_HOST);
-
-        if ($appHost && $givenHost && strtolower($appHost) === strtolower($givenHost)) {
-            $path = parse_url($value, PHP_URL_PATH) ?: '';
-            $this->attributes['image'] = ltrim($path, '/');
-            return;
-        }
-
-        // External URL: store as-is
         $this->attributes['image'] = $value;
     }
 }

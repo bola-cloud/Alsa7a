@@ -8,17 +8,41 @@ use App\Http\Requests\Admin\Event\UpdateEventRequest;
 use App\Models\Event;
 use App\Models\Sport;
 use App\Models\Club;
+use App\Services\ImageService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
-use Illuminate\Support\Facades\Storage;
 use Mcamara\LaravelLocalization\Facades\LaravelLocalization;
 
 class EventController extends Controller
 {
-    public function index()
+    protected $imageService;
+
+    public function __construct(ImageService $imageService)
     {
-        $events = Event::with(['sport', 'club'])->latest()->paginate(10);
-        return view('admin.events.index', compact('events'));
+        $this->imageService = $imageService;
+    }
+
+    public function index(Request $request)
+    {
+        $query = Event::with(['sport', 'club'])->latest();
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('title_en', 'like', "%{$search}%")
+                    ->orWhere('title_ar', 'like', "%{$search}%")
+                    ->orWhere('venue', 'like', "%{$search}%");
+            });
+        }
+
+        if ($request->filled('sport_id')) {
+            $query->where('sport_id', $request->sport_id);
+        }
+
+        $events = $query->paginate(10)->withQueryString();
+        $sports = Sport::all();
+
+        return view('admin.events.index', compact('events', 'sports'));
     }
 
     public function create()
@@ -33,9 +57,12 @@ class EventController extends Controller
         $data = $request->validated();
 
         $data['slug'] = Str::slug($data['title']['en']);
+        $data['title_en'] = $data['title']['en'];
+        $data['title_ar'] = $data['title']['ar'];
+        // Removed non-existent 'title' column assignment
 
         if ($request->hasFile('featured_image')) {
-            $data['featured_image'] = $request->file('featured_image')->store('events', 'public');
+            $data['featured_image'] = $this->imageService->upload($request->file('featured_image'), 'events');
         }
 
         Event::create($data);
@@ -82,12 +109,15 @@ class EventController extends Controller
         if (!isset($data['slug'])) {
             $data['slug'] = Str::slug($data['title']['en']);
         }
+        $data['title_en'] = $data['title']['en'];
+        $data['title_ar'] = $data['title']['ar'];
 
         if ($request->hasFile('featured_image')) {
-            if ($event->featured_image && Storage::disk('public')->exists($event->featured_image)) {
-                Storage::disk('public')->delete($event->featured_image);
-            }
-            $data['featured_image'] = $request->file('featured_image')->store('events', 'public');
+            $data['featured_image'] = $this->imageService->replace(
+                $request->file('featured_image'),
+                'events',
+                $event->featured_image
+            );
         }
 
         $event->update($data);
@@ -98,9 +128,8 @@ class EventController extends Controller
 
     public function destroy(Event $event)
     {
-        if ($event->featured_image && Storage::disk('public')->exists($event->featured_image)) {
-            Storage::disk('public')->delete($event->featured_image);
-        }
+        $this->imageService->delete($event->featured_image);
+
         $event->delete();
         $this->flashSuccess(__('admin.messages.deleted'));
         return redirect()->route('admin.events.index');

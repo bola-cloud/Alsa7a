@@ -46,7 +46,13 @@ class News extends Model
 
     public function getFeaturedImageAttribute()
     {
-        return $this->image ? asset('storage/' . $this->image) : null;
+        if (!$this->image) {
+            return null;
+        }
+        if (preg_match('#^https?://#i', $this->image)) {
+            return $this->image;
+        }
+        return asset($this->image);
     }
 
     public function likes()

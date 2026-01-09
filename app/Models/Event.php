@@ -40,29 +40,17 @@ class Event extends Model
     public function getFeaturedImageAttribute()
     {
         $val = $this->attributes['featured_image'] ?? null;
-        if (!$val)
+        if (!$val) {
             return null;
-        if (preg_match('#^https?://#i', $val))
+        }
+        if (preg_match('#^https?://#i', $val)) {
             return $val;
-        return url(ltrim($val, '/'));
+        }
+        return asset($val);
     }
 
     public function setFeaturedImageAttribute($value)
     {
-        if (!$value) {
-            $this->attributes['featured_image'] = $value;
-            return;
-        }
-        if (!preg_match('#^https?://#i', $value)) {
-            $this->attributes['featured_image'] = ltrim($value, '/');
-            return;
-        }
-        $appHost = parse_url(config('app.url') ?? url('/'), PHP_URL_HOST);
-        $givenHost = parse_url($value, PHP_URL_HOST);
-        if ($appHost && $givenHost && strtolower($appHost) === strtolower($givenHost)) {
-            $this->attributes['featured_image'] = ltrim(parse_url($value, PHP_URL_PATH) ?: '', '/');
-            return;
-        }
         $this->attributes['featured_image'] = $value;
     }
 }

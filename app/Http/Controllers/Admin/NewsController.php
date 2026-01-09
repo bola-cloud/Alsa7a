@@ -5,20 +5,43 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\News;
 use App\Models\Sport;
+use App\Services\ImageService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use App\Models\Media;
 
 class NewsController extends Controller
 {
+    protected $imageService;
+
+    public function __construct(ImageService $imageService)
+    {
+        $this->imageService = $imageService;
+    }
+
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $news = News::with('sport')->latest()->paginate(10);
-        return view('admin.news.index', compact('news'));
+        $query = News::with('sport')->latest();
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('title_en', 'like', "%{$search}%")
+                    ->orWhere('title_ar', 'like', "%{$search}%");
+            });
+        }
+
+        if ($request->filled('sport_id')) {
+            $query->where('sport_id', $request->sport_id);
+        }
+
+        $news = $query->paginate(10)->withQueryString();
+        $sports = Sport::all(); // For filter dropdown
+
+        return view('admin.news.index', compact('news', 'sports'));
     }
 
     /**
@@ -58,7 +81,7 @@ class NewsController extends Controller
         ];
 
         if ($request->hasFile('image')) {
-            $newsData['image'] = $request->file('image')->store('news', 'public');
+            $newsData['image'] = $this->imageService->upload($request->file('image'), 'news');
         }
 
         $news = News::create($newsData);
@@ -66,7 +89,7 @@ class NewsController extends Controller
         // Handle multiple images
         if ($request->hasFile('images')) {
             foreach ($request->file('images') as $file) {
-                $path = $file->store('news/gallery', 'public');
+                $path = $this->imageService->upload($file, 'news/gallery');
                 $news->media()->create([
                     'url' => $path,
                     'type' => 'image',
@@ -77,7 +100,7 @@ class NewsController extends Controller
 
         // Handle video (upload takes precedence over URL)
         if ($request->hasFile('video')) {
-            $path = $request->file('video')->store('news/videos', 'public');
+            $path = $this->imageService->upload($request->file('video'), 'news/videos');
             $news->media()->create([
                 'url' => $path,
                 'type' => 'video',
@@ -138,10 +161,11 @@ class NewsController extends Controller
         ];
 
         if ($request->hasFile('image')) {
-            if ($news->image) {
-                Storage::disk('public')->delete($news->image);
-            }
-            $newsData['image'] = $request->file('image')->store('news', 'public');
+            $newsData['image'] = $this->imageService->replace(
+                $request->file('image'),
+                'news',
+                $news->image
+            );
         }
 
         $news->update($newsData);
@@ -153,9 +177,7 @@ class NewsController extends Controller
 
             foreach ($mediaToDelete as $media) {
                 // Check if it's a local file and delete it
-                if (!preg_match('#^https?://#i', $media->url)) {
-                    Storage::disk('public')->delete($media->url);
-                }
+                $this->imageService->delete($media->url);
                 $media->delete();
             }
         }
@@ -163,7 +185,7 @@ class NewsController extends Controller
         // Handle adding more images
         if ($request->hasFile('images')) {
             foreach ($request->file('images') as $file) {
-                $path = $file->store('news/gallery', 'public');
+                $path = $this->imageService->upload($file, 'news/gallery');
                 $news->media()->create([
                     'url' => $path,
                     'type' => 'image',
@@ -177,14 +199,12 @@ class NewsController extends Controller
             // Delete old video if exists
             $oldVideo = $news->media()->where('type', 'video')->first();
             if ($oldVideo) {
-                if (!preg_match('#^https?://#i', $oldVideo->url)) {
-                    Storage::disk('public')->delete($oldVideo->url);
-                }
+                $this->imageService->delete($oldVideo->url);
                 $oldVideo->delete();
             }
 
             if ($request->hasFile('video')) {
-                $path = $request->file('video')->store('news/videos', 'public');
+                $path = $this->imageService->upload($request->file('video'), 'news/videos');
                 $news->media()->create([
                     'url' => $path,
                     'type' => 'video',
@@ -206,9 +226,14 @@ class NewsController extends Controller
      */
     public function destroy(News $news)
     {
-        if ($news->image) {
-            Storage::disk('public')->delete($news->image);
+        $this->imageService->delete($news->image);
+
+        // Also delete gallery and videos
+        foreach ($news->media as $media) {
+            $this->imageService->delete($media->url);
+            $media->delete();
         }
+
         $news->delete();
 
         $this->flashSuccess(__('admin.messages.deleted'));

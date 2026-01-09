@@ -12,8 +12,12 @@ class Category extends Model
 
     protected $fillable = [
         'name',
+        'name_en',
+        'name_ar',
         'image',
         'description',
+        'description_en',
+        'description_ar',
         'is_service_provider',
         'requires_verification',
     ];

@@ -15,7 +15,7 @@ trait Translatable
         // if attribute has localized variants like name_en / name_ar
         $localizedKey = "{$key}_{$locale}";
 
-        if (array_key_exists($localizedKey, $this->attributes) && ! is_null($this->attributes[$localizedKey]) && $this->attributes[$localizedKey] !== '') {
+        if (array_key_exists($localizedKey, $this->attributes) && !is_null($this->attributes[$localizedKey]) && $this->attributes[$localizedKey] !== '') {
             return $this->attributes[$localizedKey];
         }
 
@@ -26,5 +26,18 @@ trait Translatable
         }
 
         return parent::getAttribute($key);
+    }
+
+    /**
+     * Get the translation for a specific attribute and locale.
+     * 
+     * @param string $key
+     * @param string $locale
+     * @return mixed
+     */
+    public function getTranslation($key, $locale)
+    {
+        $localizedKey = "{$key}_{$locale}";
+        return $this->attributes[$localizedKey] ?? null;
     }
 }

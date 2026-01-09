@@ -3,23 +3,43 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\Sport;
 use App\Http\Requests\Admin\Sport\StoreSportRequest;
 use App\Http\Requests\Admin\Sport\UpdateSportRequest;
-use App\Traits\HasAdminResponse;
+use App\Models\Sport;
+use App\Services\ImageService;
 use Illuminate\Support\Str;
-use Illuminate\Support\Facades\Storage;
+use Illuminate\Http\Request;
 
 class SportController extends Controller
 {
-    use HasAdminResponse;
+    protected $imageService;
+
+    public function __construct(ImageService $imageService)
+    {
+        $this->imageService = $imageService;
+    }
 
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $sports = Sport::latest()->paginate(10);
+        $query = Sport::latest();
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                // Assuming name_en/name_ar columns exist based on previous patterns
+                $q->where('name_en', 'like', "%{$search}%")
+                    ->orWhere('name_ar', 'like', "%{$search}%");
+            });
+        }
+
+        if ($request->filled('active')) {
+            $query->where('active', $request->active == 'yes' ? 1 : 0);
+        }
+
+        $sports = $query->paginate(10)->withQueryString();
         return view('admin.sports.index', compact('sports'));
     }
 
@@ -37,21 +57,35 @@ class SportController extends Controller
     public function store(StoreSportRequest $request)
     {
         $data = $request->validated();
+        $data['slug'] = Str::slug($data['name']['en']);
 
-        // Handle Icon Upload
-        if ($request->hasFile('icon')) {
-            $data['icon_url'] = $request->file('icon')->store('sports', 'public');
+        // Unpack localized fields
+        $data['name_en'] = $data['name']['en'];
+        $data['name_ar'] = $data['name']['ar'];
+        $data['name'] = $data['name']['en'];
+
+        if (isset($data['description'])) {
+            $data['description_en'] = $data['description']['en'] ?? null;
+            $data['description_ar'] = $data['description']['ar'] ?? null;
+            $data['description'] = $data['description']['en'] ?? null;
         }
 
-        // Generate slug
-        $data['slug'] = Str::slug($data['name']);
-
-        // Handle Active Checkbox (default to 0 if unchecked)
-        $data['active'] = $request->has('active') ? 1 : 0;
+        if ($request->hasFile('icon')) {
+            $data['icon_url'] = $this->imageService->upload($request->file('icon'), 'sports');
+        }
 
         Sport::create($data);
 
-        return $this->successResponse('admin.sports.index', __('admin.messages.created'));
+        $this->flashSuccess(__('admin.messages.created'));
+        return redirect()->route('admin.sports.index');
+    }
+
+    /**
+     * Display the specified resource.
+     */
+    public function show(Sport $sport)
+    {
+        //
     }
 
     /**
@@ -68,24 +102,33 @@ class SportController extends Controller
     public function update(UpdateSportRequest $request, Sport $sport)
     {
         $data = $request->validated();
-
-        // Handle Icon Update
-        if ($request->hasFile('icon')) {
-            // Delete old icon if exists and not external
-            if ($sport->icon_url && !preg_match('#^https?://#i', $sport->icon_url)) {
-                Storage::disk('public')->delete($sport->getRawOriginal('icon_url') ?? $sport->icon_url);
-            }
-            $data['icon_url'] = $request->file('icon')->store('sports', 'public');
+        if (!isset($data['slug'])) {
+            $data['slug'] = Str::slug($data['name']['en']);
         }
 
-        // Update slug only if name changes? Or keep it synced.
-        $data['slug'] = Str::slug($data['name']);
+        // Unpack localized fields
+        $data['name_en'] = $data['name']['en'];
+        $data['name_ar'] = $data['name']['ar'];
+        $data['name'] = $data['name']['en'];
 
-        $data['active'] = $request->has('active') ? 1 : 0;
+        if (isset($data['description'])) {
+            $data['description_en'] = $data['description']['en'] ?? null;
+            $data['description_ar'] = $data['description']['ar'] ?? null;
+            $data['description'] = $data['description']['en'] ?? null;
+        }
+
+        if ($request->hasFile('icon')) {
+            $data['icon_url'] = $this->imageService->replace(
+                $request->file('icon'),
+                'sports',
+                $sport->icon_url
+            );
+        }
 
         $sport->update($data);
 
-        return $this->successResponse('admin.sports.index', __('admin.messages.updated'));
+        $this->flashSuccess(__('admin.messages.updated'));
+        return redirect()->route('admin.sports.index');
     }
 
     /**
@@ -93,13 +136,10 @@ class SportController extends Controller
      */
     public function destroy(Sport $sport)
     {
-        // Delete icon if exists
-        if ($sport->icon_url && !preg_match('#^https?://#i', $sport->icon_url)) {
-            Storage::disk('public')->delete($sport->getRawOriginal('icon_url') ?? $sport->icon_url);
-        }
+        $this->imageService->delete($sport->icon_url);
 
         $sport->delete();
-
-        return $this->successResponse('admin.sports.index', __('admin.messages.deleted'));
+        $this->flashSuccess(__('admin.messages.deleted'));
+        return redirect()->route('admin.sports.index');
     }
 }

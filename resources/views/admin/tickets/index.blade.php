@@ -17,7 +17,7 @@
         </div>
     </div>
 
-    <div class="content-body">
+    <div class="">
         <div class="card">
             <div class="card-content collapse show">
                 <div class="card-body">

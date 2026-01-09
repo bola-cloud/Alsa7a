@@ -6,19 +6,45 @@ use App\Http\Controllers\Controller;
 use App\Models\Club;
 use App\Models\Sport;
 use App\Models\User;
+use App\Services\ImageService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Traits\UploadTrait;
 
 class ClubController extends Controller
 {
+    protected $imageService;
+
+    public function __construct(ImageService $imageService)
+    {
+        $this->imageService = $imageService;
+    }
+
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $clubs = Club::with('sports')->orderBy('id', 'desc')->paginate(10);
-        return view('admin.clubs.index', compact('clubs'));
+        $query = Club::with('sports')->orderBy('id', 'desc');
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('name_en', 'like', "%{$search}%")
+                    ->orWhere('name_ar', 'like', "%{$search}%");
+            });
+        }
+
+        if ($request->filled('sport_id')) {
+            $query->whereHas('sports', function ($q) use ($request) {
+                $q->where('sports.id', $request->sport_id);
+            });
+        }
+
+        $clubs = $query->paginate(10)->withQueryString();
+        $sports = \App\Models\Sport::all();
+
+        return view('admin.clubs.index', compact('clubs', 'sports'));
     }
 
     /**
@@ -36,15 +62,24 @@ class ClubController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'name_en' => 'required|string',
-            'name_ar' => 'required|string',
+            'name' => 'required|array',
+            'name.en' => 'required|string',
+            'name.ar' => 'required|string',
+            'description' => 'required|array',
+            'description.en' => 'nullable|string',
+            'description.ar' => 'nullable|string',
             'city' => 'required|string',
             'logo' => 'nullable|image',
             'sports' => 'array'
         ]);
 
         $data = [
-            'name' => ['en' => $request->name_en, 'ar' => $request->name_ar],
+            'name' => $request->name['en'],
+            'name_en' => $request->name['en'],
+            'name_ar' => $request->name['ar'],
+            'description' => $request->description['en'] ?? null,
+            'description_en' => $request->description['en'] ?? null,
+            'description_ar' => $request->description['ar'] ?? null,
             'city' => $request->city,
             'country' => $request->country ?? 'Jordan',
             'founded_year' => $request->founded_year,
@@ -53,11 +88,11 @@ class ClubController extends Controller
         ];
 
         if ($request->hasFile('logo')) {
-            $data['logo_url'] = $request->file('logo')->store('clubs/logos', 'public');
+            $data['logo_url'] = $this->imageService->upload($request->file('logo'), 'clubs/logos');
         }
 
         if ($request->hasFile('banner')) {
-            $data['banner_url'] = $request->file('banner')->store('clubs/banners', 'public');
+            $data['banner_url'] = $this->imageService->upload($request->file('banner'), 'clubs/banners');
         }
 
         $club = Club::create($data);
@@ -100,12 +135,21 @@ class ClubController extends Controller
     public function update(Request $request, Club $club)
     {
         $request->validate([
-            'name_en' => 'required|string',
-            'name_ar' => 'required|string',
+            'name' => 'required|array',
+            'name.en' => 'required|string',
+            'name.ar' => 'required|string',
+            'description' => 'required|array',
+            'description.en' => 'nullable|string',
+            'description.ar' => 'nullable|string',
         ]);
 
         $data = [
-            'name' => ['en' => $request->name_en, 'ar' => $request->name_ar],
+            'name' => $request->name['en'],
+            'name_en' => $request->name['en'],
+            'name_ar' => $request->name['ar'],
+            'description' => $request->description['en'] ?? null,
+            'description_en' => $request->description['en'] ?? null,
+            'description_ar' => $request->description['ar'] ?? null,
             'city' => $request->city,
             'country' => $request->country,
             'website' => $request->website,
@@ -113,7 +157,19 @@ class ClubController extends Controller
         ];
 
         if ($request->hasFile('logo')) {
-            $data['logo_url'] = $request->file('logo')->store('clubs/logos', 'public');
+            $data['logo_url'] = $this->imageService->replace(
+                $request->file('logo'),
+                'clubs/logos',
+                $club->logo_url
+            );
+        }
+
+        if ($request->hasFile('banner')) {
+            $data['banner_url'] = $this->imageService->replace(
+                $request->file('banner'),
+                'clubs/banners',
+                $club->banner_url
+            );
         }
 
         $club->update($data);
@@ -131,6 +187,9 @@ class ClubController extends Controller
      */
     public function destroy(Club $club)
     {
+        $this->imageService->delete($club->logo_url);
+        $this->imageService->delete($club->banner_url);
+
         $club->delete();
         $this->flashSuccess('Club deleted successfully');
         return redirect()->route('admin.clubs.index');

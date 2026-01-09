@@ -17,9 +17,12 @@
                                 <div class="row">
                                     <div class="col-md-6">
                                         <div class="form-group">
-                                            <label for="name">{{ __('admin.sports.name') }}</label>
-                                            <input type="text" id="name" class="form-control round" name="name"
-                                                value="{{ $sport->name }}" required>
+                                            <label for="name_en">{{ __('admin.sports.name') }} (EN)</label>
+                                            <input type="text" id="name_en" class="form-control round mb-1" name="name[en]"
+                                                value="{{ $sport->getTranslation('name', 'en') }}" required>
+                                            <label for="name_ar">{{ __('admin.sports.name') }} (AR)</label>
+                                            <input type="text" id="name_ar" class="form-control round" name="name[ar]"
+                                                value="{{ $sport->getTranslation('name', 'ar') }}" required>
                                         </div>
                                     </div>
                                     <div class="col-md-6">
@@ -28,8 +31,7 @@
                                             <input type="file" id="icon" class="form-control-file" name="icon">
                                             @if($sport->icon_url)
                                                 <div class="mt-2">
-                                                    <img src="{{ Str::startsWith($sport->icon_url, 'http') ? $sport->icon_url : asset('storage/' . $sport->icon_url) }}"
-                                                        alt="Icon" width="100" class="rounded">
+                                                    <img src="{{ $sport->icon_url }}" alt="Icon" width="100" class="rounded">
                                                 </div>
                                             @endif
                                         </div>
@@ -37,11 +39,18 @@
                                 </div>
 
                                 <div class="row">
-                                    <div class="col-md-12">
+                                    <div class="col-md-6">
                                         <div class="form-group">
-                                            <label for="description">{{ __('admin.sports.description') }}</label>
-                                            <textarea id="description" class="form-control round" name="description"
-                                                rows="3">{{ $sport->description }}</textarea>
+                                            <label for="description_en">{{ __('admin.sports.description') }} (EN)</label>
+                                            <textarea id="description_en" class="form-control round" name="description[en]"
+                                                rows="3">{{ $sport->getTranslation('description', 'en') }}</textarea>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="description_ar">{{ __('admin.sports.description') }} (AR)</label>
+                                            <textarea id="description_ar" class="form-control round" name="description[ar]"
+                                                rows="3">{{ $sport->getTranslation('description', 'ar') }}</textarea>
                                         </div>
                                     </div>
                                 </div>

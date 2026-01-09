@@ -22,7 +22,9 @@ class UpdateSliderRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'title' => 'nullable|string|max:255',
+            'title' => 'nullable|array',
+            'title.en' => 'nullable|string|max:255',
+            'title.ar' => 'nullable|string|max:255',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
         ];
     }

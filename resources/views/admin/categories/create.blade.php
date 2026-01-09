@@ -7,15 +7,6 @@
                 <div class="card-header">
                     <h4 class="card-title">{{ __('admin.categories.create') }}</h4>
                 </div>
-                @if ($errors->any())
-                    <div class="alert alert-danger">
-                        <ul>
-                            @foreach ($errors->all() as $error)
-                                <li>{{ $error }}</li>
-                            @endforeach
-                        </ul>
-                    </div>
-                @endif
                 <div class="card-content collapse show">
                     <div class="card-body">
                         <form action="{{ route('admin.categories.store') }}" method="POST" enctype="multipart/form-data">
@@ -24,10 +15,21 @@
                                 <div class="row">
                                     <div class="col-md-6">
                                         <div class="form-group">
-                                            <label for="name">{{ __('admin.categories.name') }}</label>
-                                            <input type="text" id="name" class="form-control round" name="name" required>
+                                            <label for="name_en">{{ __('admin.categories.name') }} (EN)</label>
+                                            <input type="text" id="name_en" class="form-control round" name="name[en]"
+                                                value="{{ old('name.en') }}" required>
                                         </div>
                                     </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="name_ar">{{ __('admin.categories.name') }} (AR)</label>
+                                            <input type="text" id="name_ar" class="form-control round" name="name[ar]"
+                                                value="{{ old('name.ar') }}" required>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
                                     <div class="col-md-6">
                                         <div class="form-group">
                                             <label for="image">{{ __('admin.categories.image') }}</label>
@@ -37,11 +39,16 @@
                                 </div>
 
                                 <div class="row">
-                                    <div class="col-md-12">
+                                    <div class="col-md-6">
                                         <div class="form-group">
-                                            <label for="description">{{ __('admin.categories.description') }}</label>
-                                            <textarea id="description" class="form-control round" name="description"
-                                                rows="3"></textarea>
+                                            <label for="description_en">{{ __('admin.categories.description') }} (EN)</label>
+                                            <textarea id="description_en" class="form-control round" name="description[en]" rows="3">{{ old('description.en') }}</textarea>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="description_ar">{{ __('admin.categories.description') }} (AR)</label>
+                                            <textarea id="description_ar" class="form-control round" name="description[ar]" rows="3">{{ old('description.ar') }}</textarea>
                                         </div>
                                     </div>
                                 </div>

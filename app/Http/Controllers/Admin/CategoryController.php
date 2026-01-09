@@ -4,10 +4,18 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Category;
+use App\Services\ImageService;
 use Illuminate\Http\Request;
 
 class CategoryController extends Controller
 {
+    protected $imageService;
+
+    public function __construct(ImageService $imageService)
+    {
+        $this->imageService = $imageService;
+    }
+
     /**
      * Display a listing of the resource.
      */
@@ -36,15 +44,17 @@ class CategoryController extends Controller
         ]);
 
         $categoryData = [
+            'name' => $data['name']['en'],
             'name_en' => $data['name']['en'],
             'name_ar' => $data['name']['ar'],
+            'description' => $data['description']['en'] ?? null,
             'description_en' => $data['description']['en'] ?? null,
             'description_ar' => $data['description']['ar'] ?? null,
             'is_service_provider' => $request->has('is_service_provider') ? 1 : 0,
         ];
 
         if ($request->hasFile('image')) {
-            $categoryData['image'] = $request->file('image')->store('categories', 'public');
+            $categoryData['image'] = $this->imageService->upload($request->file('image'), 'categories');
         }
 
         Category::create($categoryData);
@@ -77,18 +87,21 @@ class CategoryController extends Controller
         ]);
 
         $categoryData = [
+            'name' => $data['name']['en'],
             'name_en' => $data['name']['en'],
             'name_ar' => $data['name']['ar'],
+            'description' => $data['description']['en'] ?? null,
             'description_en' => $data['description']['en'] ?? null,
             'description_ar' => $data['description']['ar'] ?? null,
             'is_service_provider' => $request->has('is_service_provider') ? 1 : 0,
         ];
 
         if ($request->hasFile('image')) {
-            if ($category->image_url) { // Assuming there might be a helper or check needed, but storage delete uses path
-                // Deleting handled by disk in real app usually, simplistic here
-            }
-            $categoryData['image'] = $request->file('image')->store('categories', 'public');
+            $categoryData['image'] = $this->imageService->replace(
+                $request->file('image'),
+                'categories',
+                $category->image_url ?? $category->image // try accessor or raw
+            );
         }
 
         $category->update($categoryData);
@@ -99,6 +112,8 @@ class CategoryController extends Controller
 
     public function destroy(Category $category)
     {
+        $this->imageService->delete($category->image_url ?? $category->image);
+
         $category->delete();
         $this->flashSuccess(__('admin.messages.deleted'));
         return redirect()->route('admin.categories.index');

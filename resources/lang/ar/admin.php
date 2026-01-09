@@ -36,6 +36,7 @@ return [
         'actions' => 'الاجراءات',
         'back' => 'رجوع',
         'submit' => 'إرسال',
+        'filter' => 'تصفية'
     ],
     'categories' => [
         'index' => 'الأقسام',
@@ -52,6 +53,8 @@ return [
         'description' => 'الوصف',
         'is_service_provider' => 'هو مزود خدمة',
         'add_new' => 'إضافة جديد',
+        'all' => 'الكل',
+        'search' => 'بحث',
     ],
     'sports' => [
         'index' => 'الرياضات',
@@ -61,6 +64,7 @@ return [
         'icon' => 'الأيقونة',
         'description' => 'الوصف',
         'active' => 'نشط',
+        'title' => 'الرياضة'
     ],
     'sliders' => [
         'index' => 'الشرائح',
@@ -79,6 +83,11 @@ return [
         'sport' => 'الرياضة',
         'logo' => 'الشعار',
         'active' => 'نشط',
+        'season' => 'الموسم',
+        'start_date' => 'تاريخ البدء',
+        'end_date' => 'تاريخ الانتهاء',
+        'description' => 'الوصف',
+        'image' => 'الصورة',
     ],
     'events' => [
         'index' => 'الفعاليات',
@@ -89,6 +98,8 @@ return [
         'date' => 'التاريخ',
         'location' => 'الموقع',
         'price' => 'السعر',
+        'venue' => 'المكان',
+        'capacity' => 'السعة',
     ],
     'news' => [
         'index' => 'الأخبار',
@@ -96,8 +107,15 @@ return [
         'create' => 'إنشاء مقال',
         'edit' => 'تعديل مقال',
         'content' => 'المحتوى',
-        'image' => 'الصورة',
+        'image' => 'الصورة الرئيسية',
         'publish_date' => 'تاريخ النشر',
+        'gallery_images' => 'صور المعرض',
+        'video' => 'فيديو',
+        'video_url' => 'أو رابط فيديو',
+        'choose_file' => 'اختر ملف',
+        'choose_images' => 'اختر صور',
+        'choose_video' => 'اختر فيديو',
+        'sport' => 'الرياضة',
     ],
     'posts' => [
         'title' => 'منشورات المجتمع',
@@ -151,6 +169,16 @@ return [
         'deleted_successfully' => 'تم الحذف بنجاح',
         'confirm_delete' => 'هل أنت متأكد أنك تريد حذف هذا العنصر؟',
         'no_description' => 'لا يوجد وصف متاح',
+        'updated' => 'تم التحديث بنجاح',
+        'created' => 'تم الإنشاء بنجاح',
+        'deleted' => 'تم الحذف بنجاح',
+        'hello' => 'مرحبا',
+    ],
+    'modal' => [
+        'success' => 'تم بنجاح!',
+        'error' => 'خطأ!',
+        'ok' => 'موافق',
+        'cancel' => 'إلغاء',
     ],
     'status' => [
         'pending' => 'قيد الانتظار',

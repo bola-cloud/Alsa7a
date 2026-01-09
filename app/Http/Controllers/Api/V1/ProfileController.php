@@ -62,54 +62,66 @@ class ProfileController extends Controller
      */
     protected function formatProfileResponse($user, $isFollowing)
     {
+        // Check if viewing own profile
+        $isMe = request()->user() && request()->user()->id === $user->id;
+
+        $data = [
+            'id' => $user->id,
+            'name' => $user->name,
+            'username' => $user->email,
+            'email' => $user->email, // Added explicit email usually good
+            'phone' => $user->phone, // Added phone number
+            'profile_title' => $user->profile_title,
+            'bio' => $user->bio,
+            'image' => $user->profile_photo_url,
+            'cover_photo' => $user->cover_photo_path ? url('storage/' . $user->cover_photo_path) : null,
+            'category' => $user->category ? [
+                'id' => $user->category->id,
+                'name' => $user->category->name,
+                'is_service_provider' => $user->category->is_service_provider
+            ] : null,
+
+            // Professional Details
+            'professional' => [
+                'club' => $user->club ? [
+                    'id' => $user->club->id,
+                    'name' => $user->club->name,
+                    'logo' => $user->club->logo_url
+                ] : null,
+                'team_id' => $user->team_id,
+                'position' => $user->position,
+                'number' => $user->number,
+                'nationality' => $user->nationality,
+                'stats' => $user->stats,
+            ],
+
+            // Questions & Answers (Detailed List)
+            'questions_data' => $user->answers->map(function ($answer) {
+                return [
+                    'question_id' => $answer->question_id,
+                    'question' => $answer->question->question ?? null,
+                    'type' => $answer->question->type ?? null,
+                    'answer' => $answer->answer,
+                ];
+            }),
+
+            'stats' => [ // Social Stats
+                'posts' => $user->posts_count,
+                'followers' => $user->followers_count,
+                'following' => $user->following_count,
+            ],
+            'is_following' => $isFollowing,
+        ];
+
+        // Add private/progress info if it's my profile
+        if ($isMe) {
+            $data['answered_question_ids'] = $user->answered_question_ids;
+            $data['questions_complete'] = (bool) $user->questions_complete;
+        }
+
         return response()->json([
             'status' => true,
-            'data' => [
-                'id' => $user->id,
-                'name' => $user->name,
-                'username' => $user->email,
-                'profile_title' => $user->profile_title,
-                'bio' => $user->bio,
-                'image' => $user->profile_photo_url,
-                'cover_photo' => $user->cover_photo_path ? url('storage/' . $user->cover_photo_path) : null,
-                'category' => $user->category ? [
-                    'id' => $user->category->id,
-                    'name' => $user->category->name,
-                    'is_service_provider' => $user->category->is_service_provider
-                ] : null,
-
-                // Professional Details
-                'professional' => [
-                    'club' => $user->club ? [
-                        'id' => $user->club->id,
-                        'name' => $user->club->name,
-                        'logo' => $user->club->logo_url
-                    ] : null,
-                    'team_id' => $user->team_id,
-                    'position' => $user->position,
-                    'number' => $user->number,
-                    'nationality' => $user->nationality,
-                    'stats' => $user->stats,
-                ],
-
-                // Questions & Answers
-                'questions_data' => $user->answers->map(function ($answer) {
-                    return [
-                        'question_id' => $answer->question_id,
-                        'question' => $answer->question->question ?? null, // Ensure question relation is loaded
-                        'type' => $answer->question->type ?? null,
-                        'answer' => $answer->answer,
-                    ];
-                }),
-
-                'stats' => [ // Social Stats
-                    'posts' => $user->posts_count,
-                    'followers' => $user->followers_count,
-                    'following' => $user->following_count,
-                ],
-                'is_following' => $isFollowing,
-                // 'gallery' removed as per request (use GET /users/{id}/posts)
-            ],
+            'data' => $data,
             'message' => 'Profile retrieved successfully'
         ]);
     }

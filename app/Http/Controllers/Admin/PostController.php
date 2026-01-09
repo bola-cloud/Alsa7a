@@ -12,9 +12,21 @@ class PostController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $posts = Post::with('user')->latest()->paginate(20);
+        $query = Post::with('user')->latest();
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('content', 'like', "%{$search}%")
+                    ->orWhereHas('user', function ($userQuery) use ($search) {
+                        $userQuery->where('name', 'like', "%{$search}%");
+                    });
+            });
+        }
+
+        $posts = $query->paginate(20)->withQueryString();
         return view('admin.posts.index', compact('posts'));
     }
 

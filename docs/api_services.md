@@ -311,6 +311,8 @@ Lists requests where the logged-in user is the **Provider**.
         "id": 5,
         "name": "Ahmed",
         "username": "ahmed@example.com",
+        "email": "ahmed@example.com",
+        "phone": "962791234567",
         "profile_title": "Pro Coach",
         "bio": "Experienced football coach...",
         "image": "http://...",
@@ -341,6 +343,8 @@ Lists requests where the logged-in user is the **Provider**.
 - `questions_data` (Questions answered by the user)
 - `professional` details
 - `gallery` (Posts)
+- `answered_question_ids`: `[1, 2, 5]` (IDs of answered questions)
+- `questions_complete`: `true` (Boolean status)
 
 ### Update My Profile (Protected)
 **POST** `/users/profile`

@@ -45,4 +45,9 @@ class ServiceRequest extends Model
     {
         return $this->belongsTo(User::class, 'provider_id');
     }
+
+    public function conversation()
+    {
+        return $this->hasOne(Conversation::class);
+    }
 }

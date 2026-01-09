@@ -5,11 +5,45 @@
         <h1>{{ __('User Management') }}</h1>
 
         <div class="mb-3">
-            <a href="{{ route('admin.users.index') }}" class="btn btn-default">All</a>
-            <a href="{{ route('admin.users.index', ['pending_approval' => 1]) }}" class="btn btn-warning">Pending
-                Approval</a>
-            <a href="{{ route('admin.users.index', ['pending_verification' => 1]) }}" class="btn btn-info">Pending Document
-                Verification</a>
+             <div class="row">
+                 <div class="col-md-6 mb-2">
+                    <a href="{{ route('admin.users.index') }}" class="btn btn-default mr-1">All</a>
+                    <a href="{{ route('admin.users.index', ['pending_approval' => 1]) }}" class="btn btn-outline-warning mr-1">Pending Approval</a>
+                    <a href="{{ route('admin.users.index', ['pending_verification' => 1]) }}" class="btn btn-outline-info">Doc Verification</a>
+                 </div>
+             </div>
+        </div>
+
+        <div class="card mb-4 shadow-sm border-0">
+            <div class="card-body p-3">
+                <form action="{{ route('admin.users.index') }}" method="GET">
+                    <div class="row align-items-end">
+                        <div class="col-md-5 mb-2 mb-md-0">
+                            <label class="text-muted small mb-1">{{ __('Search') }}</label>
+                            <div class="position-relative">
+                                <input type="text" name="search" class="form-control pl-4" placeholder="Name, Email, Phone..." value="{{ request('search') }}">
+                                <i class="la la-search position-absolute" style="top: 10px; left: 10px; color: #b0afb5;"></i>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-2 mb-md-0">
+                            <label class="text-muted small mb-1">{{ __('Role/Category') }}</label>
+                            <select name="category_id" class="form-control">
+                                <option value="">All Roles</option>
+                                @foreach($categories as $category)
+                                    <option value="{{ $category->id }}" {{ request('category_id') == $category->id ? 'selected' : '' }}>
+                                        {{ $category->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <button type="submit" class="btn btn-primary btn-block">
+                                <i class="la la-filter"></i> {{ __('Filter') }}
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
         </div>
 
         <div class="card">

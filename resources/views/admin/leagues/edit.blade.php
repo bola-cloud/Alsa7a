@@ -27,13 +27,26 @@
 
                         <div class="row">
                             <div class="col-md-6">
-                                @foreach(LaravelLocalization::getSupportedLocales() as $localeCode => $properties)
-                                    <div class="form-group">
-                                        <label>{{ __('admin.leagues.name') }} ({{ $properties['native'] }})</label>
-                                        <input type="text" name="name[{{ $localeCode }}]" class="form-control" required
-                                            value="{{ old('name.' . $localeCode, $league->getTranslation('name', $localeCode)) }}">
-                                    </div>
-                                @endforeach
+                                <div class="form-group">
+                                    <label>{{ __('admin.leagues.name') }} (EN)</label>
+                                    <input type="text" name="name[en]" class="form-control" required
+                                        value="{{ old('name.en', $league->name_en) }}">
+                                </div>
+                                <div class="form-group">
+                                    <label>{{ __('admin.leagues.name') }} (AR)</label>
+                                    <input type="text" name="name[ar]" class="form-control" required
+                                        value="{{ old('name.ar', $league->name_ar) }}">
+                                </div>
+                                <div class="form-group">
+                                    <label>{{ __('admin.leagues.description') }} (EN)</label>
+                                    <textarea name="description[en]" class="form-control"
+                                        rows="3">{{ old('description.en', $league->description_en) }}</textarea>
+                                </div>
+                                <div class="form-group">
+                                    <label>{{ __('admin.leagues.description') }} (AR)</label>
+                                    <textarea name="description[ar]" class="form-control"
+                                        rows="3">{{ old('description.ar', $league->description_ar) }}</textarea>
+                                </div>
 
                                 <div class="form-group">
                                     <label>{{ __('admin.sports.index') }}</label>
@@ -86,9 +99,11 @@
                                     <label>{{ __('admin.sports.active') }}</label>
                                     <select name="is_active" class="form-control">
                                         <option value="1" {{ $league->is_active ? 'selected' : '' }}>
-                                            {{ __('admin.categories.yes') }}</option>
+                                            {{ __('admin.categories.yes') }}
+                                        </option>
                                         <option value="0" {{ !$league->is_active ? 'selected' : '' }}>
-                                            {{ __('admin.categories.no') }}</option>
+                                            {{ __('admin.categories.no') }}
+                                        </option>
                                     </select>
                                 </div>
                             </div>

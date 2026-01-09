@@ -12,6 +12,21 @@ class UserController extends Controller
     {
         $query = User::with('category')->latest();
 
+        // General Search (Name, Email, Phone)
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                    ->orWhere('email', 'like', "%{$search}%")
+                    ->orWhere('phone', 'like', "%{$search}%");
+            });
+        }
+
+        // Filter by Role (Category)
+        if ($request->filled('category_id')) {
+            $query->where('category_id', $request->category_id);
+        }
+
         // Filter by Pending Approvals / Verifications
         if ($request->has('pending_approval')) {
             $query->where('is_approved', false);
@@ -20,8 +35,12 @@ class UserController extends Controller
             $query->where('verification_status', 'pending');
         }
 
-        $users = $query->paginate(20);
-        return view('admin.users.index', compact('users'));
+        $users = $query->paginate(20)->withQueryString();
+        // Assuming we need categories for filter, let's fetch them or use view composer if exists.
+        // I'll fetch them here to be safe.
+        $categories = \App\Models\Category::all();
+
+        return view('admin.users.index', compact('users', 'categories'));
     }
 
     public function show(User $user)

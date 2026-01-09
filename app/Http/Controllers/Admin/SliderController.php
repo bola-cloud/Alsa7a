@@ -7,11 +7,18 @@ use App\Models\Slider;
 use App\Http\Requests\Admin\Slider\StoreSliderRequest;
 use App\Http\Requests\Admin\Slider\UpdateSliderRequest;
 use App\Traits\HasAdminResponse;
-use Illuminate\Support\Facades\Storage;
+use App\Services\ImageService;
 
 class SliderController extends Controller
 {
     use HasAdminResponse;
+
+    protected $imageService;
+
+    public function __construct(ImageService $imageService)
+    {
+        $this->imageService = $imageService;
+    }
 
     /**
      * Display a listing of the resource.
@@ -39,7 +46,14 @@ class SliderController extends Controller
 
         // Handle Image Upload
         if ($request->hasFile('image')) {
-            $data['image'] = $request->file('image')->store('sliders', 'public');
+            $data['image'] = $this->imageService->upload($request->file('image'), 'sliders');
+        }
+
+        // Unpack localized title
+        if (isset($data['title'])) {
+            $data['title_en'] = $data['title']['en'] ?? null;
+            $data['title_ar'] = $data['title']['ar'] ?? null;
+            $data['title'] = $data['title']['en'] ?? null; // Fallback
         }
 
         Slider::create($data);
@@ -63,11 +77,18 @@ class SliderController extends Controller
         $data = $request->validated();
 
         if ($request->hasFile('image')) {
-            // Delete old image if exists and not external
-            if ($slider->image && !preg_match('#^https?://#i', $slider->image)) {
-                Storage::disk('public')->delete($slider->image);
-            }
-            $data['image'] = $request->file('image')->store('sliders', 'public');
+            $data['image'] = $this->imageService->replace(
+                $request->file('image'),
+                'sliders',
+                $slider->image
+            );
+        }
+
+        // Unpack localized title
+        if (isset($data['title'])) {
+            $data['title_en'] = $data['title']['en'] ?? null;
+            $data['title_ar'] = $data['title']['ar'] ?? null;
+            $data['title'] = $data['title']['en'] ?? null; // Fallback
         }
 
         $slider->update($data);
@@ -80,9 +101,7 @@ class SliderController extends Controller
      */
     public function destroy(Slider $slider)
     {
-        if ($slider->image && !preg_match('#^https?://#i', $slider->image)) {
-            Storage::disk('public')->delete($slider->image);
-        }
+        $this->imageService->delete($slider->image);
 
         $slider->delete();
 
