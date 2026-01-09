@@ -36,6 +36,7 @@ class SettingController extends Controller
             }
         }
 
-        return redirect()->back()->with('success', 'Settings updated successfully');
+        $this->flashSuccess('Settings updated successfully');
+        return redirect()->back();
     }
 }

@@ -66,7 +66,8 @@ class ClubController extends Controller
             $club->sports()->sync($request->sports);
         }
 
-        return redirect()->route('admin.clubs.index')->with('success', 'Club created successfully');
+        $this->flashSuccess('Club created successfully');
+        return redirect()->route('admin.clubs.index');
     }
 
     /**
@@ -121,7 +122,8 @@ class ClubController extends Controller
             $club->sports()->sync($request->sports);
         }
 
-        return redirect()->route('admin.clubs.index')->with('success', 'Club updated successfully');
+        $this->flashSuccess('Club updated successfully');
+        return redirect()->route('admin.clubs.index');
     }
 
     /**
@@ -130,6 +132,7 @@ class ClubController extends Controller
     public function destroy(Club $club)
     {
         $club->delete();
-        return redirect()->route('admin.clubs.index')->with('success', 'Club deleted successfully');
+        $this->flashSuccess('Club deleted successfully');
+        return redirect()->route('admin.clubs.index');
     }
 }

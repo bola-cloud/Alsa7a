@@ -7,6 +7,15 @@
                 <div class="card-header">
                     <h4 class="card-title">{{ __('admin.categories.create') }}</h4>
                 </div>
+                @if ($errors->any())
+                    <div class="alert alert-danger">
+                        <ul>
+                            @foreach ($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
                 <div class="card-content collapse show">
                     <div class="card-body">
                         <form action="{{ route('admin.categories.store') }}" method="POST" enctype="multipart/form-data">

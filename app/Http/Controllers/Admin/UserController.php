@@ -36,7 +36,8 @@ class UserController extends Controller
     {
         $user->is_approved = true;
         $user->save();
-        return redirect()->back()->with('success', 'User approved successfully');
+        $this->flashSuccess('User approved successfully');
+        return redirect()->back();
     }
 
     /**
@@ -60,6 +61,7 @@ class UserController extends Controller
 
         $user->save();
 
-        return redirect()->back()->with('success', 'Verification status updated');
+        $this->flashSuccess('Verification status updated');
+        return redirect()->back();
     }
 }

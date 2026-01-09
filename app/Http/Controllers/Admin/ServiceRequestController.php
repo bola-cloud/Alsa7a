@@ -39,6 +39,7 @@ class ServiceRequestController extends Controller
         $serviceRequest->status = $request->status;
         $serviceRequest->save();
 
-        return redirect()->back()->with('success', 'Status updated successfully');
+        $this->flashSuccess('Status updated successfully');
+        return redirect()->back();
     }
 }

@@ -89,7 +89,8 @@ class NewsController extends Controller
             ]);
         }
 
-        return redirect()->route('admin.news.index')->with('success', __('admin.messages.created'));
+        $this->flashSuccess(__('admin.messages.created'));
+        return redirect()->route('admin.news.index');
     }
 
     /**
@@ -196,7 +197,8 @@ class NewsController extends Controller
             }
         }
 
-        return redirect()->route('admin.news.index')->with('success', __('admin.messages.updated'));
+        $this->flashSuccess(__('admin.messages.updated'));
+        return redirect()->route('admin.news.index');
     }
 
     /**
@@ -209,6 +211,7 @@ class NewsController extends Controller
         }
         $news->delete();
 
-        return redirect()->route('admin.news.index')->with('success', __('admin.messages.deleted'));
+        $this->flashSuccess(__('admin.messages.deleted'));
+        return redirect()->route('admin.news.index');
     }
 }

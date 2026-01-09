@@ -28,7 +28,8 @@ class PostController extends Controller
         }
         $post->delete();
 
-        return redirect()->back()->with('success', __('admin.messages.deleted'));
+        $this->flashSuccess(__('admin.messages.deleted'));
+        return redirect()->back();
     }
 
     public function toggle(Post $post)
@@ -36,6 +37,7 @@ class PostController extends Controller
         $post->update(['is_hidden' => !$post->is_hidden]);
 
         $message = $post->is_hidden ? 'Post hidden successfully' : 'Post visible successfully';
-        return redirect()->back()->with('success', $message);
+        $this->flashSuccess($message);
+        return redirect()->back();
     }
 }

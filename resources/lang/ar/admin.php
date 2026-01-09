@@ -51,6 +51,7 @@ return [
         'provider' => 'مزود خدمة',
         'description' => 'الوصف',
         'is_service_provider' => 'هو مزود خدمة',
+        'add_new' => 'إضافة جديد',
     ],
     'sports' => [
         'index' => 'الرياضات',

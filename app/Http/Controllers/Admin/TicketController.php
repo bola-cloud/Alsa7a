@@ -28,6 +28,7 @@ class TicketController extends Controller
 
         $ticket->update($data);
 
-        return redirect()->route('admin.tickets.show', $ticket)->with('success', __('admin.messages.updated'));
+        $this->flashSuccess(__('admin.messages.updated'));
+        return redirect()->route('admin.tickets.show', $ticket);
     }
 }

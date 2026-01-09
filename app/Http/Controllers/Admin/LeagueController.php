@@ -41,7 +41,8 @@ class LeagueController extends Controller
 
         $league = League::create($data);
 
-        return redirect()->route('admin.leagues.index')->with('success', __('admin.messages.created'));
+        $this->flashSuccess(__('admin.messages.created'));
+        return redirect()->route('admin.leagues.index');
     }
 
     public function edit(League $league)
@@ -67,7 +68,8 @@ class LeagueController extends Controller
 
         $league->update($data);
 
-        return redirect()->route('admin.leagues.index')->with('success', __('admin.messages.updated'));
+        $this->flashSuccess(__('admin.messages.updated'));
+        return redirect()->route('admin.leagues.index');
     }
 
     public function destroy(League $league)
@@ -76,6 +78,7 @@ class LeagueController extends Controller
             Storage::disk('public')->delete($league->image);
         }
         $league->delete();
-        return redirect()->route('admin.leagues.index')->with('success', __('admin.messages.deleted'));
+        $this->flashSuccess(__('admin.messages.deleted'));
+        return redirect()->route('admin.leagues.index');
     }
 }

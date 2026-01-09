@@ -49,7 +49,8 @@ class CategoryController extends Controller
 
         Category::create($categoryData);
 
-        return redirect()->route('admin.categories.index')->with('success', __('admin.messages.created'));
+        $this->flashSuccess(__('admin.messages.created'));
+        return redirect()->route('admin.categories.index');
     }
 
     public function show(Category $category)
@@ -92,12 +93,14 @@ class CategoryController extends Controller
 
         $category->update($categoryData);
 
-        return redirect()->route('admin.categories.index')->with('success', __('admin.messages.updated'));
+        $this->flashSuccess(__('admin.messages.updated'));
+        return redirect()->route('admin.categories.index');
     }
 
     public function destroy(Category $category)
     {
         $category->delete();
-        return redirect()->route('admin.categories.index')->with('success', __('admin.messages.deleted'));
+        $this->flashSuccess(__('admin.messages.deleted'));
+        return redirect()->route('admin.categories.index');
     }
 }

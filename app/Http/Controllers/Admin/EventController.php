@@ -40,7 +40,8 @@ class EventController extends Controller
 
         Event::create($data);
 
-        return redirect()->route('admin.events.index')->with('success', __('admin.messages.created'));
+        $this->flashSuccess(__('admin.messages.created'));
+        return redirect()->route('admin.events.index');
     }
 
     public function show(Event $event, Request $request)
@@ -91,7 +92,8 @@ class EventController extends Controller
 
         $event->update($data);
 
-        return redirect()->route('admin.events.index')->with('success', __('admin.messages.updated'));
+        $this->flashSuccess(__('admin.messages.updated'));
+        return redirect()->route('admin.events.index');
     }
 
     public function destroy(Event $event)
@@ -100,6 +102,7 @@ class EventController extends Controller
             Storage::disk('public')->delete($event->featured_image);
         }
         $event->delete();
-        return redirect()->route('admin.events.index')->with('success', __('admin.messages.deleted'));
+        $this->flashSuccess(__('admin.messages.deleted'));
+        return redirect()->route('admin.events.index');
     }
 }

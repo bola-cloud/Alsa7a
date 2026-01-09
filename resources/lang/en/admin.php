@@ -51,6 +51,7 @@ return [
         'provider' => 'Provider',
         'description' => 'Description',
         'is_service_provider' => 'Is Service Provider',
+        'add_new' => 'Add New',
     ],
     'sports' => [
         'index' => 'Sports',
