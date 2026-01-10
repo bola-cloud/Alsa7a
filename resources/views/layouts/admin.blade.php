@@ -86,6 +86,7 @@
                 padding: 0px !important;
             }
         }
+
         /* Search Dropdown CSS */
         .search-results-dropdown {
             position: absolute;
@@ -94,13 +95,14 @@
             right: 0;
             background: #fff;
             border-radius: 0 0 15px 15px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
             z-index: 1000;
             max-height: 400px;
             overflow-y: auto;
             display: none;
             margin-top: 5px;
         }
+
         .search-item {
             padding: 12px 20px;
             border-bottom: 1px solid #f8f9fa;
@@ -110,21 +112,28 @@
             text-decoration: none;
             transition: all 0.2s;
         }
-        .search-item:last-child { border-bottom: none; }
+
+        .search-item:last-child {
+            border-bottom: none;
+        }
+
         .search-item:hover {
             background: #f3f4f6;
             text-decoration: none;
             color: #333;
         }
+
         .search-item i {
             margin-right: 15px;
             font-size: 1.2rem;
             color: #9ca3af;
         }
+
         html[lang="ar"] .search-item i {
             margin-right: 0;
             margin-left: 15px;
         }
+
         .search-type {
             font-size: 0.75rem;
             color: #9ca3af;
@@ -135,6 +144,7 @@
             padding: 2px 6px;
             border-radius: 4px;
         }
+
         html[lang="ar"] .search-type {
             margin-left: 0;
             margin-right: auto;
@@ -177,9 +187,9 @@
                         <li class="nav-item d-none d-md-block nav-search-container"
                             style="margin-top: 10px; margin-left: 20px; width: 400px;">
                             <div class="position-relative">
-                                <input type="text" id="global-search-input" class="form-control round border-0 shadow-sm"
-                                    placeholder="{{ __('admin.buttons.actions') }}..." 
-                                    autocomplete="off"
+                                <input type="text" id="global-search-input"
+                                    class="form-control round border-0 shadow-sm"
+                                    placeholder="{{ __('admin.buttons.actions') }}..." autocomplete="off"
                                     style="border-radius: 999px; padding-left: 1.5rem;">
                                 <div class="form-control-position" style="right: 10px; top: 2px;">
                                     <i class="la la-search primary font-medium-4"></i>
@@ -292,8 +302,14 @@
 
                         <li class="nav-item {{ request()->routeIs('admin.posts.*') ? 'active' : '' }}">
                             <a href="{{ route('admin.posts.index') }}">
-                                <i class="la la-comments"></i>
+                                <i class="la la-instagram"></i>
                                 <span class="menu-title">{{ __('admin.posts.title') }}</span>
+                            </a>
+                        </li>
+                        <li class="nav-item {{ request()->routeIs('admin.community_posts.*') ? 'active' : '' }}">
+                            <a href="{{ route('admin.community_posts.index') }}">
+                                <i class="la la-comments"></i>
+                                <span class="menu-title">{{ __('admin.community_posts.title') }}</span>
                             </a>
                         </li>
                         <li class="nav-item {{ request()->routeIs('admin.services.*') ? 'active' : '' }}">
@@ -455,12 +471,12 @@
     </script>
 
     <script>
-        $(document).ready(function() {
+        $(document).ready(function () {
             let timeout = null;
             const searchInput = $('#global-search-input');
             const resultsContainer = $('#global-search-results');
 
-            searchInput.on('keyup', function() {
+            searchInput.on('keyup', function () {
                 clearTimeout(timeout);
                 const query = $(this).val();
 
@@ -469,12 +485,12 @@
                     return;
                 }
 
-                timeout = setTimeout(function() {
+                timeout = setTimeout(function () {
                     $.ajax({
                         url: "{{ route('admin.global_search') }}",
                         type: "GET",
                         data: { query: query },
-                        success: function(data) {
+                        success: function (data) {
                             if (data.length > 0) {
                                 let html = '';
                                 data.forEach(item => {
@@ -498,15 +514,15 @@
             });
 
             // Close on click outside
-            $(document).on('click', function(e) {
+            $(document).on('click', function (e) {
                 if (!$(e.target).closest('.nav-search-container').length) {
                     resultsContainer.slideUp(100);
                 }
             });
-            
+
             // Re-open on focus if has value
-            searchInput.on('focus', function() {
-                if($(this).val().length >= 2) {
+            searchInput.on('focus', function () {
+                if ($(this).val().length >= 2) {
                     resultsContainer.slideDown(200);
                 }
             });

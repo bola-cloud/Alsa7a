@@ -33,6 +33,7 @@ Route::group([
         Route::get('/dashboard', [Dashboard::class, 'index'])->name('dashboard');
 
         Route::resource('categories', CategoryController::class);
+        Route::resource('questions', \App\Http\Controllers\Admin\QuestionController::class);
         Route::resource('sports', SportController::class);
         Route::resource('sliders', SliderController::class);
         Route::resource('leagues', LeagueController::class);
@@ -57,6 +58,11 @@ Route::group([
 
         // Reports
         Route::get('reports/financial', [App\Http\Controllers\Admin\ReportController::class, 'financial'])->name('reports.financial');
+
+        // Community Posts (Blogs)
+        Route::get('community_posts', [\App\Http\Controllers\Admin\CommunityPostController::class, 'index'])->name('community_posts.index');
+        Route::delete('community_posts/{id}', [\App\Http\Controllers\Admin\CommunityPostController::class, 'destroy'])->name('community_posts.destroy');
+        Route::post('community_posts/{id}/toggle', [\App\Http\Controllers\Admin\CommunityPostController::class, 'toggle'])->name('community_posts.toggle');
 
         // Services & Tickets
         Route::resource('services', \App\Http\Controllers\Admin\ServiceController::class)->only(['index', 'show', 'destroy']);

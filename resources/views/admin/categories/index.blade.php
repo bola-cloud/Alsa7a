@@ -47,6 +47,11 @@
                                 <i class="la la-edit"></i>
                             </a>
 
+                            <a href="{{ route('admin.questions.index', ['category_id' => $category->id]) }}"
+                                class="btn btn-sm btn-outline-info" title="{{ __('admin.menu.questions') }}">
+                                <i class="la la-question-circle"></i>
+                            </a>
+
                             <form action="{{ route('admin.categories.destroy', $category->id) }}" method="POST"
                                 onsubmit="return confirm('{{ __('admin.buttons.confirm_delete') }}');">
                                 @csrf

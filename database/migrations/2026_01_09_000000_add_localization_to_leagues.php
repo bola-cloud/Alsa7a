@@ -11,10 +11,18 @@ return new class extends Migration {
     public function up(): void
     {
         Schema::table('leagues', function (Blueprint $table) {
-            $table->string('name_en')->nullable()->after('name');
-            $table->string('name_ar')->nullable()->after('name_en');
-            $table->text('description_en')->nullable()->after('description');
-            $table->text('description_ar')->nullable()->after('description_en');
+            if (!Schema::hasColumn('leagues', 'name_en')) {
+                $table->string('name_en')->nullable()->after('name');
+            }
+            if (!Schema::hasColumn('leagues', 'name_ar')) {
+                $table->string('name_ar')->nullable()->after('name_en');
+            }
+            if (!Schema::hasColumn('leagues', 'description_en')) {
+                $table->text('description_en')->nullable()->after('description');
+            }
+            if (!Schema::hasColumn('leagues', 'description_ar')) {
+                $table->text('description_ar')->nullable()->after('description_en');
+            }
         });
     }
 
