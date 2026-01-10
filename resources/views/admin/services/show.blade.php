@@ -34,11 +34,11 @@
                     @endif
 
                     <h4 class="card-title font-weight-bold">{{ $service->title }}</h4>
-                    <p class="text-muted mb-2">{{ $service->sport->name ?? 'General' }}</p>
+                    <p class="text-muted mb-2">{{ $service->sport->name ?? __('admin.services.general') }}</p>
 
                     <div class="mb-3">
                         <span class="badge badge-pill badge-{{ $service->is_active ? 'success' : 'danger' }} px-3 py-1">
-                            {{ $service->is_active ? 'Active' : 'Inactive' }}
+                            {{ $service->is_active ? __('admin.buttons.active') : __('admin.status.inactive') }}
                         </span>
                     </div>
 
@@ -48,15 +48,16 @@
 
                     <div class="row text-left mt-4">
                         <div class="col-12 py-2 border-bottom">
-                            <strong>Provider:</strong> <span
+                            <strong>{{ __('admin.services.provider') }}:</strong> <span
                                 class="float-right">{{ $service->provider->name ?? '-' }}</span>
                         </div>
                         <div class="col-12 py-2 border-bottom">
-                            <strong>Duration:</strong> <span class="float-right">{{ $service->duration_minutes }}
-                                mins</span>
+                            <strong>{{ __('admin.services.duration') }}:</strong> <span
+                                class="float-right">{{ $service->duration_minutes }}
+                                {{ __('admin.services.mins') }}</span>
                         </div>
                         <div class="col-12 py-2 border-bottom">
-                            <strong>Available Days:</strong> <br>
+                            <strong>{{ __('admin.services.available_days') }}:</strong> <br>
                             <span class="d-block mt-1 text-muted small">
                                 {{ isset($service->days_available) ? implode(', ', $service->days_available) : '-' }}
                             </span>
@@ -69,21 +70,24 @@
         <div class="col-md-8">
             <div class="card shadow-sm border-0 h-100">
                 <div class="card-header bg-white border-bottom-0 pt-4 pb-0">
-                    <h4 class="card-title">Description & Details</h4>
+                    <h4 class="card-title">{{ __('admin.services.description_details') }}</h4>
                 </div>
                 <div class="card-body">
                     <div class="mb-4">
-                        <label class="font-weight-bold text-muted text-uppercase small">Description</label>
+                        <label
+                            class="font-weight-bold text-muted text-uppercase small">{{ __('admin.services.description') }}</label>
                         <p class="text-dark">{{ $service->description }}</p>
                     </div>
 
                     <div class="mb-4">
-                        <label class="font-weight-bold text-muted text-uppercase small">Location</label>
+                        <label
+                            class="font-weight-bold text-muted text-uppercase small">{{ __('admin.services.location') }}</label>
                         <p class="text-dark"><i class="la la-map-marker text-danger"></i> {{ $service->location }}</p>
                     </div>
 
                     @if($service->media->count() > 1)
-                        <label class="font-weight-bold text-muted text-uppercase small mb-3">Gallery</label>
+                        <label
+                            class="font-weight-bold text-muted text-uppercase small mb-3">{{ __('admin.services.gallery') }}</label>
                         <div class="row">
                             @foreach($service->media as $media)
                                 <div class="col-md-3 col-6 mb-3">
@@ -104,7 +108,8 @@
                         style="display:inline-block">
                         @csrf
                         <button type="submit" class="btn {{ $service->is_active ? 'btn-danger' : 'btn-success' }}">
-                            <i class="la la-power-off"></i> {{ $service->is_active ? 'Deactivate' : 'Activate' }}
+                            <i class="la la-power-off"></i>
+                            {{ $service->is_active ? __('admin.services.deactivate') : __('admin.services.activate') }}
                         </button>
                     </form>
                 </div>
