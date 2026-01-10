@@ -256,6 +256,12 @@
                                     data-i18n="nav.morris_charts.main">{{ __('admin.menu.dashboard') }}</span>
                             </a>
                         </li>
+                        <li class="nav-item {{ Route::is('admin.users.*') ? 'active' : '' }}">
+                            <a href="{{ route('admin.users.index') }}">
+                                <i class="la la-users"></i>
+                                <span class="menu-title">{{ __('admin.dashboard.users') }}</span>
+                            </a>
+                        </li>
                         <li class="nav-item {{ Route::is('admin.categories.*') ? 'active' : '' }}">
                             <a href="{{ route('admin.categories.index') }}">
                                 <i class="la la-list"></i>
