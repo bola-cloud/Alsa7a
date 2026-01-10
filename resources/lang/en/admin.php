@@ -44,6 +44,7 @@ return [
         'all' => 'All',
         'hidden' => 'Hidden',
         'active' => 'Active',
+        'select' => 'Select',
     ],
     'community_posts' => [
         'title' => 'Community Posts',
@@ -147,6 +148,15 @@ return [
         'name' => 'Name',
         'provider' => 'Provider',
         'price' => 'Price',
+    ],
+    'questions' => [
+        'title' => 'Questions',
+        'create' => 'Create Question',
+        'edit' => 'Edit Question',
+        'question' => 'Question',
+        'type' => 'Type',
+        'category' => 'Category',
+        'choices' => 'Choices',
     ],
     'service_requests' => [
         'title' => 'Service Requests',

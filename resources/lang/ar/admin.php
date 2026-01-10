@@ -44,6 +44,7 @@ return [
         'all' => 'الكل',
         'hidden' => 'مخفي',
         'active' => 'نشط',
+        'select' => 'اختر',
     ],
     'community_posts' => [
         'title' => 'منشورات المجتمع',
@@ -147,6 +148,15 @@ return [
         'name' => 'الاسم',
         'provider' => 'المزود',
         'price' => 'السعر',
+    ],
+    'questions' => [
+        'title' => 'الأسئلة',
+        'create' => 'إنشاء سؤال',
+        'edit' => 'تعديل سؤال',
+        'question' => 'السؤال',
+        'type' => 'النوع',
+        'category' => 'القسم',
+        'choices' => 'الخيارات',
     ],
     'service_requests' => [
         'title' => 'طلبات الخدمات',

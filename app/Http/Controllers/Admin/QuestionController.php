@@ -49,12 +49,30 @@ class QuestionController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'question' => 'required|string',
-            'type' => 'required|in:text,boolean,rating', // Adjust based on actual types
+            'question_en' => 'required|string',
+            'question_ar' => 'required|string',
+            'type' => 'required|in:text,boolean,rating,multiple_choice',
             'category_id' => 'required|exists:categories,id',
+            'choices' => 'nullable|string', // Validated as json if needed, but simple string is easier for now
         ]);
 
-        Question::create($request->all());
+        $data = $request->only(['type', 'category_id']);
+        $data['question'] = [
+            'en' => $request->question_en,
+            'ar' => $request->question_ar
+        ];
+
+        if ($request->filled('choices')) {
+            // Try to decode to ensure valid JSON or store as is if field expects array cast
+            // Assuming model casts choices to array, we should pass an array or valid JSON string.
+            // If input is a raw JSON string from textarea:
+            $choices = json_decode($request->choices, true);
+            if (json_last_error() === JSON_ERROR_NONE) {
+                $data['choices'] = $choices;
+            }
+        }
+
+        Question::create($data);
 
         return redirect()->route('admin.questions.index')->with('swal_success', __('admin.messages.created_successfully'));
     }
@@ -74,12 +92,38 @@ class QuestionController extends Controller
     public function update(Request $request, Question $question)
     {
         $request->validate([
-            'question' => 'required|string',
-            'type' => 'required|in:text,boolean,rating',
+            'question_en' => 'required|string',
+            'question_ar' => 'required|string',
+            'type' => 'required|in:text,boolean,rating,multiple_choice',
             'category_id' => 'required|exists:categories,id',
+            'choices' => 'nullable|string',
         ]);
 
-        $question->update($request->all());
+        $data = $request->only(['type', 'category_id']);
+        $data['question'] = [
+            'en' => $request->question_en,
+            'ar' => $request->question_ar
+        ];
+
+        if ($request->filled('choices')) {
+            $choices = json_decode($request->choices, true);
+            if (json_last_error() === JSON_ERROR_NONE) {
+                $data['choices'] = $choices;
+            }
+        } else {
+            $data['choices'] = null;
+        }
+
+        // We use query 'update' or model 'update'? Model update works with casts.
+        // However, Spatie Translatable trait usually hooks into setAttribute.
+        // We need to verify if $question->update($data) works with the array for 'question'.
+        // It should if $fillable and casts are set up.
+
+        $question->question = $data['question']; // Explicitly set translation
+        $question->type = $data['type'];
+        $question->category_id = $data['category_id'];
+        $question->choices = $data['choices'] ?? null;
+        $question->save();
 
         return redirect()->route('admin.questions.index')->with('swal_success', __('admin.messages.updated_successfully'));
     }
