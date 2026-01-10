@@ -40,6 +40,18 @@ return [
         'submit' => 'Submit',
         'filter' => 'Filter',
         'logout' => 'Logout',
+        'search' => 'Search',
+        'all' => 'All',
+        'hidden' => 'Hidden',
+        'active' => 'Active',
+    ],
+    'community_posts' => [
+        'title' => 'Community Posts',
+        'index' => 'Posts',
+        'create' => 'Create Post',
+        'edit' => 'Edit Post',
+        'content' => 'Content',
+        'image' => 'Image',
     ],
     'categories' => [
         'index' => 'Categories',

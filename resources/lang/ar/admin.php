@@ -40,6 +40,18 @@ return [
         'submit' => 'إرسال',
         'filter' => 'تصفية',
         'logout' => 'تسجيل الخروج',
+        'search' => 'بحث',
+        'all' => 'الكل',
+        'hidden' => 'مخفي',
+        'active' => 'نشط',
+    ],
+    'community_posts' => [
+        'title' => 'منشورات المجتمع',
+        'index' => 'المنشورات',
+        'create' => 'إنشاء منشور',
+        'edit' => 'تعديل منشور',
+        'content' => 'المحتوى',
+        'image' => 'الصورة',
     ],
     'categories' => [
         'index' => 'الأقسام',
