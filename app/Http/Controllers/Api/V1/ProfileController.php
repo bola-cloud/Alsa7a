@@ -259,4 +259,61 @@ class ProfileController extends Controller
             'data' => ['status' => $status]
         ]);
     }
+
+    /**
+     * Get User Followers (Paginated).
+     */
+    public function followers(Request $request, $id)
+    {
+        $user = User::find($id);
+        if (!$user) {
+            return response()->json(['status' => false, 'message' => 'User not found'], 404);
+        }
+
+        $followers = $user->followers()
+            ->select('users.id', 'users.name', 'users.email', 'users.profile_photo_path', 'users.profile_title')
+            ->paginate(15);
+
+        // Check if I am following them (for the button state)
+        if ($currentUser = $request->user('sanctum')) {
+            // We need to check if *I* follow *them* (the people in the list)
+            // This can be N+1 if not careful.
+            // For simplicity, let's just return the list first.
+            // Optimally:
+            $myFollowingIds = $currentUser->following()->pluck('users.id')->toArray();
+        }
+
+        return response()->json([
+            'status' => true,
+            'data' => $followers,
+            'my_following_ids' => $myFollowingIds ?? [], // Send IDs I follow to frontend to check "is_following" status for each
+            'message' => 'Followers retrieved successfully'
+        ]);
+    }
+
+    /**
+     * Get User Following (Paginated).
+     */
+    public function following(Request $request, $id)
+    {
+        $user = User::find($id);
+        if (!$user) {
+            return response()->json(['status' => false, 'message' => 'User not found'], 404);
+        }
+
+        $following = $user->following()
+            ->select('users.id', 'users.name', 'users.email', 'users.profile_photo_path', 'users.profile_title')
+            ->paginate(15);
+
+        if ($currentUser = $request->user('sanctum')) {
+            $myFollowingIds = $currentUser->following()->pluck('users.id')->toArray();
+        }
+
+        return response()->json([
+            'status' => true,
+            'data' => $following,
+            'my_following_ids' => $myFollowingIds ?? [],
+            'message' => 'Following retrieved successfully'
+        ]);
+    }
 }

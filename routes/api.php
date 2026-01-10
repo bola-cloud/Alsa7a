@@ -104,13 +104,22 @@ Route::prefix('v1')->middleware('set.api.locale')->group(function () {
         // --- Profile Actions ---
         Route::post('users/profile', [App\Http\Controllers\Api\V1\ProfileController::class, 'update']);
         Route::post('users/{id}/follow', [App\Http\Controllers\Api\V1\ProfileController::class, 'follow']);
+        Route::get('users/{id}/followers', [App\Http\Controllers\Api\V1\ProfileController::class, 'followers']);
+        Route::get('users/{id}/following', [App\Http\Controllers\Api\V1\ProfileController::class, 'following']);
 
         // --- Post/Community Actions ---
         Route::post('posts', [App\Http\Controllers\Api\V1\PostController::class, 'store']); // Profile Posts (Instagram)
         Route::post('posts/{id}', [App\Http\Controllers\Api\V1\PostController::class, 'update']);
         Route::delete('posts/{id}', [App\Http\Controllers\Api\V1\PostController::class, 'destroy']);
         Route::post('posts/{id}/like', [App\Http\Controllers\Api\V1\PostController::class, 'like']);
-        Route::post('posts/{id}/comment', [App\Http\Controllers\Api\V1\PostController::class, 'comment']);
+        Route::get('posts/{id}/likes', [App\Http\Controllers\Api\V1\PostController::class, 'likes']); // Get list of likers
+        // Route::post('posts/{id}/comment', [App\Http\Controllers\Api\V1\PostController::class, 'comment']); // Deprecated singular
+
+        // Comments System
+        Route::get('posts/{id}/comments', [App\Http\Controllers\Api\V1\CommentController::class, 'index']);
+        Route::post('posts/{id}/comments', [App\Http\Controllers\Api\V1\CommentController::class, 'store']);
+        Route::post('comments/{id}', [App\Http\Controllers\Api\V1\CommentController::class, 'update']);
+        Route::delete('comments/{id}', [App\Http\Controllers\Api\V1\CommentController::class, 'destroy']);
 
         // --- Community Blog Actions ---
         Route::post('community/posts', [App\Http\Controllers\Api\V1\CommunityController::class, 'store']);

@@ -244,6 +244,31 @@ class PostController extends Controller
     }
 
     /**
+     * Get Users who liked the post (Paginated).
+     */
+    public function likes(Request $request, $id)
+    {
+        $post = Post::find($id);
+        if (!$post)
+            return response()->json(['status' => false, 'message' => 'Post not found'], 404);
+
+        $likes = $post->likes()
+            ->with('user:id,name,email,profile_photo_path,profile_title') // Eager load user
+            ->paginate(15);
+
+        // Transform to return user objects directly if preferred, or keep as like objects with user relation
+        // Let's return the likers directly to match followers/following structure if possible,
+        // but since we are paginating on 'likes' table, we will return like objects containing users.
+        // Frontend can map it.
+
+        return response()->json([
+            'status' => true,
+            'data' => $likes,
+            'message' => 'Post likes retrieved successfully'
+        ]);
+    }
+
+    /**
      * Add Comment (Protected).
      */
     public function comment(Request $request, $id)

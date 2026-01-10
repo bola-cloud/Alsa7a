@@ -396,6 +396,34 @@ Lists requests where the logged-in user is the **Provider**.
 }
 ```
 
+### Get User Followers (Paginated)
+**GET** `/users/{id}/followers`
+**Response:**
+```json
+{
+    "status": true,
+    "data": {
+        "current_page": 1,
+        "data": [
+            {
+                "id": 10,
+                "name": "Fan User",
+                "email": "fan@example.com",
+                "profile_photo_path": "profiles/photo.jpg",
+                "profile_title": "Fan"
+            }
+        ]
+    },
+    "my_following_ids": [10, 15],
+    "message": "Followers retrieved successfully"
+}
+```
+*Note*: `my_following_ids` allows the frontend to show the correct "Follow" state for each user in the list.
+
+### Get User Following (Paginated)
+**GET** `/users/{id}/following`
+**Response:** Same structure as `/followers`.
+
 ### Upload Verification Documents (Protected)
 **POST** `/users/verification/upload`
 **Body:**
@@ -476,7 +504,54 @@ The interactions below apply to the `Post` entity (Profile/Media posts).
 
 ### Interact (Protected)
 **POST** `/posts/{id}/like` - Toggle like.
-**POST** `/posts/{id}/comment` - **Body**: `body` (string).
+
+### Get Post Likes (Paginated)
+**GET** `/posts/{id}/likes`
+**Response:**
+```json
+{
+    "status": true,
+    "data": {
+        "current_page": 1,
+        "data": [
+            {
+                "id": 101,
+                "user_id": 5,
+                "user": {
+                    "id": 5,
+                    "name": "Liker Name",
+                    "profile_photo_path": "..."
+                }
+            }
+        ]
+    }
+}
+```
+
+### Comments (Protected)
+
+#### List Comments
+**GET** `/posts/{id}/comments`
+**Response:** Paginated list of comments.
+
+#### Add Comment
+**POST** `/posts/{id}/comments`
+**Body:** `body` (string)
+**Response:**
+```json
+{
+    "status": true,
+    "message": "Comment created successfully",
+    "data": { "id": 50, "body": "Nice post!", "user": { ... } }
+}
+```
+
+#### Update Comment
+**POST** `/comments/{id}` (Method spoofing for consistency, or PUT)
+**Body:** `body` (string)
+
+#### Delete Comment
+**DELETE** `/comments/{id}`
 
 ---
 
