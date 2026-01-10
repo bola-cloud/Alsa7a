@@ -106,6 +106,8 @@
                                                 @endif
                                             </td>
                                             <td>
+                                                <a href="{{ route('admin.questions.answers', $question->id) }}"
+                                                    class="btn btn-sm btn-info" title="View Answers"><i class="la la-users"></i></a>
                                                 <a href="{{ route('admin.questions.edit', $question->id) }}"
                                                     class="btn btn-sm btn-primary"><i class="la la-edit"></i></a>
                                                 <form action="{{ route('admin.questions.destroy', $question->id) }}"

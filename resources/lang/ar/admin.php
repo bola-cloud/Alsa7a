@@ -162,6 +162,7 @@ return [
             'boolean' => 'نعم/لا',
             'rating' => 'تقييم',
             'multiple_choice' => 'اختيار من متعدد',
+            'number' => 'رقم',
         ],
     ],
     'service_requests' => [

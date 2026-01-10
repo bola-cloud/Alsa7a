@@ -59,6 +59,7 @@
                                     <label>{{ __('admin.questions.type') }}</label>
                                     <select name="type" class="form-control" required id="typeSelect">
                                         <option value="text" {{ old('type') == 'text' ? 'selected' : '' }}>{{ __('admin.questions.types.text') }}</option>
+                                        <option value="number" {{ old('type') == 'number' ? 'selected' : '' }}>{{ __('admin.questions.types.number') }}</option>
                                         <option value="boolean" {{ old('type') == 'boolean' ? 'selected' : '' }}>{{ __('admin.questions.types.boolean') }}
                                         </option>
                                         <option value="rating" {{ old('type') == 'rating' ? 'selected' : '' }}>{{ __('admin.questions.types.rating') }}
@@ -69,11 +70,24 @@
                                 </div>
 
                                 <div class="form-group" id="choicesGroup" style="display: none;">
-                                    <label>{{ __('admin.questions.choices') }} (JSON Format: {"option1": "Label 1",
-                                        "option2": "Label 2"})</label>
-                                    <textarea name="choices" class="form-control" rows="3">{{ old('choices') }}</textarea>
-                                    <p class="text-muted small">Example: {"red": "Red", "blue": "Blue"}</p>
-                                    @error('choices') <span class="text-danger">{{ $message }}</span> @enderror
+                                    <label>{{ __('admin.questions.choices') }}</label>
+                                    <div id="choices-container">
+                                        <!-- Dynamic inputs will appear here -->
+                                        <div class="row mb-1 choice-row">
+                                            <div class="col-md-5">
+                                                <input type="text" name="choice_keys[]" class="form-control" placeholder="Key (e.g., red)">
+                                            </div>
+                                            <div class="col-md-5">
+                                                <input type="text" name="choice_labels[]" class="form-control" placeholder="Label (e.g., Red Color)">
+                                            </div>
+                                            <div class="col-md-2">
+                                                <button type="button" class="btn btn-danger btn-sm remove-choice"><i class="la la-trash"></i></button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <button type="button" class="btn btn-info btn-sm mt-1" id="add-choice">
+                                        <i class="la la-plus"></i> {{ __('admin.buttons.add_new') }}
+                                    </button>
                                 </div>
 
                             </div>
@@ -97,6 +111,8 @@
             document.addEventListener('DOMContentLoaded', function () {
                 const typeSelect = document.getElementById('typeSelect');
                 const choicesGroup = document.getElementById('choicesGroup');
+                const choicesContainer = document.getElementById('choices-container');
+                const addChoiceBtn = document.getElementById('add-choice');
 
                 function toggleChoices() {
                     if (typeSelect.value === 'multiple_choice') {
@@ -108,6 +124,31 @@
 
                 typeSelect.addEventListener('change', toggleChoices);
                 toggleChoices(); // Run on load
+
+                // Add Choice
+                addChoiceBtn.addEventListener('click', function() {
+                    const row = document.createElement('div');
+                    row.className = 'row mb-1 choice-row';
+                    row.innerHTML = `
+                        <div class="col-md-5">
+                             <input type="text" name="choice_keys[]" class="form-control" placeholder="Key">
+                        </div>
+                        <div class="col-md-5">
+                             <input type="text" name="choice_labels[]" class="form-control" placeholder="Label">
+                        </div>
+                        <div class="col-md-2">
+                             <button type="button" class="btn btn-danger btn-sm remove-choice"><i class="la la-trash"></i></button>
+                        </div>
+                    `;
+                    choicesContainer.appendChild(row);
+                });
+
+                // Remove Choice
+                choicesContainer.addEventListener('click', function(e) {
+                    if (e.target.closest('.remove-choice')) {
+                        e.target.closest('.choice-row').remove();
+                    }
+                });
             });
         </script>
     @endpush

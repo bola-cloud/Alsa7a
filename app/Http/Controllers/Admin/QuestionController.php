@@ -51,7 +51,7 @@ class QuestionController extends Controller
         $request->validate([
             'question_en' => 'required|string',
             'question_ar' => 'required|string',
-            'type' => 'required|in:text,boolean,rating,multiple_choice',
+            'type' => 'required|in:text,number,boolean,rating,multiple_choice',
             'category_id' => 'required|exists:categories,id',
             'choices' => 'nullable|string', // Validated as json if needed, but simple string is easier for now
         ]);
@@ -63,12 +63,25 @@ class QuestionController extends Controller
         ];
 
         if ($request->filled('choices')) {
-            // Try to decode to ensure valid JSON or store as is if field expects array cast
-            // Assuming model casts choices to array, we should pass an array or valid JSON string.
-            // If input is a raw JSON string from textarea:
+            // Fallback for raw JSON if sent via API or old form? 
+            // Actually, let's prioritize the dynamic inputs if present.
             $choices = json_decode($request->choices, true);
             if (json_last_error() === JSON_ERROR_NONE) {
                 $data['choices'] = $choices;
+            }
+        }
+
+        // Handle dynamic inputs from blade (choice_keys / choice_labels)
+        if ($request->has('choice_keys') && $request->has('choice_labels')) {
+            $formattedChoices = [];
+            foreach ($request->choice_keys as $index => $key) {
+                $label = $request->choice_labels[$index] ?? '';
+                if (!empty($key) && !empty($label)) {
+                    $formattedChoices[$key] = $label;
+                }
+            }
+            if (!empty($formattedChoices)) {
+                $data['choices'] = $formattedChoices;
             }
         }
 
@@ -94,7 +107,7 @@ class QuestionController extends Controller
         $request->validate([
             'question_en' => 'required|string',
             'question_ar' => 'required|string',
-            'type' => 'required|in:text,boolean,rating,multiple_choice',
+            'type' => 'required|in:text,number,boolean,rating,multiple_choice',
             'category_id' => 'required|exists:categories,id',
             'choices' => 'nullable|string',
         ]);
@@ -112,6 +125,20 @@ class QuestionController extends Controller
             }
         } else {
             $data['choices'] = null;
+        }
+
+        // Handle dynamic inputs from blade
+        if ($request->has('choice_keys') && $request->has('choice_labels')) {
+            $formattedChoices = [];
+            foreach ($request->choice_keys as $index => $key) {
+                $label = $request->choice_labels[$index] ?? '';
+                if (!empty($key) && !empty($label)) {
+                    $formattedChoices[$key] = $label;
+                }
+            }
+            if (!empty($formattedChoices)) {
+                $data['choices'] = $formattedChoices;
+            }
         }
 
         // We use query 'update' or model 'update'? Model update works with casts.
@@ -135,5 +162,19 @@ class QuestionController extends Controller
     {
         $question->delete();
         return redirect()->back()->with('swal_success', __('admin.messages.deleted_successfully'));
+    }
+
+    /**
+     * Show answers for a specific question.
+     */
+    public function answers(Question $question)
+    {
+        // Load answers with user
+        $answers = \App\Models\QuestionAnswer::where('question_id', $question->id)
+            ->with(['user', 'user.category'])
+            ->latest()
+            ->paginate(20);
+
+        return view('admin.questions.answers', compact('question', 'answers'));
     }
 }

@@ -162,6 +162,7 @@ return [
             'boolean' => 'Yes/No',
             'rating' => 'Rating',
             'multiple_choice' => 'Multiple Choice',
+            'number' => 'Number',
         ],
     ],
     'service_requests' => [

@@ -45,7 +45,14 @@ class UserController extends Controller
 
     public function show(User $user)
     {
-        return view('admin.users.show', compact('user'));
+        $user->load('category', 'answers'); // Eager load
+
+        $questions = collect();
+        if ($user->category_id) {
+            $questions = \App\Models\Question::where('category_id', $user->category_id)->get();
+        }
+
+        return view('admin.users.show', compact('user', 'questions'));
     }
 
     /**
