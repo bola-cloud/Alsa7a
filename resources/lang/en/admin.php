@@ -157,6 +157,12 @@ return [
         'type' => 'Type',
         'category' => 'Category',
         'choices' => 'Choices',
+        'types' => [
+            'text' => 'Text',
+            'boolean' => 'Yes/No',
+            'rating' => 'Rating',
+            'multiple_choice' => 'Multiple Choice',
+        ],
     ],
     'service_requests' => [
         'title' => 'Service Requests',

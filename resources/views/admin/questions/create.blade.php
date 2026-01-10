@@ -58,12 +58,12 @@
                                 <div class="form-group">
                                     <label>{{ __('admin.questions.type') }}</label>
                                     <select name="type" class="form-control" required id="typeSelect">
-                                        <option value="text" {{ old('type') == 'text' ? 'selected' : '' }}>Text</option>
-                                        <option value="boolean" {{ old('type') == 'boolean' ? 'selected' : '' }}>Yes/No
+                                        <option value="text" {{ old('type') == 'text' ? 'selected' : '' }}>{{ __('admin.questions.types.text') }}</option>
+                                        <option value="boolean" {{ old('type') == 'boolean' ? 'selected' : '' }}>{{ __('admin.questions.types.boolean') }}
                                         </option>
-                                        <option value="rating" {{ old('type') == 'rating' ? 'selected' : '' }}>Rating
+                                        <option value="rating" {{ old('type') == 'rating' ? 'selected' : '' }}>{{ __('admin.questions.types.rating') }}
                                         </option>
-                                        <option value="multiple_choice" {{ old('type') == 'multiple_choice' ? 'selected' : '' }}>Multiple Choice</option>
+                                        <option value="multiple_choice" {{ old('type') == 'multiple_choice' ? 'selected' : '' }}>{{ __('admin.questions.types.multiple_choice') }}</option>
                                     </select>
                                     @error('type') <span class="text-danger">{{ $message }}</span> @enderror
                                 </div>

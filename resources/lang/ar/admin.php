@@ -157,6 +157,12 @@ return [
         'type' => 'النوع',
         'category' => 'القسم',
         'choices' => 'الخيارات',
+        'types' => [
+            'text' => 'نص',
+            'boolean' => 'نعم/لا',
+            'rating' => 'تقييم',
+            'multiple_choice' => 'اختيار من متعدد',
+        ],
     ],
     'service_requests' => [
         'title' => 'طلبات الخدمات',

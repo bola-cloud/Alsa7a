@@ -97,7 +97,7 @@
                                         <tr>
                                             <td>{{ $question->id }}</td>
                                             <td>{{ $question->question }}</td>
-                                            <td><span class="badge badge-info">{{ $question->type }}</span></td>
+                                            <td><span class="badge badge-info">{{ __('admin.questions.types.' . $question->type) }}</span></td>
                                             <td>
                                                 @if($question->category)
                                                     <span class="badge badge-primary">{{ $question->category->name }}</span>
