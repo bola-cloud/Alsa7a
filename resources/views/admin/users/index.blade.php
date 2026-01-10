@@ -11,6 +11,9 @@
                     <a href="{{ route('admin.users.index', ['pending_approval' => 1]) }}" class="btn btn-outline-warning mr-1">Pending Approval</a>
                     <a href="{{ route('admin.users.index', ['pending_verification' => 1]) }}" class="btn btn-outline-info">Doc Verification</a>
                  </div>
+                 <div class="col-md-6 text-right">
+                     <a href="{{ route('admin.users.create') }}" class="btn btn-primary"><i class="ft-plus"></i> Add User</a>
+                 </div>
              </div>
         </div>
 
@@ -87,13 +90,21 @@
                                     </td>
                                     <td>
                                         <a href="{{ route('admin.users.show', $user->id) }}"
-                                            class="btn btn-sm btn-primary">Manage</a>
+                                            class="btn btn-sm btn-info" title="View"><i class="la la-eye"></i></a>
+                                        <a href="{{ route('admin.users.edit', $user->id) }}" class="btn btn-sm btn-primary" title="Edit"><i class="la la-edit"></i></a>
+                                        
+                                        <form action="{{ route('admin.users.destroy', $user->id) }}" method="POST"
+                                            style="display:inline-block;" onsubmit="return confirm('Are you sure you want to delete this user?');">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="btn btn-sm btn-danger" title="Delete"><i class="la la-trash"></i></button>
+                                        </form>
 
                                         @if(!$user->is_approved)
                                             <form action="{{ route('admin.users.approve', $user->id) }}" method="POST"
                                                 style="display:inline-block;">
                                                 @csrf
-                                                <button type="submit" class="btn btn-sm btn-success">Approve Access</button>
+                                                <button type="submit" class="btn btn-sm btn-success" title="Approve"><i class="la la-check"></i></button>
                                             </form>
                                         @endif
                                     </td>

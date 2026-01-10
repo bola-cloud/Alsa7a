@@ -44,10 +44,9 @@ Route::group([
         Route::resource('clubs', \App\Http\Controllers\Admin\ClubController::class);
 
         // User Verification & Management
-        Route::get('users', [\App\Http\Controllers\Admin\UserController::class, 'index'])->name('users.index');
-        Route::get('users/{user}', [\App\Http\Controllers\Admin\UserController::class, 'show'])->name('users.show');
         Route::post('users/{user}/approve', [\App\Http\Controllers\Admin\UserController::class, 'approve'])->name('users.approve');
         Route::post('users/{user}/verify', [\App\Http\Controllers\Admin\UserController::class, 'verifyDocuments'])->name('users.verify');
+        Route::resource('users', \App\Http\Controllers\Admin\UserController::class);
 
         // Community
         Route::resource('news', \App\Http\Controllers\Admin\NewsController::class);

@@ -55,6 +55,74 @@ class UserController extends Controller
         return view('admin.users.show', compact('user', 'questions'));
     }
 
+    public function create()
+    {
+        $categories = \App\Models\Category::all();
+        return view('admin.users.create', compact('categories'));
+    }
+
+    public function store(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email',
+            'phone' => 'required|string|unique:users,phone',
+            'password' => 'required|string|min:8|confirmed',
+            'category_id' => 'nullable|exists:categories,id',
+            'is_admin' => 'boolean',
+            'is_approved' => 'boolean',
+        ]);
+
+        $data = $request->except(['password', 'password_confirmation']);
+        $data['password'] = bcrypt($request->password);
+        $data['is_approved'] = $request->input('is_approved', false); // Default false if not checked? Form handle it.
+
+        User::create($data);
+
+        return redirect()->route('admin.users.index')->with('swal_success', __('admin.messages.created_successfully'));
+    }
+
+    public function edit(User $user)
+    {
+        $categories = \App\Models\Category::all();
+        return view('admin.users.edit', compact('user', 'categories'));
+    }
+
+    public function update(Request $request, User $user)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email,' . $user->id,
+            'phone' => 'required|string|unique:users,phone,' . $user->id,
+            'password' => 'nullable|string|min:8|confirmed',
+            'category_id' => 'nullable|exists:categories,id',
+            'is_admin' => 'boolean',
+            'is_approved' => 'boolean',
+        ]);
+
+        $data = $request->except(['password', 'password_confirmation']);
+
+        if ($request->filled('password')) {
+            $data['password'] = bcrypt($request->password);
+        } else {
+            unset($data['password']);
+        }
+
+        // Handle checkboxes for boolean
+        $data['is_admin'] = $request->has('is_admin');
+        $data['is_approved'] = $request->has('is_approved');
+
+        $user->update($data);
+
+        return redirect()->route('admin.users.index')->with('swal_success', __('admin.messages.updated_successfully'));
+    }
+
+    public function destroy(User $user)
+    {
+        $user->delete();
+        return redirect()->back()->with('swal_success', __('admin.messages.deleted_successfully'));
+    }
+
     /**
      * Approve User Account (Login Access)
      */
@@ -62,8 +130,7 @@ class UserController extends Controller
     {
         $user->is_approved = true;
         $user->save();
-        $this->flashSuccess('User approved successfully');
-        return redirect()->back();
+        return redirect()->back()->with('swal_success', 'User approved successfully');
     }
 
     /**
@@ -79,15 +146,14 @@ class UserController extends Controller
         $user->verification_status = $request->status;
         if ($request->status === 'rejected') {
             $user->rejection_reason = $request->rejection_reason;
-            $user->is_approved = false; // Revoke access if rejected? Or just verification status. user request implied strictness.
+            $user->is_approved = false;
         } else {
-            $user->is_approved = true; // Auto-approve login if docs verified
+            $user->is_approved = true;
             $user->rejection_reason = null;
         }
 
         $user->save();
 
-        $this->flashSuccess('Verification status updated');
-        return redirect()->back();
+        return redirect()->back()->with('swal_success', 'Verification status updated');
     }
 }
