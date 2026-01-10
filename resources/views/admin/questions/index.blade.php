@@ -30,106 +30,106 @@
         </div>
     </div>
 
-    <div class="content-body">
-        <div class="row">
-            <div class="col-12">
-                <div class="card admin-card">
-                    <div class="card-header">
-                        <h4 class="card-title">{{ __('admin.buttons.filter') }}</h4>
-                    </div>
-                    <div class="card-content collapse show">
-                        <div class="card-body">
-                            <form action="{{ route('admin.questions.index') }}" method="GET">
-                                <div class="row">
-                                    <div class="col-md-4">
-                                        <div class="form-group">
-                                            <label>{{ __('admin.buttons.search') }}</label>
-                                            <input type="text" name="search" class="form-control"
-                                                value="{{ request('search') }}"
-                                                placeholder="{{ __('admin.buttons.search') }}...">
-                                        </div>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <div class="form-group">
-                                            <label>{{ __('admin.menu.categories') }}</label>
-                                            <select name="category_id" class="form-control" onchange="this.form.submit()">
-                                                <option value="">{{ __('admin.buttons.all') }}</option>
-                                                @foreach($categories as $category)
-                                                    <option value="{{ $category->id }}" {{ request('category_id') == $category->id ? 'selected' : '' }}>
-                                                        {{ $category->name }}
-                                                    </option>
-                                                @endforeach
-                                            </select>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <div class="form-group" style="margin-top: 25px;">
-                                            <button type="submit"
-                                                class="btn btn-primary btn-block">{{ __('admin.buttons.filter') }}</button>
-                                        </div>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card admin-card">
+                <div class="card-header">
+                    <h4 class="card-title">{{ __('admin.buttons.filter') }}</h4>
+                </div>
+                <div class="card-content collapse show">
+                    <div class="card-body">
+                        <form action="{{ route('admin.questions.index') }}" method="GET">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label>{{ __('admin.buttons.search') }}</label>
+                                        <input type="text" name="search" class="form-control"
+                                            value="{{ request('search') }}"
+                                            placeholder="{{ __('admin.buttons.search') }}...">
                                     </div>
                                 </div>
-                            </form>
-                        </div>
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label>{{ __('admin.menu.categories') }}</label>
+                                        <select name="category_id" class="form-control" onchange="this.form.submit()">
+                                            <option value="">{{ __('admin.buttons.all') }}</option>
+                                            @foreach($categories as $category)
+                                                <option value="{{ $category->id }}" {{ request('category_id') == $category->id ? 'selected' : '' }}>
+                                                    {{ $category->name }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group" style="margin-top: 25px;">
+                                        <button type="submit"
+                                            class="btn btn-primary btn-block">{{ __('admin.buttons.filter') }}</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
                     </div>
                 </div>
             </div>
         </div>
+    </div>
 
-        <div class="row">
-            <div class="col-12">
-                <div class="card admin-card">
-                    <div class="card-content">
-                        <div class="card-body">
-                            <div class="table-responsive">
-                                <table class="table table-hover mb-0">
-                                    <thead>
+    <div class="row">
+        <div class="col-12">
+            <div class="card admin-card">
+                <div class="card-content">
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Question</th>
+                                        <th>Type</th>
+                                        <th>Category</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @forelse($questions as $question)
                                         <tr>
-                                            <th>ID</th>
-                                            <th>Question</th>
-                                            <th>Type</th>
-                                            <th>Category</th>
-                                            <th>Actions</th>
+                                            <td>{{ $question->id }}</td>
+                                            <td>{{ $question->question }}</td>
+                                            <td><span class="badge badge-info">{{ $question->type }}</span></td>
+                                            <td>
+                                                @if($question->category)
+                                                    <span class="badge badge-primary">{{ $question->category->name }}</span>
+                                                @else
+                                                    -
+                                                @endif
+                                            </td>
+                                            <td>
+                                                <a href="{{ route('admin.questions.edit', $question->id) }}"
+                                                    class="btn btn-sm btn-primary"><i class="la la-edit"></i></a>
+                                                <form action="{{ route('admin.questions.destroy', $question->id) }}"
+                                                    method="POST" style="display:inline-block;"
+                                                    onsubmit="return confirm('{{ __('admin.messages.confirm_delete') }}');">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit" class="btn btn-sm btn-danger"><i
+                                                            class="la la-trash"></i></button>
+                                                </form>
+                                            </td>
                                         </tr>
-                                    </thead>
-                                    <tbody>
-                                        @forelse($questions as $question)
-                                            <tr>
-                                                <td>{{ $question->id }}</td>
-                                                <td>{{ $question->question }}</td>
-                                                <td><span class="badge badge-info">{{ $question->type }}</span></td>
-                                                <td>
-                                                    @if($question->category)
-                                                        <span class="badge badge-primary">{{ $question->category->name }}</span>
-                                                    @else
-                                                        -
-                                                    @endif
-                                                </td>
-                                                <td>
-                                                    <a href="{{ route('admin.questions.edit', $question->id) }}"
-                                                        class="btn btn-sm btn-primary"><i class="la la-edit"></i></a>
-                                                    <form action="{{ route('admin.questions.destroy', $question->id) }}"
-                                                        method="POST" style="display:inline-block;"
-                                                        onsubmit="return confirm('{{ __('admin.messages.confirm_delete') }}');">
-                                                        @csrf
-                                                        @method('DELETE')
-                                                        <button type="submit" class="btn btn-sm btn-danger"><i
-                                                                class="la la-trash"></i></button>
-                                                    </form>
-                                                </td>
-                                            </tr>
-                                        @empty
-                                            <tr>
-                                                <td colspan="5" class="text-center text-muted">
-                                                    {{ __('admin.categories.no_records') }}</td>
-                                            </tr>
-                                        @endforelse
-                                    </tbody>
-                                </table>
-                            </div>
-                            <div class="mt-2">
-                                {{ $questions->links() }}
-                            </div>
+                                    @empty
+                                        <tr>
+                                            <td colspan="5" class="text-center text-muted">
+                                                {{ __('admin.categories.no_records') }}
+                                            </td>
+                                        </tr>
+                                    @endforelse
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="mt-2">
+                            {{ $questions->links() }}
                         </div>
                     </div>
                 </div>
