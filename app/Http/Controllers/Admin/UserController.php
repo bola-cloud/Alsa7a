@@ -35,7 +35,7 @@ class UserController extends Controller
             $query->where('verification_status', 'pending');
         }
 
-        $users = $query->paginate(20)->withQueryString();
+        $users = $query->paginate(15)->withQueryString();
         // Assuming we need categories for filter, let's fetch them or use view composer if exists.
         // I'll fetch them here to be safe.
         $categories = \App\Models\Category::all();
@@ -84,12 +84,19 @@ class UserController extends Controller
 
     public function edit(User $user)
     {
+        if ($user->email === 'admin@alsa7a.com') {
+            return redirect()->route('admin.users.index')->with('swal_error', 'Super Admin cannot be edited.');
+        }
         $categories = \App\Models\Category::all();
         return view('admin.users.edit', compact('user', 'categories'));
     }
 
     public function update(Request $request, User $user)
     {
+        if ($user->email === 'admin@alsa7a.com') {
+            return redirect()->route('admin.users.index')->with('swal_error', 'Super Admin cannot be updated.');
+        }
+
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email,' . $user->id,
@@ -119,6 +126,9 @@ class UserController extends Controller
 
     public function destroy(User $user)
     {
+        if ($user->email === 'admin@alsa7a.com') {
+            return redirect()->back()->with('swal_error', 'Super Admin cannot be deleted.');
+        }
         $user->delete();
         return redirect()->back()->with('swal_success', __('admin.messages.deleted_successfully'));
     }

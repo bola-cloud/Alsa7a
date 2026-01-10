@@ -3,14 +3,15 @@
 @section('content')
     <div class="content-header row">
         <div class="content-header-left col-md-6 col-12 mb-2">
-            <h3 class="content-header-title">Edit User</h3>
+            <h3 class="content-header-title">{{ __('admin.users.edit') }}</h3>
             <div class="row breadcrumbs-top">
                 <div class="breadcrumb-wrapper col-12">
                     <ol class="breadcrumb">
                         <li class="breadcrumb-item"><a
                                 href="{{ route('admin.dashboard') }}">{{ __('admin.menu.dashboard') }}</a></li>
-                        <li class="breadcrumb-item"><a href="{{ route('admin.users.index') }}">Users</a></li>
-                        <li class="breadcrumb-item active">Edit</li>
+                        <li class="breadcrumb-item"><a
+                                href="{{ route('admin.users.index') }}">{{ __('admin.users.title') }}</a></li>
+                        <li class="breadcrumb-item active">{{ __('admin.buttons.edit') }}</li>
                     </ol>
                 </div>
             </div>
@@ -27,21 +28,21 @@
                             @method('PUT')
                             <div class="form-body">
                                 <div class="form-group">
-                                    <label>Name</label>
+                                    <label>{{ __('admin.users.name') }}</label>
                                     <input type="text" class="form-control" name="name"
                                         value="{{ old('name', $user->name) }}" required>
                                     @error('name') <span class="text-danger">{{ $message }}</span> @enderror
                                 </div>
 
                                 <div class="form-group">
-                                    <label>Email</label>
+                                    <label>{{ __('admin.users.email') }}</label>
                                     <input type="email" class="form-control" name="email"
                                         value="{{ old('email', $user->email) }}" required>
                                     @error('email') <span class="text-danger">{{ $message }}</span> @enderror
                                 </div>
 
                                 <div class="form-group">
-                                    <label>Phone</label>
+                                    <label>{{ __('admin.users.phone') }}</label>
                                     <input type="text" class="form-control" name="phone"
                                         value="{{ old('phone', $user->phone) }}" required>
                                     @error('phone') <span class="text-danger">{{ $message }}</span> @enderror
@@ -50,14 +51,15 @@
                                 <div class="row">
                                     <div class="col-md-6">
                                         <div class="form-group">
-                                            <label>Password (Leave blank to keep current)</label>
+                                            <label>{{ __('admin.users.password') }}
+                                                ({{ __('admin.users.leave_blank') }})</label>
                                             <input type="password" class="form-control" name="password" minlength="8">
                                             @error('password') <span class="text-danger">{{ $message }}</span> @enderror
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-group">
-                                            <label>Confirm Password</label>
+                                            <label>{{ __('admin.users.confirm_password') }}</label>
                                             <input type="password" class="form-control" name="password_confirmation"
                                                 minlength="8">
                                         </div>
@@ -65,7 +67,7 @@
                                 </div>
 
                                 <div class="form-group">
-                                    <label>Role / Category</label>
+                                    <label>{{ __('admin.users.role_category') }}</label>
                                     <select name="category_id" class="form-control">
                                         <option value="">User (Standard)</option>
                                         @foreach($categories as $category)
@@ -81,7 +83,8 @@
                                     <div class="custom-control custom-checkbox">
                                         <input type="checkbox" class="custom-control-input" name="is_admin" id="isAdmin"
                                             value="1" {{ old('is_admin', $user->is_admin) ? 'checked' : '' }}>
-                                        <label class="custom-control-label" for="isAdmin">Is Admin</label>
+                                        <label class="custom-control-label"
+                                            for="isAdmin">{{ __('admin.users.is_admin') }}</label>
                                     </div>
                                 </div>
 
@@ -89,7 +92,8 @@
                                     <div class="custom-control custom-checkbox">
                                         <input type="checkbox" class="custom-control-input" name="is_approved"
                                             id="isApproved" value="1" {{ old('is_approved', $user->is_approved) ? 'checked' : '' }}>
-                                        <label class="custom-control-label" for="isApproved">Is Approved</label>
+                                        <label class="custom-control-label"
+                                            for="isApproved">{{ __('admin.users.is_approved') }}</label>
                                     </div>
                                 </div>
 
@@ -97,10 +101,10 @@
 
                             <div class="form-actions right">
                                 <a href="{{ route('admin.users.index') }}" class="btn btn-warning mr-1">
-                                    <i class="ft-x"></i> Cancel
+                                    <i class="ft-x"></i> {{ __('admin.buttons.cancel') }}
                                 </a>
                                 <button type="submit" class="btn btn-primary">
-                                    <i class="la la-check-square-o"></i> Update
+                                    <i class="la la-check-square-o"></i> {{ __('admin.buttons.update') }}
                                 </button>
                             </div>
                         </form>

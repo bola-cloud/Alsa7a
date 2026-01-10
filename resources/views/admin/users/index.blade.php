@@ -2,17 +2,17 @@
 
 @section('content')
     <div class="container-fluid">
-        <h1>{{ __('User Management') }}</h1>
+        <h1>{{ __('admin.users.title') }}</h1>
 
         <div class="mb-3">
              <div class="row">
                  <div class="col-md-6 mb-2">
-                    <a href="{{ route('admin.users.index') }}" class="btn btn-default mr-1">All</a>
-                    <a href="{{ route('admin.users.index', ['pending_approval' => 1]) }}" class="btn btn-outline-warning mr-1">Pending Approval</a>
-                    <a href="{{ route('admin.users.index', ['pending_verification' => 1]) }}" class="btn btn-outline-info">Doc Verification</a>
+                    <a href="{{ route('admin.users.index') }}" class="btn btn-default mr-1">{{ __('admin.users.all') }}</a>
+                    <a href="{{ route('admin.users.index', ['pending_approval' => 1]) }}" class="btn btn-outline-warning mr-1">{{ __('admin.users.pending_approval') }}</a>
+                    <a href="{{ route('admin.users.index', ['pending_verification' => 1]) }}" class="btn btn-outline-info">{{ __('admin.users.doc_verification') }}</a>
                  </div>
                  <div class="col-md-6 text-right">
-                     <a href="{{ route('admin.users.create') }}" class="btn btn-primary"><i class="ft-plus"></i> Add User</a>
+                     <a href="{{ route('admin.users.create') }}" class="btn btn-primary"><i class="ft-plus"></i> {{ __('admin.users.add_user') }}</a>
                  </div>
              </div>
         </div>
@@ -22,16 +22,16 @@
                 <form action="{{ route('admin.users.index') }}" method="GET">
                     <div class="row align-items-end">
                         <div class="col-md-5 mb-2 mb-md-0">
-                            <label class="text-muted small mb-1">{{ __('Search') }}</label>
+                            <label class="text-muted small mb-1">{{ __('admin.buttons.search') }}</label>
                             <div class="position-relative">
-                                <input type="text" name="search" class="form-control pl-4" placeholder="Name, Email, Phone..." value="{{ request('search') }}">
+                                <input type="text" name="search" class="form-control pl-4" placeholder="{{ __('admin.users.search_placeholder') }}" value="{{ request('search') }}">
                                 <i class="la la-search position-absolute" style="top: 10px; left: 10px; color: #b0afb5;"></i>
                             </div>
                         </div>
                         <div class="col-md-4 mb-2 mb-md-0">
-                            <label class="text-muted small mb-1">{{ __('Role/Category') }}</label>
+                            <label class="text-muted small mb-1">{{ __('admin.users.role_category') }}</label>
                             <select name="category_id" class="form-control">
-                                <option value="">All Roles</option>
+                                <option value="">{{ __('admin.users.all_roles') }}</option>
                                 @foreach($categories as $category)
                                     <option value="{{ $category->id }}" {{ request('category_id') == $category->id ? 'selected' : '' }}>
                                         {{ $category->name }}
@@ -41,7 +41,7 @@
                         </div>
                         <div class="col-md-3">
                             <button type="submit" class="btn btn-primary btn-block">
-                                <i class="la la-filter"></i> {{ __('Filter') }}
+                                <i class="la la-filter"></i> {{ __('admin.users.filter') }}
                             </button>
                         </div>
                     </div>
@@ -55,12 +55,12 @@
                     <table class="table table-hover">
                         <thead>
                             <tr>
-                                <th>ID</th>
-                                <th>Name</th>
-                                <th>Role</th>
-                                <th>Status</th>
-                                <th>Verification</th>
-                                <th>Actions</th>
+                                <th>{{ __('admin.users.id') }}</th>
+                                <th>{{ __('admin.users.name') }}</th>
+                                <th>{{ __('admin.users.role') }}</th>
+                                <th>{{ __('admin.users.status') }}</th>
+                                <th>{{ __('admin.users.verification') }}</th>
+                                <th>{{ __('admin.users.actions') }}</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -74,37 +74,40 @@
                                     <td>{{ $user->category->name ?? 'User' }}</td>
                                     <td>
                                         @if($user->is_approved)
-                                            <span class="badge badge-success">Approved</span>
+                                            <span class="badge badge-success">{{ __('admin.users.approved') }}</span>
                                         @else
-                                            <span class="badge badge-warning">Pending</span>
+                                            <span class="badge badge-warning">{{ __('admin.users.pending') }}</span>
                                         @endif
                                     </td>
                                     <td>
                                         @if($user->verification_status === 'approved')
-                                            <span class="badge badge-success">Verified</span>
+                                            <span class="badge badge-success">{{ __('admin.users.verified') }}</span>
                                         @elseif($user->verification_status === 'pending')
-                                            <span class="badge badge-warning">Docs Pending</span>
+                                            <span class="badge badge-warning">{{ __('admin.users.docs_pending') }}</span>
                                         @else
                                             <span class="badge badge-secondary">{{ ucfirst($user->verification_status) }}</span>
                                         @endif
                                     </td>
                                     <td>
                                         <a href="{{ route('admin.users.show', $user->id) }}"
-                                            class="btn btn-sm btn-info" title="View"><i class="la la-eye"></i></a>
-                                        <a href="{{ route('admin.users.edit', $user->id) }}" class="btn btn-sm btn-primary" title="Edit"><i class="la la-edit"></i></a>
+                                            class="btn btn-sm btn-info" title="{{ __('admin.buttons.view') }}"><i class="la la-eye"></i></a>
                                         
-                                        <form action="{{ route('admin.users.destroy', $user->id) }}" method="POST"
-                                            style="display:inline-block;" onsubmit="return confirm('Are you sure you want to delete this user?');">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="btn btn-sm btn-danger" title="Delete"><i class="la la-trash"></i></button>
-                                        </form>
+                                        @if($user->email !== 'admin@alsa7a.com')
+                                            <a href="{{ route('admin.users.edit', $user->id) }}" class="btn btn-sm btn-primary" title="{{ __('admin.buttons.edit') }}"><i class="la la-edit"></i></a>
+                                            
+                                            <form action="{{ route('admin.users.destroy', $user->id) }}" method="POST"
+                                                style="display:inline-block;" onsubmit="return confirm('{{ __('admin.messages.confirm_delete') }}');">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="btn btn-sm btn-danger" title="{{ __('admin.buttons.delete') }}"><i class="la la-trash"></i></button>
+                                            </form>
+                                        @endif
 
                                         @if(!$user->is_approved)
                                             <form action="{{ route('admin.users.approve', $user->id) }}" method="POST"
                                                 style="display:inline-block;">
                                                 @csrf
-                                                <button type="submit" class="btn btn-sm btn-success" title="Approve"><i class="la la-check"></i></button>
+                                                <button type="submit" class="btn btn-sm btn-success" title="{{ __('admin.users.approve_access') }}"><i class="la la-check"></i></button>
                                             </form>
                                         @endif
                                     </td>

@@ -3,12 +3,14 @@
 @section('content')
     <div class="content-header row">
         <div class="content-header-left col-md-6 col-12 mb-2">
-            <h3 class="content-header-title">User Details</h3>
+            <h3 class="content-header-title">{{ __('admin.users.details') }}</h3>
             <div class="row breadcrumbs-top">
                 <div class="breadcrumb-wrapper col-12">
                     <ol class="breadcrumb">
-                        <li class="breadcrumb-item"><a href="{{ route('admin.dashboard') }}">Dashboard</a></li>
-                        <li class="breadcrumb-item"><a href="{{ route('admin.users.index') }}">Users</a></li>
+                        <li class="breadcrumb-item"><a
+                                href="{{ route('admin.dashboard') }}">{{ __('admin.menu.dashboard') }}</a></li>
+                        <li class="breadcrumb-item"><a
+                                href="{{ route('admin.users.index') }}">{{ __('admin.users.title') }}</a></li>
                         <li class="breadcrumb-item active">{{ $user->name }}</li>
                     </ol>
                 </div>
@@ -20,7 +22,7 @@
         <div class="col-md-4">
             <div class="card">
                 <div class="card-header">
-                    <h4 class="card-title">Profile Info</h4>
+                    <h4 class="card-title">{{ __('admin.users.profile_info') }}</h4>
                 </div>
                 <div class="card-content">
                     <div class="card-body">
@@ -37,25 +39,25 @@
                         </div>
                         <ul class="list-group list-group-flush">
                             <li class="list-group-item d-flex justify-content-between align-items-center">
-                                Name
+                                {{ __('admin.users.name') }}
                                 <span class="font-weight-bold">{{ $user->name }}</span>
                             </li>
                             <li class="list-group-item d-flex justify-content-between align-items-center">
-                                Email
+                                {{ __('admin.users.email') }}
                                 <span>{{ $user->email }}</span>
                             </li>
                             <li class="list-group-item d-flex justify-content-between align-items-center">
-                                Phone
+                                {{ __('admin.users.phone') }}
                                 <span>{{ $user->phone }}</span>
                             </li>
                             <li class="list-group-item d-flex justify-content-between align-items-center">
-                                Role/Category
+                                {{ __('admin.users.role_category') }}
                                 <span class="badge badge-primary">{{ $user->category->name ?? 'N/A' }}</span>
                             </li>
                             <li class="list-group-item d-flex justify-content-between align-items-center">
-                                Verified
+                                {{ __('admin.users.verification') }}
                                 @if($user->verification_status == 'approved')
-                                    <span class="badge badge-success">Yes</span>
+                                    <span class="badge badge-success">{{ __('admin.users.verified') }}</span>
                                 @else
                                     <span class="badge badge-warning">{{ ucfirst($user->verification_status) }}</span>
                                 @endif
@@ -64,26 +66,28 @@
 
                         @if($user->verification_status == 'pending')
                             <hr>
-                            <h5 class="mt-2">Verification Documents</h5>
+                            <h5 class="mt-2">{{ __('admin.users.doc_verification') }}</h5>
                             @if($user->verification_documents)
                                 @foreach($user->verification_documents as $doc)
-                                    <a href="{{ $doc }}" target="_blank" class="btn btn-sm btn-outline-info mb-1">View Document</a>
+                                    <a href="{{ $doc }}" target="_blank"
+                                        class="btn btn-sm btn-outline-info mb-1">{{ __('admin.users.view_document') }}</a>
                                 @endforeach
                             @else
-                                <p class="text-muted text-sm">No documents uploaded.</p>
+                                <p class="text-muted text-sm">{{ __('admin.users.no_docs') }}</p>
                             @endif
 
                             <form action="{{ route('admin.users.verify', $user->id) }}" method="POST" class="mt-2">
                                 @csrf
                                 <div class="form-group">
                                     <select name="status" class="form-control form-control-sm mb-1">
-                                        <option value="approved">Approve</option>
-                                        <option value="rejected">Reject</option>
+                                        <option value="approved">{{ __('admin.users.approve') }}</option>
+                                        <option value="rejected">{{ __('admin.users.reject') }}</option>
                                     </select>
                                     <input type="text" name="rejection_reason" class="form-control form-control-sm mt-1"
-                                        placeholder="Reason (if rejected)">
+                                        placeholder="{{ __('admin.users.reason') }}">
                                 </div>
-                                <button type="submit" class="btn btn-sm btn-block btn-primary">Update Status</button>
+                                <button type="submit"
+                                    class="btn btn-sm btn-block btn-primary">{{ __('admin.users.update_status') }}</button>
                             </form>
                         @endif
                     </div>
@@ -94,7 +98,7 @@
         <div class="col-md-8">
             <div class="card">
                 <div class="card-header">
-                    <h4 class="card-title">Questions & Answers</h4>
+                    <h4 class="card-title">{{ __('admin.users.questions_answers') }}</h4>
                 </div>
                 <div class="card-content">
                     <div class="card-body">
@@ -103,8 +107,8 @@
                                 <table class="table table-hover">
                                     <thead>
                                         <tr>
-                                            <th>Question</th>
-                                            <th>Type</th>
+                                            <th>{{ __('admin.questions.question') }}</th>
+                                            <th>{{ __('admin.questions.type') }}</th>
                                             <th>Answer</th>
                                         </tr>
                                     </thead>
@@ -144,7 +148,7 @@
                                 </table>
                             </div>
                         @else
-                            <div class="alert alert-info">No questions found for this user's category.</div>
+                            <div class="alert alert-info">{{ __('admin.users.no_questions') }}</div>
                         @endif
                     </div>
                 </div>
