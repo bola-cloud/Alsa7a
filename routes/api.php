@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\V1\Auth\AuthController;
 use App\Http\Controllers\Api\V1\HomeController;
 use App\Http\Controllers\Api\V1\QuestionController;
 use App\Http\Controllers\Api\V1\CategoryController;
+use App\Http\Controllers\Api\V1\SearchController;
 
 /*
 |--------------------------------------------------------------------------
@@ -59,6 +60,9 @@ Route::prefix('v1')->middleware('set.api.locale')->group(function () {
     Route::get('community/categories', [App\Http\Controllers\Api\V1\CommunityController::class, 'getCategories']);
     Route::get('community/posts', [App\Http\Controllers\Api\V1\CommunityController::class, 'index']);
     Route::get('community/posts/{id}', [App\Http\Controllers\Api\V1\CommunityController::class, 'show']);
+
+    // --- Search ---
+    Route::get('search', [SearchController::class, 'index']);
 
     // --- Events Routes (Public) ---
     Route::get('events', [App\Http\Controllers\Api\V1\EventController::class, 'index']);

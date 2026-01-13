@@ -53,6 +53,36 @@ Protected routes require a Bearer Token in the header.
 **GET** `/questions`
 **POST** `/questions/answers` (Protected)
 
+### Search (New)
+**GET** `/search`
+**Params:**
+- `search`: string (Optional) - Search by User Name, Email, Phone, or Title.
+- `category_id`: int (Optional) - Filter by User Category.
+- `filters[question_id]`: value (Optional) - Filter users by their answer to a specific question.
+  - Example: `filters[10]=Yes` (Find users who answered "Yes" to Q10).
+
+**Response:**
+```json
+{
+    "users": {
+        "current_page": 1,
+        "data": [
+            { "id": 5, "name": "Coach Ahmed", "category_id": 3, ... }
+        ],
+        "total": 5
+    },
+    "filterable_questions": [
+        {
+            "id": 10,
+            "question": "Do you offer private sessions?",
+            "type": "boolean",
+            "choices": null
+        }
+    ]
+}
+```
+*Note*: `filterable_questions` is only returned when `category_id` is provided, listing non-text questions suitable for building UI filters.
+
 ---
 
 ## 2. Public Enpoints (Guest/User)
@@ -65,6 +95,7 @@ Accepts optional filters.
 - `sport_id`: int (optional)
 - `category_id`: int | 'all' (optional) - Filter by Provider's Category. 'all' returns everything.
 - `location`: string (optional, search term)
+- `provider_id`: int (optional) - Filter by specific Provider ID.
 
 **Response:**
 ```json

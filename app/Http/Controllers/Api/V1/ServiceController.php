@@ -34,6 +34,11 @@ class ServiceController extends Controller
             });
         }
 
+        // Filter by Provider ID
+        if ($request->has('provider_id') && $request->provider_id != null) {
+            $query->where('provider_id', $request->provider_id);
+        }
+
         $services = $query->latest()->paginate(10);
 
         // Append average rating to each service
