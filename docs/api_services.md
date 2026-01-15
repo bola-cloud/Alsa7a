@@ -210,10 +210,12 @@ Lists all requests made by the authenticated user.
 }
 ```
 
-### Pay for Service (Thawani)
+### Pay for Service or Event (Thawani)
 **POST** `/requests/pay`
 **Body:**
-- `service_request_id`: int (Required)
+- `service_request_id`: int (Optional, for Service Requests)
+- `booking_id`: int (Optional, for Event Bookings)
+*One of them must be present.*
 
 **Response:**
 ```json
@@ -286,6 +288,37 @@ Returns both social `stats` (posts, followers) and `professional` details (club,
 ---
 
 ## 4. Provider Endpoints (Protected)
+
+### Update Service
+**POST** `/services/{id}`
+**Description:** Update an existing service. Uses POST to support file uploads.
+**Body:**
+- `title`: string
+- `description`: string
+- `sport_id`: int
+- `price`: number
+- `days_available`: array of strings
+- `location`: string (optional)
+- `gallery[]`: array of images (Add new)
+- `deleted_media_ids[]`: array (Remove existing)
+
+**Response:**
+```json
+{
+    "status": true,
+    "message": "Service updated successfully"
+}
+```
+
+### Delete Service
+**DELETE** `/services/{id}`
+**Response:**
+```json
+{
+    "status": true,
+    "message": "Service deleted successfully"
+}
+```
 
 ### Create Service
 **POST** `/services`
@@ -605,6 +638,7 @@ Categorized discussions and articles.
 **GET** `/community/posts`
 **Params:**
 - `category_id`: int (Optional filter)
+- `user_id`: int (Optional, filter by specific user)
 - `page`: int
 
 ### Create Community Post
@@ -620,6 +654,18 @@ Categorized discussions and articles.
 
 ### Delete Community Post
 **DELETE** `/community/posts/{id}`
+
+### Interact with Community Post
+**Like/Unlike Post:**
+- `POST /community/posts/{id}/like`
+- Response: `{"status": true, "message": "Liked/Unliked", "is_liked": boolean}`
+
+**Add Comment:**
+- `POST /community/posts/{id}/comments`
+- Body: `body` (string, required).
+
+**Get Comments:**
+- `GET /community/posts/{id}/comments`
 
 ---
 
