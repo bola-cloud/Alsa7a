@@ -71,12 +71,13 @@ class EventBookingController extends Controller
                 'seats' => $requestedSeats,
                 'ticket_type' => $request->ticket_type,
                 'price_paid' => $price * $requestedSeats,
-                'status' => 'pending', // Pending payment
+                'ticket_number' => 'TKT-' . strtoupper(uniqid()),
+                'status' => ($price * $requestedSeats) == 0 ? 'confirmed' : 'pending', // Auto-confirm if free
                 'name' => $request->name,
                 'email' => $request->email,
                 'phone' => $request->phone,
                 'country_code' => $request->country_code ?? null,
-                'payment_meta' => json_encode(['method' => 'manual']), // Placeholder
+                'payment_meta' => json_encode(['method' => ($price * $requestedSeats) == 0 ? 'free' : 'manual']),
             ]);
 
             $event->increment('tickets_sold', $requestedSeats);
@@ -93,5 +94,28 @@ class EventBookingController extends Controller
             DB::rollBack();
             return response()->json(['status' => false, 'message' => 'Booking failed', 'error' => $e->getMessage()], 500);
         }
+    }
+    /**
+     * List my Event Bookings.
+     * GET /my-bookings
+     */
+    public function index(Request $request)
+    {
+        $bookings = Booking::where('user_id', $request->user()->id)
+            ->with(['event'])
+            ->latest()
+            ->paginate(10);
+
+        // Transform to include explicit payment status if needed
+        $bookings->getCollection()->transform(function ($booking) {
+            $booking->payment_status = $booking->status === 'confirmed' ? 'paid' : 'pending';
+            return $booking;
+        });
+
+        return response()->json([
+            'status' => true,
+            'data' => $bookings,
+            'message' => 'Bookings retrieved successfully'
+        ]);
     }
 }

@@ -70,7 +70,7 @@ class ProviderRequestController extends Controller
                 \App\Models\Conversation::create([
                     'service_request_id' => $serviceRequest->id,
                     'user_one_id' => $request->user()->id, // Provider
-                    'user_two_id' => $serviceRequest->user_id, // Requester
+                    'user_two_id' => $serviceRequest->requester_id, // Requester
                 ]);
             }
         }

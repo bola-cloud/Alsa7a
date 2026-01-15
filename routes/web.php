@@ -73,3 +73,12 @@ Route::group([
         Route::resource('tickets', \App\Http\Controllers\Admin\TicketController::class)->only(['index', 'show', 'update']);
     });
 });
+
+// Payment Callbacks (Web view)
+Route::get('/payment/success', function () {
+    return "Payment Successful! You can close this window.";
+})->name('payment.success');
+
+Route::get('/payment/cancel', function () {
+    return "Payment Canceled.";
+})->name('payment.cancel');

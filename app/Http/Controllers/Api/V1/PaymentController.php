@@ -8,6 +8,7 @@ use App\Models\Transaction;
 use App\Services\ThawaniService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
 
 class PaymentController extends Controller
 {
@@ -115,8 +116,17 @@ class PaymentController extends Controller
 
     public function webhook(Request $request)
     {
-        $payload = $request->all(); // Thawani payload
+        $payload = $request->all();
         Log::info('Thawani Webhook:', $payload);
+
+        // Thawani payload usually has 'session_id' or 'data.session_id' depending on event
+        // We will try to extract session_id and force a check
+        $sessionId = $payload['data']['session_id'] ?? ($payload['session_id'] ?? null);
+
+        if ($sessionId) {
+            $this->updatePaymentStatus($sessionId);
+        }
+
         return response()->json(['status' => true]);
     }
 
@@ -124,57 +134,83 @@ class PaymentController extends Controller
     public function checkStatus(Request $request)
     {
         $request->validate(['session_id' => 'required']);
-        $response = $this->thawaniService->getPaymentStatus($request->session_id);
+        $result = $this->updatePaymentStatus($request->session_id);
 
-        if (isset($response['data']['payment_status']) && $response['data']['payment_status'] == 'paid') {
-
-            $txn = Transaction::where('transaction_reference', $request->session_id)->first();
-            if ($txn && $txn->status == 'pending') {
-                $txn->status = 'completed';
-                $txn->save();
-
-                // Handle Service Request
-                if ($txn->service_request_id) {
-                    $serviceRequest = ServiceRequest::find($txn->service_request_id);
-                    if ($serviceRequest) {
-                        $serviceRequest->payment_status = 'paid';
-                        $serviceRequest->payment_transaction_id = $request->session_id;
-                        $serviceRequest->save();
-
-                        // Commission Calculation
-                        $commissionRate = setting('service_commission', 10);
-                        $txn->commission_amount = $txn->amount * ($commissionRate / 100);
-                        $txn->provider_amount = $txn->amount - $txn->commission_amount;
-                        $txn->save();
-
-                        // Create Conversation
-                        \App\Models\Conversation::firstOrCreate([
-                            'service_request_id' => $serviceRequest->id
-                        ], [
-                            'user_one_id' => $serviceRequest->requester_id,
-                            'user_two_id' => $serviceRequest->provider_id
-                        ]);
-                    }
-                }
-                // Handle Event Booking
-                elseif ($txn->booking_id) {
-                    $booking = \App\Models\Booking::find($txn->booking_id);
-                    if ($booking) {
-                        $booking->status = 'confirmed';
-                        $booking->save();
-
-                        // Payment meta update if needed
-                        $meta = is_string($booking->payment_meta) ? json_decode($booking->payment_meta, true) : ($booking->payment_meta ?? []);
-                        $meta['transaction_id'] = $request->session_id;
-                        $meta['method'] = 'thawani';
-                        $booking->payment_meta = $meta;
-                        $booking->save();
-                    }
-                }
-            }
+        if ($result) {
             return response()->json(['status' => true, 'message' => 'Payment verified']);
         }
 
-        return response()->json(['status' => false, 'message' => 'Payment not paid']);
+        return response()->json(['status' => false, 'message' => 'Payment not paid or failed']);
+    }
+
+    /**
+     * Centralized method to verify and update payment status
+     */
+    protected function updatePaymentStatus($sessionId)
+    {
+        // 1. Check Thawani API
+        $response = $this->thawaniService->getPaymentStatus($sessionId);
+
+        if (isset($response['data']['payment_status']) && $response['data']['payment_status'] == 'paid') {
+
+            $txn = Transaction::where('transaction_reference', $sessionId)->first();
+
+            // Allow idempotency: if already completed, return true
+            if ($txn && $txn->status == 'completed') {
+                return true;
+            }
+
+            if ($txn && $txn->status == 'pending') {
+                DB::transaction(function () use ($txn, $response, $sessionId) {
+                    $txn->status = 'completed';
+                    $txn->gateway_response = json_encode($response['data']);
+                    $txn->save();
+
+                    // Handle Service Request
+                    if ($txn->service_request_id) {
+                        $serviceRequest = ServiceRequest::find($txn->service_request_id);
+                        if ($serviceRequest) {
+                            $serviceRequest->payment_status = 'paid';
+                            $serviceRequest->payment_transaction_id = $sessionId;
+                            $serviceRequest->save();
+
+                            // Commission Calculation
+                            $commissionRate = setting('service_commission', 10);
+                            $txn->commission_amount = $txn->amount * ($commissionRate / 100);
+                            $txn->provider_amount = $txn->amount - $txn->commission_amount;
+                            $txn->save();
+
+                            // Create Conversation
+                            \App\Models\Conversation::firstOrCreate([
+                                'service_request_id' => $serviceRequest->id
+                            ], [
+                                'user_one_id' => $serviceRequest->requester_id,
+                                'user_two_id' => $serviceRequest->provider_id
+                            ]);
+                        }
+                    }
+                    // Handle Event Booking
+                    elseif ($txn->booking_id) {
+                        $booking = \App\Models\Booking::find($txn->booking_id);
+                        if ($booking) {
+                            $booking->status = 'confirmed';
+
+                            // Payment meta update
+                            $meta = is_string($booking->payment_meta) ? json_decode($booking->payment_meta, true) : ($booking->payment_meta ?? []);
+                            if (!is_array($meta))
+                                $meta = [];
+                            $meta['transaction_id'] = $sessionId;
+                            $meta['method'] = 'thawani';
+                            $booking->payment_meta = $meta;
+                            $booking->save();
+                        }
+                    }
+                });
+
+                return true;
+            }
+        }
+
+        return false;
     }
 }

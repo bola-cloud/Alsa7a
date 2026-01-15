@@ -215,7 +215,9 @@ Lists all requests made by the authenticated user.
 **Body:**
 - `service_request_id`: int (Optional, for Service Requests)
 - `booking_id`: int (Optional, for Event Bookings)
-*One of them must be present.*
+- `booking_id`: int (Optional, for Event Bookings)
+*One of them must be present. You can use this endpoint to retry payment for pending bookings.*
+*Note: Free events (price = 0) are auto-confirmed and do not require payment.*
 
 **Response:**
 ```json
@@ -357,7 +359,8 @@ Lists requests where the logged-in user is the **Provider**.
 ```json
 {
     "status": true,
-    "message": "Request status updated to accepted"
+    "message": "Request status updated to accepted",
+    "data": { "id": 101, "status": "accepted", ... }
 }
 ```
 
@@ -703,6 +706,28 @@ Categorized discussions and articles.
 ```
 
 
+
+### My Event Bookings
+**GET** `/my-bookings`
+**Response:**
+```json
+{
+    "status": true,
+    "data": {
+        "current_page": 1,
+        "data": [
+            {
+                "id": 10,
+                "event_id": 5,
+                "status": "confirmed",
+                "payment_status": "paid",
+                "event": { "id": 5, "title": "Concert", ... }
+            }
+        ]
+    }
+}
+```
+
 ---
 
 ## 7. Scenarios & Workflows
@@ -721,9 +746,9 @@ This scenario describes how a user books a service, pays for it, and communicate
     - **Notification**: User receives `RequestStatusUpdated`.
 
 3.  **Payment**:
-    - User calls `POST /requests/{id}/pay` (Mock payment).
+    - User calls `POST /requests/pay` with `service_request_id`.
     - **Logic**: Can only pay if status is `accepted`.
-    - **Result**: `payment_status` becomes `paid`. Chat `Conversation` is created/unlocked.
+    - **Result**: Returns Thawani session URL. User pays. Webhook updates `payment_status` to `paid`. Chat `Conversation` is created/unlocked.
 
 4.  **Chat**:
     - User/Provider calls `GET /chat/conversations` to find the chat.
