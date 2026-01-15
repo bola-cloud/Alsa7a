@@ -54,6 +54,11 @@ return [
         'content' => 'Content',
         'image' => 'Image',
     ],
+    'community_categories' => [
+        'index' => 'Community Categories',
+        'create' => 'Create Community Category',
+        'edit' => 'Edit Community Category',
+    ],
     'categories' => [
         'index' => 'Categories',
         'create' => 'Create Category',

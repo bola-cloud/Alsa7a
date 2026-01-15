@@ -84,6 +84,8 @@ Route::prefix('v1')->middleware('set.api.locale')->group(function () {
 
         // --- Service User Actions ---
         Route::post('services', [App\Http\Controllers\Api\V1\ServiceController::class, 'store']); // Create Service
+        Route::post('services/{id}', [App\Http\Controllers\Api\V1\ServiceController::class, 'update']); // Update Service (POST for file support)
+        Route::delete('services/{id}', [App\Http\Controllers\Api\V1\ServiceController::class, 'destroy']); // Delete Service
         Route::post('services/{id}/request', [App\Http\Controllers\Api\V1\ServiceRequestController::class, 'store']);
         // Route::post('requests/{id}/pay', [App\Http\Controllers\Api\V1\ServiceRequestController::class, 'pay']); // Payment Old
         Route::post('requests/pay', [App\Http\Controllers\Api\V1\PaymentController::class, 'pay']); // New Thawani Payload
@@ -129,6 +131,9 @@ Route::prefix('v1')->middleware('set.api.locale')->group(function () {
         Route::post('community/posts', [App\Http\Controllers\Api\V1\CommunityController::class, 'store']);
         Route::post('community/posts/{id}', [App\Http\Controllers\Api\V1\CommunityController::class, 'update']);
         Route::delete('community/posts/{id}', [App\Http\Controllers\Api\V1\CommunityController::class, 'destroy']);
+        Route::post('community/posts/{id}/like', [App\Http\Controllers\Api\V1\CommunityController::class, 'like']);
+        Route::get('community/posts/{id}/comments', [App\Http\Controllers\Api\V1\CommunityController::class, 'getComments']);
+        Route::post('community/posts/{id}/comments', [App\Http\Controllers\Api\V1\CommunityController::class, 'comment']);
 
         // --- Event Booking ---
         Route::post('events/{id}/book', [App\Http\Controllers\Api\V1\EventBookingController::class, 'store']);

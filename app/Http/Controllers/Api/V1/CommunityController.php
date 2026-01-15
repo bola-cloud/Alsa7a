@@ -45,6 +45,10 @@ class CommunityController extends Controller
             $query->where('community_category_id', $request->category_id);
         }
 
+        if ($request->has('user_id')) {
+            $query->where('user_id', $request->user_id);
+        }
+
         $posts = $query->paginate(10);
 
         return response()->json([
@@ -120,6 +124,9 @@ class CommunityController extends Controller
     /**
      * Update Post
      */
+    /**
+     * Update Post
+     */
     public function update(Request $request, $id)
     {
         $post = CommunityPost::where('user_id', $request->user()->id)->find($id);
@@ -149,5 +156,79 @@ class CommunityController extends Controller
         $post->save();
 
         return response()->json(['status' => true, 'message' => 'Updated successfully', 'data' => $post->load('category')]);
+    }
+
+    /**
+     * Toggle Like on Community Post
+     */
+    public function like(Request $request, $id)
+    {
+        $post = CommunityPost::find($id);
+
+        if (!$post) {
+            return response()->json(['status' => false, 'message' => 'Post not found'], 404);
+        }
+
+        $user = $request->user();
+        $like = $post->likes()->where('user_id', $user->id)->first();
+
+        if ($like) {
+            $like->delete();
+            return response()->json(['status' => true, 'message' => 'Unliked', 'is_liked' => false]);
+        } else {
+            $post->likes()->create(['user_id' => $user->id]);
+            return response()->json(['status' => true, 'message' => 'Liked', 'is_liked' => true]);
+        }
+    }
+
+    /**
+     * Get Comments for Community Post
+     */
+    public function getComments(Request $request, $id)
+    {
+        $post = CommunityPost::find($id);
+
+        if (!$post) {
+            return response()->json(['status' => false, 'message' => 'Post not found'], 404);
+        }
+
+        $comments = $post->comments()->with('user:id,name,profile_photo_path')->latest()->paginate(20);
+
+        return response()->json([
+            'status' => true,
+            'data' => $comments,
+            'message' => 'Comments retrieved successfully'
+        ]);
+    }
+
+    /**
+     * Add Comment to Community Post
+     */
+    public function comment(Request $request, $id)
+    {
+        $post = CommunityPost::find($id);
+
+        if (!$post) {
+            return response()->json(['status' => false, 'message' => 'Post not found'], 404);
+        }
+
+        $validator = Validator::make($request->all(), [
+            'body' => 'required|string|max:1000',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['status' => false, 'errors' => $validator->errors()], 422);
+        }
+
+        $comment = $post->comments()->create([
+            'user_id' => $request->user()->id,
+            'body' => $request->body
+        ]);
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Comment created successfully',
+            'data' => $comment->load('user:id,name,profile_photo_path')
+        ], 201);
     }
 }

@@ -63,6 +63,7 @@ Route::group([
         Route::get('community_posts', [\App\Http\Controllers\Admin\CommunityPostController::class, 'index'])->name('community_posts.index');
         Route::delete('community_posts/{id}', [\App\Http\Controllers\Admin\CommunityPostController::class, 'destroy'])->name('community_posts.destroy');
         Route::post('community_posts/{id}/toggle', [\App\Http\Controllers\Admin\CommunityPostController::class, 'toggle'])->name('community_posts.toggle');
+        Route::resource('community_categories', \App\Http\Controllers\Admin\CommunityCategoryController::class);
 
         // Services & Tickets
         Route::resource('services', \App\Http\Controllers\Admin\ServiceController::class)->only(['index', 'show', 'destroy']);

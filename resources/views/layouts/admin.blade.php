@@ -318,6 +318,12 @@
                                 <span class="menu-title">{{ __('admin.community_posts.title') }}</span>
                             </a>
                         </li>
+                        <li class="nav-item {{ request()->routeIs('admin.community_categories.*') ? 'active' : '' }}">
+                            <a href="{{ route('admin.community_categories.index') }}">
+                                <i class="la la-tags"></i>
+                                <span class="menu-title">{{ __('admin.community_categories.index') }}</span>
+                            </a>
+                        </li>
                         <li class="nav-item {{ request()->routeIs('admin.services.*') ? 'active' : '' }}">
                             <a href="{{ route('admin.services.index') }}">
                                 <i class="la la-briefcase"></i>

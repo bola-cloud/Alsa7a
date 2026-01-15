@@ -54,6 +54,11 @@ return [
         'content' => 'المحتوى',
         'image' => 'الصورة',
     ],
+    'community_categories' => [
+        'index' => 'فئات المجتمع',
+        'create' => 'إنشاء فئة مجتمع',
+        'edit' => 'تعديل فئة المجتمع',
+    ],
     'categories' => [
         'index' => 'الأقسام',
         'create' => 'إنشاء قسم',
