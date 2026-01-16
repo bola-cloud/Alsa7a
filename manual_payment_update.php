@@ -41,7 +41,17 @@ try {
 
     // Construct the URL manually to be sure
     // Thawani API: GET /api/v1/checkout/session/{session_id}
-    $url = $baseUrl . '/api/v1/checkout/session/' . $sessionId;
+    // Remove /api/v1 from baseUrl if it exists, to avoid duplication if we want to be safe, 
+    // OR just use it as is if we know what it is.
+    // The previous error was: https://uatcheckout.thawani.om/api/v1/api/v1/...
+
+    // Fix: Clean the base URL to NOT have /api/v1 at the end if we are appending it, 
+    // OR don't append it if it's there.
+    if (strpos($baseUrl, '/api/v1') !== false) {
+        $url = $baseUrl . '/checkout/session/' . $sessionId;
+    } else {
+        $url = $baseUrl . '/api/v1/checkout/session/' . $sessionId;
+    }
 
     echo "Requesting: $url\n";
 
@@ -65,7 +75,8 @@ try {
     if ($status === 'paid') {
         echo "Payment is PAID. Updating local DB...\n";
 
-        $controller = new \App\Http\Controllers\Api\V1\PaymentController();
+        // Create controller instance with dependency
+        $controller = new \App\Http\Controllers\Api\V1\PaymentController($thawaniService);
 
         // Use reflection to call the protected method processPaymentUpdate/checkStatus logic
         // Or simpler: just replicate the update logic here.

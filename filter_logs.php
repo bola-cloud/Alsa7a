@@ -9,13 +9,19 @@ if (!file_exists($logFile)) {
 }
 
 echo "--- Reading $logFile ---\n";
-echo "--- Filtering for 'Thawani' or 'Payment' ---\n\n";
+echo "--- Filtering for 'Thawani' or 'Payment' with context ---\n\n";
 
 $handle = fopen($logFile, "r");
 if ($handle) {
+    $printNext = 0;
     while (($line = fgets($handle)) !== false) {
         if (stripos($line, 'Thawani') !== false || stripos($line, 'Payment') !== false) {
+            echo "--------------------------------------------------\n";
             echo trim($line) . "\n";
+            $printNext = 10; // Print next 10 lines to capture stack trace or context
+        } elseif ($printNext > 0) {
+            echo trim($line) . "\n";
+            $printNext--;
         }
     }
     fclose($handle);
