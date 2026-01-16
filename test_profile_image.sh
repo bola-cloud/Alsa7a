@@ -11,12 +11,10 @@ fi
 
 # Create a dummy image if not exists
 if [ ! -f dummy.jpg ]; then
-    echo "Creating dummy image..."
-    # Create a simple valid JPEG header to avoid validation errors if strictly checked
-    # Or just use a random file, but sometimes naive random bytes fail strict image validation.
-    # For now, we'll try random bytes as 'fsutil' did, but usually 'convert' or fetching an image is safer.
-    # Creating a 1KB file with random data:
-    dd if=/dev/urandom of=dummy.jpg bs=1024 count=1 >/dev/null 2>&1
+    echo "Downloading valid dummy image..."
+    # Download a real valid JPEG (small placeholder)
+    # Using -L to follow redirects (placehold.co often redirects)
+    curl -L "https://placehold.co/200.jpg" -o dummy.jpg
 fi
 
 echo ""

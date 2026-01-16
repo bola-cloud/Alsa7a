@@ -73,7 +73,7 @@ class ProfileController extends Controller
             'phone' => $user->phone, // Added phone number
             'profile_title' => $user->profile_title,
             'bio' => $user->bio,
-            'image' => $user->profile_photo_url,
+            'image' => $user->profile_photo_path ? url('storage/' . $user->profile_photo_path) : $user->profile_photo_url,
             'cover_photo' => $user->cover_photo_path ? url('storage/' . $user->cover_photo_path) : null,
             'category' => $user->category ? [
                 'id' => $user->category->id,
