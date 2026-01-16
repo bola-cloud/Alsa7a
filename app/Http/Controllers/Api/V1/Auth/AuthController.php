@@ -13,13 +13,14 @@ class AuthController extends Controller
 {
     public function register(Request $request)
     {
-        $data = $request->only(['name', 'email', 'phone', 'password']);
+        $data = $request->only(['name', 'email', 'phone', 'password', 'onesignal_subscription']);
 
         $validator = Validator::make($data, [
             'name' => 'required|string|max:255',
             'email' => 'nullable|email|unique:users,email',
             'phone' => 'required|string|unique:users,phone',
             'password' => 'required|string|min:6',
+            'onesignal_subscription' => 'nullable|array',
         ]);
 
         if ($validator->fails()) {
@@ -35,6 +36,7 @@ class AuthController extends Controller
             'phone' => $data['phone'],
             'password' => Hash::make($data['password']),
             'is_approved' => $autoApprove,
+            'onesignal_subscription' => $data['onesignal_subscription'] ?? null,
         ]);
 
         if (!$user->is_approved) {
@@ -85,6 +87,12 @@ class AuthController extends Controller
             ], 403);
         }
 
+        // Update Subscription if present
+        if ($request->has('onesignal_subscription')) {
+            $user->onesignal_subscription = $request->onesignal_subscription;
+            $user->save();
+        }
+
         $token = $user->createToken('api-token')->plainTextToken;
 
         $answered = $user->answered_question_ids;
@@ -104,7 +112,34 @@ class AuthController extends Controller
         $user = $request->user();
         if ($user) {
             $user->currentAccessToken()->delete();
+            // Optional: clear device token on logout?
+            // $user->onesignal_subscription = null;
+            // $user->save();
         }
         return response()->json(['message' => 'Logged out']);
+    }
+
+    /**
+     * Update OneSignal Subscription (Protected)
+     */
+    public function updateSubscription(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'onesignal_subscription' => 'required|array',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['status' => false, 'errors' => $validator->errors()], 422);
+        }
+
+        $user = $request->user();
+        $user->onesignal_subscription = $request->onesignal_subscription;
+        $user->save();
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Subscription updated successfully',
+            'data' => $user->onesignal_subscription
+        ]);
     }
 }

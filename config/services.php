@@ -39,4 +39,10 @@ return [
         'mode' => env('THAWANI_MODE', env('THAWANI_MOD', 'test')),
     ],
 
+    'onesignal' => [
+        'app_id' => env('ONESIGNAL_APP_ID'),
+        'rest_api_key' => env('ONESIGNAL_REST_API_KEY'),
+        'channel_key' => env('ONESIGNAL_CHANNEL_KEY'), // Optional specific channel key
+    ],
+
 ];

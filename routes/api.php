@@ -78,6 +78,7 @@ Route::prefix('v1')->middleware('set.api.locale')->group(function () {
 
         // Logout route under /api/v1/auth/logout
         Route::post('auth/logout', [AuthController::class, 'logout']);
+        Route::post('users/onesignal-subscription', [AuthController::class, 'updateSubscription']);
 
         // submit answers
         Route::post('questions/answers', [QuestionController::class, 'submit']);

@@ -11,6 +11,8 @@ use Laravel\Jetstream\HasProfilePhoto;
 use Laravel\Sanctum\HasApiTokens;
 use App\Models\Question;
 use App\Models\QuestionAnswer;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use App\Models\Project;
 
 class User extends Authenticatable
 {
@@ -56,6 +58,7 @@ class User extends Authenticatable
         'verification_status',
         'verification_documents',
         'rejection_reason',
+        'onesignal_subscription',
     ];
 
     public function projects(): HasMany
@@ -178,6 +181,7 @@ class User extends Authenticatable
         'is_approved' => 'boolean',
         'is_admin' => 'boolean',
         'verification_documents' => 'array',
+        'onesignal_subscription' => 'array',
     ];
 
     /**
