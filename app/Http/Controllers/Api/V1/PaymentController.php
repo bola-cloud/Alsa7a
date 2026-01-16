@@ -250,16 +250,30 @@ class PaymentController extends Controller
     {
         \Illuminate\Support\Facades\Log::info('--- Payment Success Page Hit ---', $request->all());
 
-        $sessionId = $request->payment_id ?? $request->session_id; // Thawani might send payment_id in query
+        $sessionId = $request->payment_id ?? $request->session_id;
 
         if ($sessionId) {
+            // Instant verification in case webhook is slow
+            try {
+                $paymentData = $this->thawaniService->getPaymentStatus($sessionId);
+                if (isset($paymentData['data']['payment_status'])) {
+                    $txn = Transaction::where('transaction_reference', $sessionId)->first();
+                    if ($txn) {
+                        $this->processPaymentUpdate($txn, $paymentData['data']['payment_status']);
                     }
-                });
-
-                return true;
+                }
+            } catch (\Exception $e) {
+                // Ignore error on success page
+                \Illuminate\Support\Facades\Log::error('Success Page: Check Failed', ['error' => $e->getMessage()]);
             }
         }
 
-        return false;
+        return response('<html><body><h1 style="color:green;text-align:center;margin-top:50px;">Payment Successful</h1><p style="text-align:center;">You can return to the application.</p></body></html>');
+    }
+
+    public function cancel(Request $request)
+    {
+         \Illuminate\Support\Facades\Log::info('--- Payment Cancel Page Hit ---', $request->all());
+         return response('<html><body><h1 style="color:red;text-align:center;margin-top:50px;">Payment Cancelled</h1><p style="text-align:center;">You can return to the application.</p></body></html>');
     }
 }
