@@ -75,10 +75,6 @@ Route::group([
 });
 
 // Payment Callbacks (Web view)
-Route::get('/payment/success', function () {
-    return "Payment Successful! You can close this window.";
-})->name('payment.success');
-
-Route::get('/payment/cancel', function () {
-    return "Payment Canceled.";
-})->name('payment.cancel');
+// Payment Callbacks
+Route::get('/payment/success', [\App\Http\Controllers\Api\V1\PaymentController::class, 'success'])->name('payment.success');
+Route::get('/payment/cancel', [\App\Http\Controllers\Api\V1\PaymentController::class, 'cancel'])->name('payment.cancel');
