@@ -51,7 +51,7 @@ echo "Target Endpoint: $fullUrl\n";
 try {
     $client = new \GuzzleHttp\Client();
     $data = [
-        'client_reference_id' => 'DEBUG_' . time(),
+        'client_reference_id' => 'DEBUG' . time(),
         'mode' => 'payment',
         'products' => [
             [

@@ -61,7 +61,7 @@ class PaymentController extends Controller
             $meta['booking_id'] = $payable->id;
         }
 
-        $clientReference = 'TXN_' . uniqid();
+        $clientReference = 'TXN' . uniqid();
         $amountInBaisa = (int) ($price * 1000);
 
         $data = [
