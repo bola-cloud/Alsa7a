@@ -40,7 +40,7 @@ class PaymentController extends Controller
             $payable = ServiceRequest::findOrFail($request->service_request_id);
             $payableType = 'service_request';
             $price = $payable->price;
-            $name = 'Service Request #' . $payable->id;
+            $name = 'Service Request ' . $payable->id;
 
             if ($payable->payment_status === 'paid') {
                 return response()->json(['status' => false, 'message' => 'Already paid'], 400);
@@ -53,7 +53,7 @@ class PaymentController extends Controller
             $payable = \App\Models\Booking::findOrFail($request->booking_id);
             $payableType = 'booking';
             $price = $payable->price_paid; // Logic handles full price calculation
-            $name = 'Event Booking #' . $payable->id;
+            $name = 'Event Booking ' . $payable->id;
 
             if ($payable->status === 'confirmed') { // Assuming confirmed implies paid for paid events
                 return response()->json(['status' => false, 'message' => 'Already paid/confirmed'], 400);
