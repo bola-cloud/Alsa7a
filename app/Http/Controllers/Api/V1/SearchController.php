@@ -63,8 +63,39 @@ class SearchController extends Controller
         // Only active/approved users usually
         $query->where('is_approved', true);
 
+        // Eager load relationships needed for the response
+        $query->with(['answers.question', 'category']);
+
         // Execute Query
         $users = $query->paginate(20);
+
+        // Transform collection to add helper fields
+        $users->getCollection()->transform(function ($user) {
+            // 1. Format Image URL
+            $user->image = $user->profile_photo_url; // Assuming accessor handles logic or we replicate it:
+            // Replicating logic just in case accessor isn't enough in array serialization
+            if ($user->profile_photo_path) {
+                $user->image = url('storage/' . $user->profile_photo_path);
+            }
+
+            // 2. Format Answers (questions_data)
+            $user->questions_data = $user->answers->map(function ($answer) {
+                return [
+                    'question_id' => $answer->question_id,
+                    'question' => $answer->question->question ?? null,
+                    'type' => $answer->question->type ?? null,
+                    'answer' => $answer->answer,
+                ];
+            });
+
+            // 3. Category Data (Optional but good)
+            $user->category_data = $user->category ? [
+                'id' => $user->category->id,
+                'name' => $user->category->name
+            ] : null;
+
+            return $user;
+        });
 
         // 4. Get Filterable Questions (if category is selected)
         $filterableQuestions = [];

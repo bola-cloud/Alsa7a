@@ -217,11 +217,7 @@ class ProfileController extends Controller
 
         $user->save();
 
-        return response()->json([
-            'status' => true,
-            'message' => 'Profile updated successfully',
-            'data' => $user
-        ]);
+        return $this->formatProfileResponse($user, true);
     }
 
     /**
