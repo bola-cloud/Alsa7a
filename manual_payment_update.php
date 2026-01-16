@@ -6,8 +6,8 @@ $app = require_once __DIR__ . '/bootstrap/app.php';
 $kernel = $app->make(Illuminate\Contracts\Http\Kernel::class);
 $kernel->handle(Illuminate\Http\Request::capture());
 
-// User's specific session ID from the chat
-$sessionId = 'checkout_bG9IkloN4QR5SAUxfYC3JG1BwGJFJmhg7Ay1UyERFW9wKfPoOA';
+// Get Session ID from argument or default (for testing)
+$sessionId = $argv[1] ?? 'checkout_bG9IkloN4QR5SAUxfYC3JG1BwGJFJmhg7Ay1UyERFW9wKfPoOA';
 
 echo "--- Manual Payment Update ---\n";
 echo "Session ID: $sessionId\n";
