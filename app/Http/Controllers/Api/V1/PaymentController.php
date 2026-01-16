@@ -361,7 +361,7 @@ class PaymentController extends Controller
                     if ($req) {
                         $req->update([
                             'payment_status' => 'paid',
-                            'status' => 'paid',
+                            // 'status' => 'paid', // Removed: Service status shouldn't change to 'paid', it stays 'accepted' (or whatever it was)
                             'payment_transaction_id' => $txn->id, // Link to local transaction
                             'payment_meta' => $txn->gateway_response // Propagate gateway details
                         ]);
