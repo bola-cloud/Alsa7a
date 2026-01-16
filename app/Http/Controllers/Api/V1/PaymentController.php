@@ -74,7 +74,8 @@ class PaymentController extends Controller
                     'unit_amount' => $amountInBaisa,
                 ]
             ],
-            'success_url' => route('payment.success'),
+            // Append client ref so we can track it on return
+            'success_url' => route('payment.success', ['ref' => $clientReference]),
             'cancel_url' => route('payment.cancel'),
             'metadata' => array_merge($meta, ['user_id' => $request->user()->id]),
         ];
@@ -91,6 +92,8 @@ class PaymentController extends Controller
                     'status' => 'pending',
                     'payment_method' => 'thawani',
                     'transaction_reference' => $session['data']['session_id'],
+                    // Store client ref so we can look it up if session_id is missing
+                    'gateway_response' => ['client_reference_id' => $clientReference]
                 ]);
 
                 $publishableKey = config('services.thawani.publishable_key', 'HGvTMLDssJghr9tlQS6AgHe0GN5X9n');
@@ -274,16 +277,27 @@ class PaymentController extends Controller
             ?? $request->query('session_id')
             ?? $request->query('transaction_id');
 
-        if (!$sessionId) {
-            Log::warning('No session/payment ID in callback');
-            return response('<html><body><h1 style="color:red;text-align:center;">Invalid Request: No Session ID</h1></body></html>', 400);
+        $clientRef = $request->query('ref') ?? $request->query('client_reference_id');
+
+        $txn = null;
+
+        // Strategy 1: Find by Session ID
+        if ($sessionId) {
+            $txn = Transaction::where('transaction_reference', $sessionId)->first();
         }
 
-        // Find Transaction
-        $txn = Transaction::where('transaction_reference', $sessionId)->first();
+        // Strategy 2: Find by Client Ref (if Session ID missing)
+        if (!$txn && $clientRef) {
+            // Search in JSON column
+            $txn = Transaction::where('gateway_response->client_reference_id', $clientRef)->first();
+            if ($txn) {
+                $sessionId = $txn->transaction_reference; // Recover Session ID from DB
+                Log::info('Recovered Session ID from Client Ref', ['session_id' => $sessionId, 'ref' => $clientRef]);
+            }
+        }
 
         if (!$txn) {
-            Log::error('Transaction not found in callback', ['session_id' => $sessionId]);
+            Log::error('Transaction not found in callback', ['session_id' => $sessionId, 'ref' => $clientRef]);
             return response('<html><body><h1 style="color:red;text-align:center;">Transaction Not Found!</h1></body></html>', 404);
         }
 
@@ -297,14 +311,16 @@ class PaymentController extends Controller
             return response('<html><body><h1 style="color:green;text-align:center;margin-top:50px;">Payment Successful</h1><p style="text-align:center;">Your payment has been confirmed. You can return to the application.</p></body></html>');
         }
 
-        // Webhook hasn't processed it yet. 
-        // We will TRY to verify immediately for better UX, but fall back to "Processing"
-        Log::info('Payment pending webhook. Attempting immediate verification...');
+        // Webhook hasn't processed it yet.
+        // Attempt immediate verification using recovered Session ID
+        if ($sessionId) {
+            Log::info('Payment pending webhook. Attempting immediate verification...');
+            $verifiedData = $this->verifyPaymentWithThawani($sessionId);
 
-        $verifiedData = $this->verifyPaymentWithThawani($sessionId);
-        if ($verifiedData && isset($verifiedData['payment_status']) && $verifiedData['payment_status'] === 'paid') {
-            $this->processPaymentUpdate($txn, 'paid');
-            return response('<html><body><h1 style="color:green;text-align:center;margin-top:50px;">Payment Successful</h1><p style="text-align:center;">Transaction verified and completed. You can return to the application.</p></body></html>');
+            if ($verifiedData && isset($verifiedData['payment_status']) && $verifiedData['payment_status'] === 'paid') {
+                $this->processPaymentUpdate($txn, 'paid');
+                return response('<html><body><h1 style="color:green;text-align:center;margin-top:50px;">Payment Successful</h1><p style="text-align:center;">Transaction verified and completed. You can return to the application.</p></body></html>');
+            }
         }
 
         // If generic verification failed or still unpaid, show processing
@@ -316,20 +332,7 @@ class PaymentController extends Controller
      */
     public function cancel(Request $request)
     {
-        Log::info('=== PAYMENT CALLBACK CANCEL ===', $request->all());
-
-        $sessionId = $request->query('payment_id')
-            ?? $request->query('session_id')
-            ?? $request->query('transaction_id');
-
-        if ($sessionId) {
-            $txn = Transaction::where('transaction_reference', $sessionId)->first();
-            if ($txn && $txn->status !== 'completed') {
-                $txn->update(['status' => 'failed']); // Or cancelled
-                Log::info('Transaction cancelled via callback', ['txn_id' => $txn->id]);
-            }
-        }
-
+        \Illuminate\Support\Facades\Log::info('--- Payment Cancel Page Hit ---', $request->all());
         return response('<html><body><h1 style="color:red;text-align:center;margin-top:50px;">Payment Cancelled</h1><p style="text-align:center;">You have cancelled the payment.</p></body></html>');
     }
 
@@ -354,7 +357,12 @@ class PaymentController extends Controller
                 if ($txn->service_request_id) {
                     $req = ServiceRequest::find($txn->service_request_id);
                     if ($req) {
-                        $req->update(['payment_status' => 'paid', 'status' => 'paid']);
+                        $req->update([
+                            'payment_status' => 'paid',
+                            'status' => 'paid',
+                            'payment_transaction_id' => $txn->id, // Link to local transaction
+                            'payment_meta' => $txn->gateway_response // Propagate gateway details
+                        ]);
                         Log::info("Service Request {$req->id} marked as paid.");
                     }
                 }
