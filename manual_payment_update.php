@@ -3,61 +3,112 @@
 require __DIR__ . '/vendor/autoload.php';
 
 $app = require_once __DIR__ . '/bootstrap/app.php';
-$kernel = $app->make(Illuminate\Contracts\Http\Kernel::class);
-$kernel->handle(Illuminate\Http\Request::capture());
+$kernel = $app->make(Illuminate\Contracts\Console\Kernel::class);
+$kernel->bootstrap();
 
-// Get Session ID from argument or default (for testing)
-$sessionId = $argv[1] ?? 'checkout_bG9IkloN4QR5SAUxfYC3JG1BwGJFJmhg7Ay1UyERFW9wKfPoOA';
+use App\Models\Transaction;
+use App\Services\ThawaniService;
+use App\Models\ServiceRequest;
+use App\Models\Booking;
+
+// Check for session ID argument
+if ($argc < 2) {
+    echo "Usage: php manual_payment_update.php <session_id>\n";
+    // Fallback for testing if you want to hardcode
+    // $sessionId = 'checkout_...';
+    exit(1);
+}
+
+$sessionId = $argv[1];
 
 echo "--- Manual Payment Update ---\n";
-echo "Session ID: $sessionId\n";
+echo "Session ID: " . $sessionId . "\n";
 
-// 1. Get Payment Data from Thawani
+$thawaniService = new ThawaniService();
+
 echo "Fetching status from Thawani...\n";
-$service = new \App\Services\ThawaniService();
-$paymentData = $service->getPaymentStatus($sessionId);
 
-if (!isset($paymentData['data']['payment_status'])) {
-    echo "ERROR: Could not fetch status from Thawani. (Check keys)\n";
-    print_r($paymentData);
-    exit;
-}
+try {
+    // We'll use the public getPaymentStatus to verify connectivity,
+    // but we also want to inspect the raw response if possible.
+    // Since getPaymentStatus only returns a string, let's reflect into the service 
+    // or just assume if it works, it works, but here we want to debug "unpaid".
 
-$status = $paymentData['data']['payment_status'];
-echo "Thawani Status: $status\n";
+    // Let's manually trigger the underlying client request to see the full body
+    $client = new \GuzzleHttp\Client();
+    $secretKey = config('services.thawani.secret_key');
+    $baseUrl = config('services.thawani.base_url');
 
-if ($status !== 'paid') {
-    echo "Payment is not PAID yet in Thawani. Cannot update local DB.\n";
-    exit;
-}
+    // Construct the URL manually to be sure
+    // Thawani API: GET /api/v1/checkout/session/{session_id}
+    $url = $baseUrl . '/api/v1/checkout/session/' . $sessionId;
 
-// 2. Find Transaction
-$txn = \App\Models\Transaction::where('transaction_reference', $sessionId)->first();
+    echo "Requesting: $url\n";
 
-if (!$txn) {
-    echo "ERROR: Transaction not found in DB for this session ID.\n";
-    exit;
-}
-
-echo "Transaction Found: ID {$txn->id}, Current Status: {$txn->status}\n";
-
-// 3. Update
-if ($txn->status !== 'completed') {
-    $txn->update([
-        'status' => 'completed',
-        'gateway_response' => ['status' => $status, 'updated_at' => now()]
+    $response = $client->get($url, [
+        'headers' => [
+            'thawani-api-key' => $secretKey,
+            'Content-Type' => 'application/json',
+        ]
     ]);
-    echo "Transaction updated to COMPLETED.\n";
 
-    if ($txn->service_request_id) {
-        $req = \App\Models\ServiceRequest::find($txn->service_request_id);
-        if ($req) {
-            $req->update(['payment_status' => 'paid', 'status' => 'paid']);
-            echo "Service Request {$req->id} updated to PAID.\n";
+    $body = json_decode($response->getBody(), true);
+
+    echo "--- FULL THAWANI RESPONSE ---\n";
+    print_r($body);
+    echo "-----------------------------\n";
+
+    $status = $body['data']['payment_status'] ?? 'unknown';
+
+    echo "Thawani Status: " . $status . "\n";
+
+    if ($status === 'paid') {
+        echo "Payment is PAID. Updating local DB...\n";
+
+        $controller = new \App\Http\Controllers\Api\V1\PaymentController();
+
+        // Use reflection to call the protected method processPaymentUpdate/checkStatus logic
+        // Or simpler: just replicate the update logic here.
+
+        $transaction = Transaction::where('transaction_reference', $sessionId)->first();
+
+        if ($transaction) {
+            echo "Transaction found: ID " . $transaction->id . "\n";
+
+            if ($transaction->status === 'paid') {
+                echo "Transaction is ALREADY paid in DB.\n";
+            } else {
+                $transaction->update([
+                    'status' => 'paid',
+                    'gateway_response' => json_encode($body)
+                ]);
+                echo "Transaction status updated to 'paid'.\n";
+
+                // Update related models
+                if ($transaction->service_request_id) {
+                    $sr = ServiceRequest::find($transaction->service_request_id);
+                    if ($sr) {
+                        $sr->update(['payment_status' => 'paid', 'status' => 'paid']);
+                        echo "ServiceRequest updated.\n";
+                    }
+                }
+
+                if ($transaction->booking_id) {
+                    $bk = Booking::find($transaction->booking_id);
+                    if ($bk) {
+                        $bk->update(['status' => 'confirmed', 'payment_status' => 'paid']);
+                        echo "Booking updated.\n";
+                    }
+                }
+            }
+        } else {
+            echo "Error: Transaction not found in DB for this session ID.\n";
         }
-    }
-} else {
-    echo "Transaction was already completed.\n";
-}
 
-echo "Done.\n";
+    } else {
+        echo "Payment is not PAID yet in Thawani. Cannot update local DB.\n";
+    }
+
+} catch (\Exception $e) {
+    echo "Error: " . $e->getMessage() . "\n";
+}
