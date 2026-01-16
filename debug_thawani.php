@@ -21,6 +21,11 @@ echo "Pay URL: " . ($payUrl ?: 'MISSING') . "\n";
 echo "Secret Key: " . ($secret ? substr($secret, 0, 5) . '...' . substr($secret, -4) : 'MISSING') . "\n";
 echo "Publishable Key: " . ($pub ? substr($pub, 0, 5) . '...' . substr($pub, -4) : 'MISSING') . "\n";
 
+echo "\n--- Raw Env Check ---\n";
+echo "THAWANI_TEST_SECRET_KEY: " . (getenv('THAWANI_TEST_SECRET_KEY') ? 'EXISTS' : 'NOT FOUND') . "\n";
+echo "THAWANI_TEST_PAY_URL: " . (getenv('THAWANI_TEST_PAY_URL') ? 'EXISTS' : 'NOT FOUND') . "\n";
+echo "Note: If Raw Env 'EXISTS' but Config is 'MISSING', you need to git pull + config:cache.\n";
+
 // 2. Test Connection
 echo "\n--- Testing Connection ---\n";
 if (!$baseUrl || !$secret) {
