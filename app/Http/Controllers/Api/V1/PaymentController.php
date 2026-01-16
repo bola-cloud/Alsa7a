@@ -120,96 +120,139 @@ class PaymentController extends Controller
         }
     }
 
-    public function webhook(Request $request)
-    {
-        $payload = $request->all();
-        Log::info('Thawani Webhook:', $payload);
-
-        // Thawani payload usually has 'session_id' or 'data.session_id' depending on event
-        // We will try to extract session_id and force a check
-        $sessionId = $payload['data']['session_id'] ?? ($payload['session_id'] ?? null);
-
-        if ($sessionId) {
-            $this->updatePaymentStatus($sessionId);
-        }
-
-        return response()->json(['status' => true]);
-    }
-
-    // Callback method to call from the success page if needed, or simple status check
+    /**
+     * Check Payment Status (Manual Poll or user return).
+     */
     public function checkStatus(Request $request)
     {
-        $request->validate(['session_id' => 'required']);
-        $result = $this->updatePaymentStatus($request->session_id);
-
-        if ($result) {
-            return response()->json(['status' => true, 'message' => 'Payment verified']);
+        $sessionId = $request->session_id;
+        
+        if (!$sessionId) {
+             return response()->json(['status' => false, 'message' => 'Session ID required'], 400);
         }
 
-        return response()->json(['status' => false, 'message' => 'Payment not paid or failed']);
+        $paymentData = $this->thawaniService->getPaymentStatus($sessionId);
+        
+        if (isset($paymentData['data']['payment_status'])) {
+             $status = $paymentData['data']['payment_status'];
+             
+             // Update Transaction if found
+             $txn = Transaction::where('transaction_reference', $sessionId)->first();
+             if ($txn) {
+                 $this->processPaymentUpdate($txn, $status);
+             }
+
+             return response()->json([
+                 'status' => true,
+                 'payment_status' => $status,
+                 'data' => $paymentData['data']
+             ]);
+        }
+
+        return response()->json(['status' => false, 'message' => 'Could not fetch status'], 500);
     }
 
     /**
-     * Centralized method to verify and update payment status
+     * Webhook Handler from Thawani.
      */
-    protected function updatePaymentStatus($sessionId)
+    public function webhook(Request $request)
     {
-        // 1. Check Thawani API
-        $response = $this->thawaniService->getPaymentStatus($sessionId);
+        \Illuminate\Support\Facades\Log::info('--- Thawani Webhook Hit ---', $request->all());
 
-        if (isset($response['data']['payment_status']) && $response['data']['payment_status'] == 'paid') {
+        $payload = $request->all();
+        $sessionId = $payload['session_id'] ?? $payload['data']['session_id'] ?? null; // Handle nested data if Thawani sends it that way
+        $eventType = $payload['event_type'] ?? null;
+        
+        if (!$sessionId) {
+            \Illuminate\Support\Facades\Log::error('Webhook: No session ID found in payload');
+            return response()->json(['status' => false, 'message' => 'No session ID'], 400);
+        }
 
-            $txn = Transaction::where('transaction_reference', $sessionId)->first();
+        // Verify with Thawani API directly for security
+        try {
+            $paymentData = $this->thawaniService->getPaymentStatus($sessionId);
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Webhook: Thawani API Check Failed', ['error' => $e->getMessage()]);
+            return response()->json(['status' => false, 'message' => 'Verification check failed'], 500);
+        }
+        
+        if (!isset($paymentData['data']['payment_status'])) {
+             \Illuminate\Support\Facades\Log::error('Webhook: Verification Data Invalid', ['session_id' => $sessionId, 'response' => $paymentData]);
+             return response()->json(['status' => false, 'message' => 'Verification failed'], 400);
+        }
 
-            // Allow idempotency: if already completed, return true
-            if ($txn && $txn->status == 'completed') {
-                return true;
+        $status = $paymentData['data']['payment_status'];
+        \Illuminate\Support\Facades\Log::info("Webhook: Verified Status for $sessionId is $status");
+        
+        // Find Transaction
+        $txn = Transaction::where('transaction_reference', $sessionId)->first();
+        
+        if (!$txn) {
+             \Illuminate\Support\Facades\Log::error('Webhook: Transaction Not Found', ['session_id' => $sessionId]);
+             return response()->json(['status' => false, 'message' => 'Transaction not found'], 404);
+        }
+
+        // Idempotency check
+        if ($txn->status === 'completed' || $txn->status === 'paid') {
+             \Illuminate\Support\Facades\Log::info('Webhook: Already Processed', ['txn_id' => $txn->id]);
+             return response()->json(['status' => true, 'message' => 'Already processed']);
+        }
+
+        $this->processPaymentUpdate($txn, $status);
+
+        return response()->json(['status' => true, 'message' => 'Processed']);
+    }
+
+    /**
+     * Internal helper to update Transaction and Related Models.
+     */
+    protected function processPaymentUpdate($txn, $status)
+    {
+        \Illuminate\Support\Facades\Log::info("Processing Payment Update: Txn {$txn->id} -> $status");
+
+        if ($status === 'paid' && $txn->status !== 'completed') {
+            
+            // 1. Update Transaction
+            $txn->update([
+                'status' => 'completed',
+                'gateway_response' => ['status' => $status, 'updated_at' => now()]
+            ]);
+
+            // 2. Update Related ServiceRequest
+            if ($txn->service_request_id) {
+                $req = ServiceRequest::find($txn->service_request_id);
+                if ($req) {
+                    $req->update(['payment_status' => 'paid', 'status' => 'paid']); 
+                    \Illuminate\Support\Facades\Log::info("Service Request {$req->id} marked as paid.");
+                }
             }
 
-            if ($txn && $txn->status == 'pending') {
-                DB::transaction(function () use ($txn, $response, $sessionId) {
-                    $txn->status = 'completed';
-                    $txn->gateway_response = json_encode($response['data']);
-                    $txn->save();
+            // 3. Update Related Booking
+            if ($txn->booking_id) {
+                $booking = \App\Models\Booking::find($txn->booking_id);
+                if ($booking) {
+                    $booking->update([
+                        'status' => 'confirmed', // Paid = Confirmed
+                        'payment_meta' => json_encode(['method' => 'thawani', 'paid_at' => now()])
+                    ]);
+                    \Illuminate\Support\Facades\Log::info("Booking {$booking->id} confirmed.");
+                }
+            }
 
-                    // Handle Service Request
-                    if ($txn->service_request_id) {
-                        $serviceRequest = ServiceRequest::find($txn->service_request_id);
-                        if ($serviceRequest) {
-                            $serviceRequest->payment_status = 'paid';
-                            $serviceRequest->payment_transaction_id = $sessionId;
-                            $serviceRequest->save();
+        } elseif ($status === 'cancelled' || $status === 'failed') {
+             $txn->update(['status' => 'failed']);
+             \Illuminate\Support\Facades\Log::info("Txn {$txn->id} marked as failed.");
+        }
+    }
 
-                            // Commission Calculation
-                            $commissionRate = setting('service_commission', 10);
-                            $txn->commission_amount = $txn->amount * ($commissionRate / 100);
-                            $txn->provider_amount = $txn->amount - $txn->commission_amount;
-                            $txn->save();
+    // Success & Cancel methods for Redirects (called from web.php)
+    public function success(Request $request)
+    {
+        \Illuminate\Support\Facades\Log::info('--- Payment Success Page Hit ---', $request->all());
 
-                            // Create Conversation
-                            \App\Models\Conversation::firstOrCreate([
-                                'service_request_id' => $serviceRequest->id
-                            ], [
-                                'user_one_id' => $serviceRequest->requester_id,
-                                'user_two_id' => $serviceRequest->provider_id
-                            ]);
-                        }
-                    }
-                    // Handle Event Booking
-                    elseif ($txn->booking_id) {
-                        $booking = \App\Models\Booking::find($txn->booking_id);
-                        if ($booking) {
-                            $booking->status = 'confirmed';
+        $sessionId = $request->payment_id ?? $request->session_id; // Thawani might send payment_id in query
 
-                            // Payment meta update
-                            $meta = is_string($booking->payment_meta) ? json_decode($booking->payment_meta, true) : ($booking->payment_meta ?? []);
-                            if (!is_array($meta))
-                                $meta = [];
-                            $meta['transaction_id'] = $sessionId;
-                            $meta['method'] = 'thawani';
-                            $booking->payment_meta = $meta;
-                            $booking->save();
-                        }
+        if ($sessionId) {
                     }
                 });
 
