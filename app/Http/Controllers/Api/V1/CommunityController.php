@@ -37,7 +37,10 @@ class CommunityController extends Controller
      */
     public function index(Request $request)
     {
+        $user = $request->user('sanctum');
+
         $query = CommunityPost::with(['user', 'category'])
+            ->withCount('comments')
             ->where('is_hidden', false)
             ->latest();
 
@@ -50,6 +53,17 @@ class CommunityController extends Controller
         }
 
         $posts = $query->paginate(10);
+
+        $posts->getCollection()->transform(function ($post) use ($user) {
+            $post->is_liked = $user ? $post->likes()->where('user_id', $user->id)->exists() : false;
+            if ($post->image) {
+                // Ensure full URL
+                if (!preg_match('#^https?://#i', $post->image)) {
+                    $post->image = asset('storage/' . $post->image);
+                }
+            }
+            return $post;
+        });
 
         return response()->json([
             'status' => true,
@@ -96,11 +110,22 @@ class CommunityController extends Controller
     /**
      * Get Single Post
      */
-    public function show($id)
+    public function show(Request $request, $id)
     {
-        $post = CommunityPost::with(['user', 'category'])->where('is_hidden', false)->find($id);
+        $user = $request->user('sanctum');
+
+        $post = CommunityPost::with(['user', 'category'])
+            ->withCount('comments')
+            ->where('is_hidden', false)
+            ->find($id);
+
         if (!$post)
             return response()->json(['status' => false, 'message' => 'Post not found'], 404);
+
+        $post->is_liked = $user ? $post->likes()->where('user_id', $user->id)->exists() : false;
+        if ($post->image && !preg_match('#^https?://#i', $post->image)) {
+            $post->image = asset('storage/' . $post->image);
+        }
 
         return response()->json(['status' => true, 'data' => $post]);
     }

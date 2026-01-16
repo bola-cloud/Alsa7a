@@ -110,7 +110,7 @@ class PaymentController extends Controller
 
         } catch (\Exception $e) {
             Log::error('Thawani Payment Error: ' . $e->getMessage());
-            return response()->json(['status' => false, 'message' => 'Payment service error'], 500);
+            return response()->json(['status' => false, 'message' => 'Payment service error: ' . $e->getMessage()], 500);
         }
     }
 
