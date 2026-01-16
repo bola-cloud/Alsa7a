@@ -49,6 +49,8 @@ class ServiceRequestController extends Controller
             'payment_status' => 'pending',
         ]);
 
+        \Illuminate\Support\Facades\Log::info("Service Request Created: ID {$serviceRequest->id} by User {$request->user()->id}");
+
         return response()->json([
             'status' => true,
             'message' => 'Service requested successfully',

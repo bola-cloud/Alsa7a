@@ -101,6 +101,8 @@ class PaymentController extends Controller
                 $payUrl = rtrim($payUrl, '/') . '/';
                 $redirectUrl = "{$payUrl}{$session['data']['session_id']}?key={$publishableKey}";
 
+                \Illuminate\Support\Facades\Log::info("Payment Session Created: Session {$session['data']['session_id']} for Transation {$session['data']['session_id']}");
+
                 return response()->json([
                     'status' => true,
                     'message' => 'Payment session created',
