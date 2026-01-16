@@ -137,6 +137,7 @@ Route::prefix('v1')->middleware('set.api.locale')->group(function () {
 
         // --- Event Booking ---
         Route::post('events/{id}/book', [App\Http\Controllers\Api\V1\EventBookingController::class, 'store']);
+        Route::get('my-bookings', [App\Http\Controllers\Api\V1\EventBookingController::class, 'index']); // New Endpoint
 
         // --- Verification ---
         Route::post('users/verification/upload', [App\Http\Controllers\Api\V1\VerificationController::class, 'upload']);
