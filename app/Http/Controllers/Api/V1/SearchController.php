@@ -72,10 +72,12 @@ class SearchController extends Controller
         // Transform collection to add helper fields
         $users->getCollection()->transform(function ($user) {
             // 1. Format Image URL
-            $user->image = $user->profile_photo_url; // Assuming accessor handles logic or we replicate it:
-            // Replicating logic just in case accessor isn't enough in array serialization
+            $user->image = $user->profile_photo_url; // Default fallback
+
             if ($user->profile_photo_path) {
-                $user->image = url('storage/' . $user->profile_photo_path);
+                $url = url('storage/' . $user->profile_photo_path);
+                $user->image = $url;
+                $user->profile_photo_url = $url; // Overwrite accessor value with correct URL
             }
 
             // 2. Format Answers (questions_data)
@@ -88,7 +90,16 @@ class SearchController extends Controller
                 ];
             });
 
-            // 3. Category Data (Optional but good)
+            // 3. Format Cover Photo
+            if ($user->cover_photo_path) {
+                $url = url('storage/' . $user->cover_photo_path);
+                $user->cover_photo = $url;
+                $user->cover_photo_path = $url; // Update path to be full URL as requested
+            } else {
+                $user->cover_photo = null;
+            }
+
+            // 4. Category Data (Optional but good)
             $user->category_data = $user->category ? [
                 'id' => $user->category->id,
                 'name' => $user->category->name
