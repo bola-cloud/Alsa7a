@@ -45,6 +45,9 @@ class PaymentController extends Controller
             if ($payable->payment_status === 'paid') {
                 return response()->json(['status' => false, 'message' => 'Already paid'], 400);
             }
+            if ($payable->status !== 'accepted') {
+                return response()->json(['status' => false, 'message' => 'Service request must be accepted before payment'], 400);
+            }
             $meta['service_request_id'] = $payable->id;
         } elseif ($request->booking_id) {
             $payable = \App\Models\Booking::findOrFail($request->booking_id);
@@ -92,7 +95,7 @@ class PaymentController extends Controller
                 ]);
 
                 $publishableKey = config('services.thawani.publishable_key', 'HGvTMLDssJghr9tlQS6AgHe0GN5X9n');
-                $redirectUrl = "https://uatcheckout.thawani.al/pay/{$session['data']['session_id']}?key={$publishableKey}";
+                $redirectUrl = "https://uatcheckout.thawani.om/pay/{$session['data']['session_id']}?key={$publishableKey}";
 
                 return response()->json([
                     'status' => true,

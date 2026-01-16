@@ -32,6 +32,7 @@ return [
     ],
 
     'thawani' => [
+        'base_url' => env('THAWANI_BASE_URL', 'https://uatcheckout.thawani.om'), // Fixed URL
         'secret_key' => env('THAWANI_SECRET_KEY'),
         'publishable_key' => env('THAWANI_PUBLISHABLE_KEY'),
         'mode' => env('THAWANI_MODE', 'test'), // test or live
