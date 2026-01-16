@@ -32,10 +32,10 @@ return [
     ],
 
     'thawani' => [
-        'base_url' => env('THAWANI_BASE_URL', 'https://uatcheckout.thawani.om'), // Fixed URL
+        'base_url' => env('THAWANI_BASE_URL', env('THAWANI_MODE', 'test') === 'live' ? 'https://checkout.thawani.om' : 'https://uatcheckout.thawani.om'),
         'secret_key' => env('THAWANI_SECRET_KEY'),
-        'publishable_key' => env('THAWANI_PUBLISHABLE_KEY', env('THAWANI_PUBLISH_KEY')), // Support both naming conventions
-        'mode' => env('THAWANI_MODE', env('THAWANI_MOD', 'test')), // Support both naming conventions
+        'publishable_key' => env('THAWANI_PUBLISHABLE_KEY', env('THAWANI_PUBLISH_KEY')),
+        'mode' => env('THAWANI_MODE', env('THAWANI_MOD', 'test')),
     ],
 
 ];

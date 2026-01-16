@@ -95,7 +95,8 @@ class PaymentController extends Controller
                 ]);
 
                 $publishableKey = config('services.thawani.publishable_key', 'HGvTMLDssJghr9tlQS6AgHe0GN5X9n');
-                $redirectUrl = "https://uatcheckout.thawani.om/pay/{$session['data']['session_id']}?key={$publishableKey}";
+                $baseUrl = config('services.thawani.base_url', 'https://uatcheckout.thawani.om');
+                $redirectUrl = "{$baseUrl}/pay/{$session['data']['session_id']}?key={$publishableKey}";
 
                 return response()->json([
                     'status' => true,
