@@ -22,9 +22,11 @@ class ThawaniService
      */
     public function createCheckoutSession($data)
     {
+        $endpoint = str_ends_with($this->baseUrl, '/api/v1') ? '/checkout/session' : '/api/v1/checkout/session';
+
         $response = Http::withHeaders([
             'thawani-api-key' => $this->secretKey
-        ])->post("{$this->baseUrl}/api/v1/checkout/session", $data);
+        ])->post("{$this->baseUrl}{$endpoint}", $data);
 
         return $response->json();
     }
@@ -34,9 +36,11 @@ class ThawaniService
      */
     public function getPaymentStatus($sessionId)
     {
+        $endpoint = str_ends_with($this->baseUrl, '/api/v1') ? "/checkout/session/{$sessionId}" : "/api/v1/checkout/session/{$sessionId}";
+
         $response = Http::withHeaders([
             'thawani-api-key' => $this->secretKey
-        ])->get("{$this->baseUrl}/api/v1/checkout/session/{$sessionId}");
+        ])->get("{$this->baseUrl}{$endpoint}");
 
         return $response->json();
     }
