@@ -16,10 +16,24 @@ class ProviderRequestController extends Controller
     public function index(Request $request)
     {
         // Get requests where the authenticated user is the provider
-        $requests = ServiceRequest::with(['service', 'requester'])
+        $requests = ServiceRequest::with(['service.media', 'requester'])
             ->where('provider_id', $request->user()->id)
             ->latest()
             ->paginate(10);
+
+        // Transform to include full image URL
+        $requests->getCollection()->transform(function ($req) {
+            if ($req->service && $req->service->media->isNotEmpty()) {
+                $firstMedia = $req->service->media->first();
+                $image = $firstMedia->file_path ?? $firstMedia->image; // Handle different column names
+                if ($image) {
+                    $req->service->featured_image = preg_match('#^https?://#i', $image) ? $image : asset('storage/' . $image);
+                }
+            } else {
+                $req->service->featured_image = null;
+            }
+            return $req;
+        });
 
         return response()->json([
             'status' => true,
