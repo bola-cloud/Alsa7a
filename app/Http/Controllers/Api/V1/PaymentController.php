@@ -332,9 +332,37 @@ class PaymentController extends Controller
     /**
      * Cancel Callback
      */
+    /**
+     * Cancel Callback
+     */
     public function cancel(Request $request)
     {
-        \Illuminate\Support\Facades\Log::info('--- Payment Cancel Page Hit ---', $request->all());
+        Log::info('=== PAYMENT CALLBACK CANCEL ===', $request->all());
+
+        $sessionId = $request->query('payment_id')
+            ?? $request->query('session_id')
+            ?? $request->query('transaction_id');
+
+        $clientRef = $request->query('ref') ?? $request->query('client_reference_id');
+
+        $txn = null;
+
+        if ($sessionId) {
+            $txn = Transaction::where('transaction_reference', $sessionId)->first();
+        }
+
+        if (!$txn && $clientRef) {
+            $txn = Transaction::where('gateway_response->client_reference_id', $clientRef)->first();
+        }
+
+        if ($txn) {
+            // Explicitly mark as failed/cancelled
+            $this->processPaymentUpdate($txn, 'cancelled');
+            Log::info('Transaction cancelled via callback', ['txn_id' => $txn->id]);
+        } else {
+            Log::warning('Transaction not found in cancel callback', ['session_id' => $sessionId, 'ref' => $clientRef]);
+        }
+
         return response('<html><body><h1 style="color:red;text-align:center;margin-top:50px;">Payment Cancelled</h1><p style="text-align:center;">You have cancelled the payment.</p></body></html>');
     }
 
