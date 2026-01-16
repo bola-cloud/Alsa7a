@@ -270,6 +270,17 @@ class ProfileController extends Controller
             ->select('users.id', 'users.name', 'users.email', 'users.profile_photo_path', 'users.profile_title')
             ->paginate(15);
 
+        // Transform collection to ensure full image URL
+        $followers->getCollection()->transform(function ($follower) {
+            $follower->image = $follower->profile_photo_url;
+            if ($follower->profile_photo_path) {
+                $url = url('storage/' . $follower->profile_photo_path);
+                $follower->image = $url;
+                $follower->profile_photo_url = $url;
+            }
+            return $follower;
+        });
+
         // Check if I am following them (for the button state)
         if ($currentUser = $request->user('sanctum')) {
             // We need to check if *I* follow *them* (the people in the list)
@@ -300,6 +311,17 @@ class ProfileController extends Controller
         $following = $user->following()
             ->select('users.id', 'users.name', 'users.email', 'users.profile_photo_path', 'users.profile_title')
             ->paginate(15);
+
+        // Transform collection to ensure full image URL
+        $following->getCollection()->transform(function ($follow) {
+            $follow->image = $follow->profile_photo_url;
+            if ($follow->profile_photo_path) {
+                $url = url('storage/' . $follow->profile_photo_path);
+                $follow->image = $url;
+                $follow->profile_photo_url = $url;
+            }
+            return $follow;
+        });
 
         if ($currentUser = $request->user('sanctum')) {
             $myFollowingIds = $currentUser->following()->pluck('users.id')->toArray();

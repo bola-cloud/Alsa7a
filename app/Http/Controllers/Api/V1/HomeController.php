@@ -20,8 +20,11 @@ class HomeController extends Controller
 
         $featuredEvents = Event::with('club')->where('is_featured', true)->orderBy('start_at', 'asc')->take(6)->get();
 
-        $popularLeagues = League::with(['videos' => function ($q) {
-            $q->limit(9); }])->where('is_active', true)->take(6)->get();
+        $popularLeagues = League::with([
+            'videos' => function ($q) {
+                $q->limit(9);
+            }
+        ])->where('is_active', true)->take(6)->get();
 
         $topClubs = Club::where('is_featured', true)->with('media')->take(8)->get();
 
@@ -31,6 +34,17 @@ class HomeController extends Controller
             ->select('id', 'name', 'profile_title', 'bio', 'city', 'profile_photo_path')
             ->take(8)
             ->get();
+
+        // Transform top players to ensure full image URL
+        $topPlayers->transform(function ($player) {
+            $player->image = $player->profile_photo_url;
+            if ($player->profile_photo_path) {
+                $url = url('storage/' . $player->profile_photo_path);
+                $player->image = $url;
+                $player->profile_photo_url = $url;
+            }
+            return $player;
+        });
 
         // featured services omitted from this response (not part of mobile home spec)
 

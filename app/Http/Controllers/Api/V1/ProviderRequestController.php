@@ -32,6 +32,17 @@ class ProviderRequestController extends Controller
             } else {
                 $req->service->featured_image = null;
             }
+
+            // Fix Requester Image
+            if ($req->requester) {
+                $req->requester->image = $req->requester->profile_photo_url;
+                if ($req->requester->profile_photo_path) {
+                    $url = url('storage/' . $req->requester->profile_photo_path);
+                    $req->requester->image = $url;
+                    $req->requester->profile_photo_url = $url;
+                }
+            }
+
             return $req;
         });
 

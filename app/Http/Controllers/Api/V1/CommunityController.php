@@ -62,6 +62,19 @@ class CommunityController extends Controller
                     $post->image = asset('storage/' . $post->image);
                 }
             }
+
+            // Fix Author Image
+            if ($post->user) {
+                // Ensure profile_photo_url is used as base, but assume it might be wrong if local
+                $post->user->image = $post->user->profile_photo_url;
+
+                if ($post->user->profile_photo_path) {
+                    $url = url('storage/' . $post->user->profile_photo_path);
+                    $post->user->image = $url;
+                    $post->user->profile_photo_url = $url;
+                }
+            }
+
             return $post;
         });
 
