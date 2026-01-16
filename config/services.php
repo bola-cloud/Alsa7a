@@ -32,9 +32,10 @@ return [
     ],
 
     'thawani' => [
-        'base_url' => env('THAWANI_BASE_URL', env('THAWANI_MODE', 'test') === 'live' ? 'https://checkout.thawani.om' : 'https://uatcheckout.thawani.om'),
-        'secret_key' => env('THAWANI_SECRET_KEY'),
-        'publishable_key' => env('THAWANI_PUBLISHABLE_KEY', env('THAWANI_PUBLISH_KEY')),
+        'base_url' => env('THAWANI_TEST_CHECKOUT_URL', env('THAWANI_BASE_URL', env('THAWANI_MODE', 'test') === 'live' ? 'https://checkout.thawani.om' : 'https://uatcheckout.thawani.om')),
+        'secret_key' => env('THAWANI_TEST_SECRET_KEY', env('THAWANI_SECRET_KEY')),
+        'publishable_key' => env('THAWANI_TEST_PUBLIC_KEY', env('THAWANI_PUBLISHABLE_KEY', env('THAWANI_PUBLISH_KEY'))),
+        'pay_url' => env('THAWANI_TEST_PAY_URL', env('THAWANI_MODE', 'test') === 'live' ? 'https://checkout.thawani.om/pay' : 'https://uatcheckout.thawani.om/pay'),
         'mode' => env('THAWANI_MODE', env('THAWANI_MOD', 'test')),
     ],
 
