@@ -71,6 +71,7 @@ class ProfileController extends Controller
             'username' => $user->email,
             'email' => $user->email, // Added explicit email usually good
             'phone' => $user->phone, // Added phone number
+            'birth_date' => $user->birth_date, // Added birth_date
             'profile_title' => $user->profile_title,
             'bio' => $user->bio,
             'image' => $user->profile_photo_path ? url('storage/' . $user->profile_photo_path) : $user->profile_photo_url,
