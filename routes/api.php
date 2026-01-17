@@ -98,6 +98,7 @@ Route::prefix('v1')->middleware('set.api.locale')->group(function () {
 
         // --- Chat Routes ---
         Route::get('chat/conversations', [App\Http\Controllers\Api\V1\ChatController::class, 'index']);
+        Route::post('chat/conversations', [App\Http\Controllers\Api\V1\ChatController::class, 'create']); // Start/Get Chat
         Route::get('chat/conversations/{id}', [App\Http\Controllers\Api\V1\ChatController::class, 'show']);
         Route::post('chat/conversations/{id}/messages', [App\Http\Controllers\Api\V1\ChatController::class, 'store']);
 

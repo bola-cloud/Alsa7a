@@ -897,7 +897,16 @@ Frontend clients (e.g., Flutter/React) should connect using a WebSocket client (
 
 #### List Conversations
 **GET** `/chat/conversations`
-Returns a list of conversations for the authenticated user (both Provider and Users).
+### Chat (Conversations)
+**GET** `/chat/conversations`
+Returns a list of unique conversations for the authenticated user (Social-style).
+
+**POST** `/chat/conversations`
+Start or get an existing conversation with a user.
+**Body:**
+- `user_id`: integer (Required)
+**Response:** Conversation object.
+
 **Response:**
 ```json
 {
@@ -905,14 +914,20 @@ Returns a list of conversations for the authenticated user (both Provider and Us
     "data": [
         {
             "id": 1,
-            "user_one_id": 5,
-            "user_two_id": 8,
-            "last_message": "Hello...",
-            "updated_at": "...",
-            "user_one": { "id": 5, "name": "Provider" },
-            "user_two": { "id": 8, "name": "User" }
+            "other_user": {
+                "id": 5,
+                "name": "Provider Name",
+                "profile_photo_url": "..."
+            },
+            "last_message": {
+                "id": 102,
+                "body": "Hello, are you available?",
+                "created_at": "..."
+            },
+            "updated_at": "..."
         }
-    ]
+    ],
+    "message": "Conversations retrieved"
 }
 ```
 

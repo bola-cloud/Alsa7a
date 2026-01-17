@@ -48,6 +48,49 @@ class ChatController extends Controller
     }
 
     /**
+     * Start or Get Conversation with a user.
+     * POST /chat/conversations
+     */
+    public function create(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'user_id' => 'required|exists:users,id',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['status' => false, 'errors' => $validator->errors()], 422);
+        }
+
+        $authUser = $request->user()->id;
+        $targetUser = $request->user_id;
+
+        if ($authUser == $targetUser) {
+            return response()->json(['status' => false, 'message' => 'Cannot chat with yourself'], 400);
+        }
+
+        // Check for existing conversation
+        $conversation = Conversation::where(function ($q) use ($authUser, $targetUser) {
+            $q->where('user_one_id', $authUser)->where('user_two_id', $targetUser);
+        })->orWhere(function ($q) use ($authUser, $targetUser) {
+            $q->where('user_one_id', $targetUser)->where('user_two_id', $authUser);
+        })->first();
+
+        if (!$conversation) {
+            $conversation = Conversation::create([
+                'user_one_id' => $authUser,
+                'user_two_id' => $targetUser,
+                'service_request_id' => null
+            ]);
+        }
+
+        return response()->json([
+            'status' => true,
+            'data' => $conversation,
+            'message' => 'Conversation retrieved successfully'
+        ]);
+    }
+
+    /**
      * Get messages for a conversation.
      */
     public function show(Request $request, $id)
