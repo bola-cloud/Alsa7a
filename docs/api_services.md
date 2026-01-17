@@ -33,14 +33,14 @@ Protected routes require a Bearer Token in the header.
 - `email`: string
 - `password`: string
 - `password_confirmation`: string
-- `onesignal_subscription`: object/array (Optional, full subscription object from OneSignal SDK)
+- `onesignal_subscription`: string/object (Optional, Player ID string or subscription object)
 
 ### Login
 **POST** `/auth/login`
 **Body:**
 - `email`: string
 - `password`: string
-- `onesignal_subscription`: object/array (Optional)
+- `onesignal_subscription`: string/object (Optional)
 **Response:** Returns token.
 
 ### Logout (Protected)
@@ -53,7 +53,7 @@ Protected routes require a Bearer Token in the header.
 ### Update OneSignal Subscription (Protected)
 **POST** `/users/onesignal-subscription`
 **Body:**
-- `onesignal_subscription`: object (Required, e.g. `{ "id": "uuid", "token": "..." }`)
+- `onesignal_subscription`: string/object (Required, Player ID string or object e.g., `{ "id": "..." }`)
 **Response:** Success message.
 
 ### Get Club Details

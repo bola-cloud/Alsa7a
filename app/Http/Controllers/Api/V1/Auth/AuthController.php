@@ -20,7 +20,7 @@ class AuthController extends Controller
             'email' => 'nullable|email|unique:users,email',
             'phone' => 'required|string|unique:users,phone',
             'password' => 'required|string|min:6',
-            'onesignal_subscription' => 'nullable|array',
+            'onesignal_subscription' => 'nullable', // Removed strict array check to allow string ID
         ]);
 
         if ($validator->fails()) {
@@ -30,13 +30,19 @@ class AuthController extends Controller
         // Check Global Manual Approval Setting (simulated for now, would be DB or config)
         $autoApprove = setting('manual_user_approval') ? false : true;
 
+        // Normalize OneSignal Subscription
+        $subscription = $data['onesignal_subscription'] ?? null;
+        if ($subscription && is_string($subscription)) {
+            $subscription = ['id' => $subscription];
+        }
+
         $user = User::create([
             'name' => $data['name'],
             'email' => $data['email'] ?? null,
             'phone' => $data['phone'],
             'password' => Hash::make($data['password']),
             'is_approved' => $autoApprove,
-            'onesignal_subscription' => $data['onesignal_subscription'] ?? null,
+            'onesignal_subscription' => $subscription,
         ]);
 
         if (!$user->is_approved) {
@@ -89,7 +95,11 @@ class AuthController extends Controller
 
         // Update Subscription if present
         if ($request->has('onesignal_subscription')) {
-            $user->onesignal_subscription = $request->onesignal_subscription;
+            $subscription = $request->onesignal_subscription;
+            if (is_string($subscription)) {
+                $subscription = ['id' => $subscription];
+            }
+            $user->onesignal_subscription = $subscription;
             $user->save();
         }
 
@@ -125,15 +135,20 @@ class AuthController extends Controller
     public function updateSubscription(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'onesignal_subscription' => 'required|array',
+            'onesignal_subscription' => 'required', // Removed strict array check
         ]);
 
         if ($validator->fails()) {
             return response()->json(['status' => false, 'errors' => $validator->errors()], 422);
         }
 
+        $subscription = $request->onesignal_subscription;
+        if (is_string($subscription)) {
+            $subscription = ['id' => $subscription];
+        }
+
         $user = $request->user();
-        $user->onesignal_subscription = $request->onesignal_subscription;
+        $user->onesignal_subscription = $subscription;
         $user->save();
 
         return response()->json([
