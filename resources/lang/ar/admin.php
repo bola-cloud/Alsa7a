@@ -26,6 +26,16 @@ return [
         'tickets' => ['title' => 'تذاكر الدعم'],
         'settings' => ['index' => 'الإعدادات'],
         'questions' => 'الأسئلة',
+        'notifications' => ['title' => 'الإشعارات'],
+    ],
+    'notifications' => [
+        'title' => 'الإشعارات',
+        'create' => 'إرسال إشعار',
+        'form_title' => 'العنوان',
+        'form_message' => 'الرسالة',
+        'send_btn' => 'إرسال للجميع',
+        'success' => 'تم إرسال الإشعار بنجاح!',
+        'error' => 'فشل إرسال الإشعار.',
     ],
     'buttons' => [
         'add_new' => 'إضافة جديد',

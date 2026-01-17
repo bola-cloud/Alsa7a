@@ -105,33 +105,46 @@ class ProviderRequestController extends Controller
             // PUSH NOTIFICATION
             if (!empty($serviceRequest->requester->onesignal_subscription['id'])) {
                 $playerId = $serviceRequest->requester->onesignal_subscription['id'];
-                $msg = '';
-                $title = 'Service Update';
+
+                $titles = [];
+                $messages = [];
 
                 switch ($request->status) {
                     case 'accepted':
-                        $title = 'Request Accepted';
-                        $msg = "Your request for {$serviceRequest->service->title} has been accepted!";
+                        $titles = ['en' => 'Request Accepted', 'ar' => 'تم قبول الطلب'];
+                        $messages = [
+                            'en' => "Your request for {$serviceRequest->service->title} has been accepted!",
+                            'ar' => "تم قبول طلبك لخدمة {$serviceRequest->service->title}!"
+                        ];
                         break;
                     case 'rejected':
-                        $title = 'Request Declined';
-                        $msg = "Your request for {$serviceRequest->service->title} has been declined.";
+                        $titles = ['en' => 'Request Declined', 'ar' => 'تم رفض الطلب'];
+                        $messages = [
+                            'en' => "Your request for {$serviceRequest->service->title} has been declined.",
+                            'ar' => "تم رفض طلبك لخدمة {$serviceRequest->service->title}."
+                        ];
                         break;
                     case 'completed':
-                        $title = 'Service Completed';
-                        $msg = "Your request for {$serviceRequest->service->title} is marked as completed.";
+                        $titles = ['en' => 'Service Completed', 'ar' => 'تم إكمال الخدمة'];
+                        $messages = [
+                            'en' => "Your request for {$serviceRequest->service->title} is marked as completed.",
+                            'ar' => "تم تحديد طلبك لخدمة {$serviceRequest->service->title} كمكتمل."
+                        ];
                         break;
                     case 'canceled':
-                        $title = 'Request Canceled';
-                        $msg = "Your request for {$serviceRequest->service->title} has been canceled.";
+                        $titles = ['en' => 'Request Canceled', 'ar' => 'تم إلغاء الطلب'];
+                        $messages = [
+                            'en' => "Your request for {$serviceRequest->service->title} has been canceled.",
+                            'ar' => "تم إلغاء طلبك لخدمة {$serviceRequest->service->title}."
+                        ];
                         break;
                 }
 
-                if ($msg) {
+                if (!empty($messages)) {
                     $this->oneSignal->sendToPlayers(
                         [$playerId],
-                        $title,
-                        $msg,
+                        $titles,
+                        $messages,
                         ['request_id' => $serviceRequest->id, 'type' => 'status_update']
                     );
                 }

@@ -26,6 +26,16 @@ return [
         'tickets' => ['title' => 'Support Tickets'],
         'settings' => ['index' => 'Settings'],
         'questions' => 'Questions',
+        'notifications' => ['title' => 'Push Notifications'],
+    ],
+    'notifications' => [
+        'title' => 'Push Notifications',
+        'create' => 'Send Notification',
+        'form_title' => 'Title',
+        'form_message' => 'Message',
+        'send_btn' => 'Send to All Users',
+        'success' => 'Notification sent successfully!',
+        'error' => 'Failed to send notification.',
     ],
     'buttons' => [
         'add_new' => 'Add New',

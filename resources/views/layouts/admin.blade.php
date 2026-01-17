@@ -345,7 +345,7 @@
                         <li class="nav-item {{ request()->routeIs('admin.notifications.*') ? 'active' : '' }}">
                             <a href="{{ route('admin.notifications.create') }}">
                                 <i class="la la-bell"></i>
-                                <span class="menu-title">{{ __('Push Notifications') }}</span>
+                                <span class="menu-title">{{ __('admin.menu.notifications.title') }}</span>
                             </a>
                         </li>
                         <li class="nav-item {{ Route::is('admin.settings.*') ? 'active' : '' }}">

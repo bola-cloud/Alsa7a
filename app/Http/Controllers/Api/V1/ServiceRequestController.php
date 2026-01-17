@@ -64,10 +64,17 @@ class ServiceRequestController extends Controller
         $provider = $service->provider; // Assuming relation exists on Service model
         if ($provider && !empty($provider->onesignal_subscription['id'])) {
             $playerId = $provider->onesignal_subscription['id'];
+
+            $titles = ['en' => 'New Service Request', 'ar' => 'طلب خدمة جديد'];
+            $messages = [
+                'en' => "{$request->user()->name} has requested your service: {$service->title}",
+                'ar' => "قام {$request->user()->name} بطلب خدمتك: {$service->title}"
+            ];
+
             $this->oneSignal->sendToPlayers(
                 [$playerId],
-                'New Service Request',
-                "{$request->user()->name} has requested your service: {$service->title}",
+                $titles,
+                $messages,
                 ['request_id' => $serviceRequest->id, 'type' => 'new_request']
             );
         }

@@ -21,18 +21,21 @@ class OneSignalService
      * Send a notification to specific players (users).
      *
      * @param array $playerIds Array of OneSignal Player IDs (UUIDs).
-     * @param string $title Title of the notification.
-     * @param string $message Body of the notification.
+     * @param string|array $title Title of the notification (string or ['en' => '...', 'ar' => '...']).
+     * @param string|array $message Body of the notification.
      * @param array|null $data Additional data payload.
      * @return array
      */
-    public function sendToPlayers(array $playerIds, string $title, string $message, ?array $data = null)
+    public function sendToPlayers(array $playerIds, $title, $message, ?array $data = null)
     {
+        $headings = is_array($title) ? $title : ['en' => $title];
+        $contents = is_array($message) ? $message : ['en' => $message];
+
         $payload = [
             'app_id' => $this->appId,
             'include_player_ids' => $playerIds,
-            'headings' => ['en' => $title],
-            'contents' => ['en' => $message],
+            'headings' => $headings,
+            'contents' => $contents,
         ];
 
         if ($data) {
@@ -45,18 +48,21 @@ class OneSignalService
     /**
      * Send a notification to ALL users (Broadcast).
      *
-     * @param string $title Title of the notification.
-     * @param string $message Body of the notification.
+     * @param string|array $title Title of the notification.
+     * @param string|array $message Body of the notification.
      * @param array|null $data Additional data payload.
      * @return array
      */
-    public function sendBroadcast(string $title, string $message, ?array $data = null)
+    public function sendBroadcast($title, $message, ?array $data = null)
     {
+        $headings = is_array($title) ? $title : ['en' => $title];
+        $contents = is_array($message) ? $message : ['en' => $message];
+
         $payload = [
             'app_id' => $this->appId,
             'included_segments' => ['All'],
-            'headings' => ['en' => $title],
-            'contents' => ['en' => $message],
+            'headings' => $headings,
+            'contents' => $contents,
         ];
 
         if ($data) {

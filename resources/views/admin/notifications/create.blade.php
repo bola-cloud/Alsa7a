@@ -3,7 +3,7 @@
 @section('content')
     <div class="card">
         <div class="card-header">
-            <h3 class="card-title">{{ __('Send Push Notification') }}</h3>
+            <h3 class="card-title">{{ __('admin.notifications.create') }}</h3>
         </div>
 
         <div class="card-body">
@@ -23,7 +23,7 @@
                 @csrf
 
                 <div class="form-group mb-3">
-                    <label for="title" class="form-label">{{ __('Title') }}</label>
+                    <label for="title" class="form-label">{{ __('admin.notifications.form_title') }}</label>
                     <input type="text" name="title" id="title" class="form-control @error('title') is-invalid @enderror"
                         value="{{ old('title') }}" required>
                     @error('title')
@@ -32,7 +32,7 @@
                 </div>
 
                 <div class="form-group mb-3">
-                    <label for="message" class="form-label">{{ __('Message') }}</label>
+                    <label for="message" class="form-label">{{ __('admin.notifications.form_message') }}</label>
                     <textarea name="message" id="message" rows="4"
                         class="form-control @error('message') is-invalid @enderror" required>{{ old('message') }}</textarea>
                     @error('message')
@@ -42,7 +42,7 @@
 
                 <div class="form-group">
                     <button type="submit" class="btn btn-primary">
-                        <i class="fas fa-paper-plane me-1"></i> {{ __('Send to All Users') }}
+                        <i class="fas fa-paper-plane me-1"></i> {{ __('admin.notifications.send_btn') }}
                     </button>
                 </div>
             </form>

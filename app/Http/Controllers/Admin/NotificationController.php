@@ -41,10 +41,10 @@ class NotificationController extends Controller
 
         if ($result['status']) {
             return redirect()->route('admin.notifications.create')
-                ->with('success', 'Notification sent successfully to all users!');
+                ->with('success', __('admin.notifications.success'));
         } else {
             return redirect()->back()
-                ->with('error', 'Failed to send notification. Check logs.')
+                ->with('error', __('admin.notifications.error'))
                 ->withInput();
         }
     }
