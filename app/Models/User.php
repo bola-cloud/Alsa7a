@@ -164,7 +164,8 @@ class User extends Authenticatable
         'remember_token',
         'two_factor_recovery_codes',
         'two_factor_secret',
-        'profile_photo_path'
+        'profile_photo_path',
+        'cover_photo_path', // Added to hidden
     ];
 
     /**
