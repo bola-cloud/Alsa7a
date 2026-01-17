@@ -150,12 +150,21 @@ class ProviderRequestController extends Controller
 
         // Create Chat Conversation if Accepted
         if ($request->status === 'accepted') {
-            $existingStub = \App\Models\Conversation::where('service_request_id', $serviceRequest->id)->exists();
-            if (!$existingStub) {
+            $userOne = $request->user()->id; // Provider
+            $userTwo = $serviceRequest->requester_id; // Requester
+
+            // Check if conversation exists (irrespective of who is one or two)
+            $existingConversation = \App\Models\Conversation::where(function ($q) use ($userOne, $userTwo) {
+                $q->where('user_one_id', $userOne)->where('user_two_id', $userTwo);
+            })->orWhere(function ($q) use ($userOne, $userTwo) {
+                $q->where('user_one_id', $userTwo)->where('user_two_id', $userOne);
+            })->first();
+
+            if (!$existingConversation) {
                 \App\Models\Conversation::create([
-                    'service_request_id' => $serviceRequest->id,
-                    'user_one_id' => $request->user()->id, // Provider
-                    'user_two_id' => $serviceRequest->requester_id, // Requester
+                    'service_request_id' => null, // Decoupled from specific request
+                    'user_one_id' => $userOne,
+                    'user_two_id' => $userTwo,
                 ]);
             }
         }

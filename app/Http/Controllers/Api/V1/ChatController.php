@@ -14,18 +14,35 @@ class ChatController extends Controller
     /**
      * List user's conversations.
      */
+    /**
+     * List user's conversations.
+     */
     public function index(Request $request)
     {
         $userId = $request->user()->id;
-        $conversations = Conversation::with(['userOne', 'userTwo', 'serviceRequest.service'])
+
+        // Fetch conversations where user is involved
+        $conversations = Conversation::with(['userOne', 'userTwo'])
             ->where('user_one_id', $userId)
             ->orWhere('user_two_id', $userId)
             ->latest('updated_at')
             ->get();
 
+        // Optional: Transform to unify "other_user" for frontend convenience
+        $chats = $conversations->map(function ($chat) use ($userId) {
+            $otherUser = $chat->user_one_id === $userId ? $chat->userOne : $chat->userTwo;
+            return [
+                'id' => $chat->id,
+                'other_user' => $otherUser, // Frontend can just use this
+                'last_message' => $chat->messages()->latest()->first(),
+                'updated_at' => $chat->updated_at,
+                // 'service_request' => $chat->serviceRequest ?? null // Optional, might be null
+            ];
+        });
+
         return response()->json([
             'status' => true,
-            'data' => $conversations,
+            'data' => $chats,
             'message' => 'Conversations retrieved'
         ]);
     }
