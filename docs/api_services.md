@@ -800,6 +800,7 @@ This scenario describes how a user books a service, pays for it, and communicate
 
 1.  **Request Service**:
     - User calls `POST /services/{id}/request` with `scheduled_at`.
+    - Returns `booking_id`.
     - **Status**: `pending`.
     - **Notification**: Provider receives `ServiceRequested`.
 
@@ -859,6 +860,28 @@ This scenario describes the strict user onboarding process.
 
 4.  **Access Granted**:
     - User can now successfully `POST /auth/login`.
+
+### Scenario 4: Direct Chat (Social)
+**Goal**: User A wants to chat with User B (e.g., from their Profile) without any service request.
+
+1.  **View Profile**:
+    - User A views User B's profile: `GET /users/{id}/profile`.
+    - Profile response includes User B's `id` (e.g., 5).
+
+2.  **Start Chat**:
+    - User A calls `POST /chat/conversations` with body `{ "user_id": 5 }`.
+    - **Logic**: Backend checks if conversation exists. If yes, returns it. If no, creates new one.
+    - **Response**:
+      ```json
+      {
+          "status": true,
+          "data": { "id": 105, "user_one_id": 10, "user_two_id": 5, ... }
+      }
+      ```
+
+3.  **Exchange Messages**:
+    - User A calls `POST /chat/conversations/105/messages` to send text.
+    - User B receives real-time event.
 
 ---
 
