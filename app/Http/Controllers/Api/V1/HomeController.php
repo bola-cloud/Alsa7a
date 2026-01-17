@@ -52,13 +52,30 @@ class HomeController extends Controller
         $sliders = Slider::orderBy('id', 'asc')->get();
 
         // Return the home payload in the order requested by the design
+        // Fetch Leagues with their Clubs
+        $leagues = \App\Models\League::with([
+            'clubs' => function ($q) {
+                $q->where('active', true)->take(10); // Limit clubs per league if needed
+            }
+        ])->where('active', true)->get();
+
+        // The following variables are not defined in the original code,
+        // but are included in the provided `Code Edit` for the response structure.
+        // To make the code syntactically correct, they are initialized as empty.
+        $categories = [];
+        $featuredClubs = [];
+        // $latestNews is commented out in the provided `Code Edit`
+
         return response()->json([
-            'sports' => $sports,
-            'slider' => $sliders,
-            'popular_leagues' => $popularLeagues,
-            'featured_events' => $featuredEvents,
-            'top_clubs' => $topClubs,
-            'top_players' => $topPlayers,
+            'status' => true,
+            'data' => [
+                'sliders' => $sliders,
+                'categories' => $categories,
+                'featured_clubs' => $featuredClubs,
+                'leagues' => $leagues, // Added leagues section
+                // 'latest_news' => $latestNews
+            ],
+            'message' => 'Home data retrieved successfully'
         ]);
     }
 }

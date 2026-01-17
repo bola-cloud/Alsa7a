@@ -103,6 +103,7 @@ Route::prefix('v1')->middleware('set.api.locale')->group(function () {
         // --- Club Routes ---
         Route::get('clubs', [App\Http\Controllers\Api\V1\ClubController::class, 'index']);
         Route::get('clubs/{id}', [App\Http\Controllers\Api\V1\ClubController::class, 'show']);
+        Route::post('clubs/{id}/leagues', [App\Http\Controllers\Api\V1\ClubController::class, 'updateLeagues']);
 
         // --- Provider Actions ---
         Route::get('provider/requests', [App\Http\Controllers\Api\V1\ProviderRequestController::class, 'index']);

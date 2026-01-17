@@ -54,25 +54,19 @@ class ClubController extends Controller
             ->get(); // This is wrong if we want Users.
 
         // Correct approach: Query Users
-        $staffAndPlayers = \App\Models\User::where('club_id', $id)
-            ->with(['category', 'media']) // Load category to distinguish
+        // Fetch Users belonging to this club
+        $members = \App\Models\User::where('club_id', $id)
+            ->with(['category', 'media']) // Load category and media
             ->get()
             ->groupBy(function ($user) {
-                // Group by Category Name if available, else 'Unknown'
                 return $user->category ? $user->category->name : 'Other';
             });
-
-        // We can format this nicely
-        $roster = [];
-        foreach ($staffAndPlayers as $categoryName => $users) {
-            $roster[$categoryName] = $users;
-        }
 
         return response()->json([
             'status' => true,
             'data' => [
                 'club' => $club,
-                'roster' => $roster,
+                'roster' => $members, // $members is now a collection grouped by keys
             ],
             'message' => 'Club details retrieved successfully'
         ]);

@@ -6,7 +6,8 @@
             <div class="row breadcrumbs-top">
                 <div class="breadcrumb-wrapper col-12">
                     <ol class="breadcrumb">
-                        <li class="breadcrumb-item"><a href="{{ route('admin.dashboard') }}">{{ __('admin.menu.dashboard') }}</a></li>
+                        <li class="breadcrumb-item"><a
+                                href="{{ route('admin.dashboard') }}">{{ __('admin.menu.dashboard') }}</a></li>
                         <li class="breadcrumb-item"><a href="{{ route('admin.clubs.index') }}">{{ __('Clubs') }}</a></li>
                         <li class="breadcrumb-item active">{{ __('Edit Club') }}</li>
                     </ol>
@@ -26,59 +27,69 @@
                     <form action="{{ route('admin.clubs.update', $club->id) }}" method="POST" enctype="multipart/form-data">
                         @csrf
                         @method('PUT')
-                        
+
                         <div class="row">
                             <div class="col-12 mb-3">
-                                <h6 class="text-muted text-uppercase font-weight-bold mb-3"><i class="la la-info-circle"></i> {{ __('admin.categories.name') }} & {{ __('Description') }}</h6>
+                                <h6 class="text-muted text-uppercase font-weight-bold mb-3"><i
+                                        class="la la-info-circle"></i> {{ __('admin.categories.name') }} &
+                                    {{ __('Description') }}</h6>
                             </div>
 
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label>{{ __('admin.categories.name') }} (EN) <span class="text-danger">*</span></label>
-                                    <input type="text" name="name[en]" class="form-control" required value="{{ old('name.en', $club->getTranslation('name', 'en')) }}">
+                                    <input type="text" name="name[en]" class="form-control" required
+                                        value="{{ old('name.en', $club->getTranslation('name', 'en')) }}">
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label>{{ __('admin.categories.name') }} (AR) <span class="text-danger">*</span></label>
-                                    <input type="text" name="name[ar]" class="form-control" required value="{{ old('name.ar', $club->getTranslation('name', 'ar')) }}">
+                                    <input type="text" name="name[ar]" class="form-control" required
+                                        value="{{ old('name.ar', $club->getTranslation('name', 'ar')) }}">
                                 </div>
                             </div>
 
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label>{{ __('admin.categories.description') }} (EN)</label>
-                                    <textarea name="description[en]" class="form-control" rows="3">{{ old('description.en', $club->getTranslation('description', 'en')) }}</textarea>
+                                    <textarea name="description[en]" class="form-control"
+                                        rows="3">{{ old('description.en', $club->getTranslation('description', 'en')) }}</textarea>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label>{{ __('admin.categories.description') }} (AR)</label>
-                                    <textarea name="description[ar]" class="form-control" rows="3">{{ old('description.ar', $club->getTranslation('description', 'ar')) }}</textarea>
+                                    <textarea name="description[ar]" class="form-control"
+                                        rows="3">{{ old('description.ar', $club->getTranslation('description', 'ar')) }}</textarea>
                                 </div>
                             </div>
 
                             <div class="col-12 mt-4 mb-3">
                                 <hr>
-                                <h6 class="text-muted text-uppercase font-weight-bold mb-3"><i class="la la-map-marker"></i> {{ __('Details') }}</h6>
+                                <h6 class="text-muted text-uppercase font-weight-bold mb-3"><i class="la la-map-marker"></i>
+                                    {{ __('Details') }}</h6>
                             </div>
 
                             <div class="col-md-4">
                                 <div class="form-group">
                                     <label>City <span class="text-danger">*</span></label>
-                                    <input type="text" name="city" class="form-control" required value="{{ old('city', $club->city) }}">
+                                    <input type="text" name="city" class="form-control" required
+                                        value="{{ old('city', $club->city) }}">
                                 </div>
                             </div>
                             <div class="col-md-4">
                                 <div class="form-group">
                                     <label>Country</label>
-                                    <input type="text" name="country" class="form-control" value="{{ old('country', $club->country) }}">
+                                    <input type="text" name="country" class="form-control"
+                                        value="{{ old('country', $club->country) }}">
                                 </div>
                             </div>
                             <div class="col-md-4">
                                 <div class="form-group">
                                     <label>Website</label>
-                                    <input type="url" name="website" class="form-control" value="{{ old('website', $club->website) }}">
+                                    <input type="url" name="website" class="form-control"
+                                        value="{{ old('website', $club->website) }}">
                                 </div>
                             </div>
 
@@ -95,9 +106,23 @@
                                 </div>
                             </div>
 
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label>Leagues</label>
+                                    <select name="leagues[]" class="form-control select2" multiple>
+                                        @foreach($leagues as $league)
+                                            <option value="{{ $league->id }}" {{ $club->leagues->contains($league->id) ? 'selected' : '' }}>
+                                                {{ $league->name }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            </div>
+
                             <div class="col-12 mt-4 mb-3">
                                 <hr>
-                                <h6 class="text-muted text-uppercase font-weight-bold mb-3"><i class="la la-image"></i> {{ __('Media') }}</h6>
+                                <h6 class="text-muted text-uppercase font-weight-bold mb-3"><i class="la la-image"></i>
+                                    {{ __('Media') }}</h6>
                             </div>
 
                             <div class="col-md-6">
@@ -109,8 +134,8 @@
                                         </div>
                                     @endif
                                     <div class="custom-file">
-                                         <input type="file" name="logo" class="custom-file-input" id="logoUpload">
-                                         <label class="custom-file-label" for="logoUpload">Choose Logo</label>
+                                        <input type="file" name="logo" class="custom-file-input" id="logoUpload">
+                                        <label class="custom-file-label" for="logoUpload">Choose Logo</label>
                                     </div>
                                 </div>
                             </div>
@@ -133,8 +158,10 @@
                                 <div class="form-group">
                                     <div class="checklist-item">
                                         <div class="custom-control custom-checkbox">
-                                            <input type="checkbox" class="custom-control-input" name="is_featured" id="is_featured" value="1" {{ $club->is_featured ? 'checked' : '' }}>
-                                            <label class="custom-control-label font-weight-bold" for="is_featured">Featured Club</label>
+                                            <input type="checkbox" class="custom-control-input" name="is_featured"
+                                                id="is_featured" value="1" {{ $club->is_featured ? 'checked' : '' }}>
+                                            <label class="custom-control-label font-weight-bold" for="is_featured">Featured
+                                                Club</label>
                                         </div>
                                     </div>
                                 </div>

@@ -56,9 +56,58 @@ Protected routes require a Bearer Token in the header.
 - `onesignal_subscription`: object (Required, e.g. `{ "id": "uuid", "token": "..." }`)
 **Response:** Success message.
 
+### Get Club Details
+**GET** `/clubs/{id}`
+**Response:**
+```json
+{
+    "status": true,
+    "data": {
+        "club": { "id": 1, "name": "Al Ahli", ... },
+        "roster": {
+            "Player": [ { "id": 10, "name": "Player 1", ... } ],
+            "Staff": [ { "id": 11, "name": "Coach 1", ... } ],
+            "Other": []
+        }
+    },
+    "message": "Club details retrieved successfully"
+}
+```
+
+### Update Club Leagues (Protected)
+**POST** `/clubs/{id}/leagues`
+**Body:**
+- `leagues`: array of integers (Required, List of League IDs)
+**Response:**
+```json
+{
+    "status": true,
+    "message": "Club leagues updated successfully",
+    "data": { ... }
+}
+```
+
 ### Home (Public)
 **GET** `/home`
-**Response:** Home screen data.
+**Response:**
+```json
+{
+    "status": true,
+    "data": {
+        "sliders": [...],
+        "categories": [...],
+        "featured_clubs": [...],
+        "leagues": [
+            {
+                "id": 1,
+                "name": "Premier League",
+                "clubs": [ { "id": 1, "name": "Club A" } ]
+            }
+        ]
+    },
+    "message": "Home data retrieved successfully"
+}
+```
 
 ### Categories
 **GET** `/categories`

@@ -30,7 +30,8 @@
                             <div class="col-12 mb-3">
                                 <h6 class="text-muted text-uppercase font-weight-bold mb-3"><i
                                         class="la la-info-circle"></i> {{ __('admin.categories.name') }} &
-                                    {{ __('Description') }}</h6>
+                                    {{ __('Description') }}
+                                </h6>
                             </div>
 
                             <div class="col-md-6">
@@ -97,6 +98,17 @@
                                     <select name="sports[]" class="form-control select2" multiple required>
                                         @foreach($sports as $sport)
                                             <option value="{{ $sport->id }}">{{ $sport->name }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label>Leagues</label>
+                                    <select name="leagues[]" class="form-control select2" multiple>
+                                        @foreach($leagues as $league)
+                                            <option value="{{ $league->id }}">{{ $league->name }}</option>
                                         @endforeach
                                     </select>
                                 </div>

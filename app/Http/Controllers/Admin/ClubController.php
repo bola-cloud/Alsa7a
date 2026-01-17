@@ -53,7 +53,8 @@ class ClubController extends Controller
     public function create()
     {
         $sports = Sport::all();
-        return view('admin.clubs.create', compact('sports'));
+        $leagues = \App\Models\League::all();
+        return view('admin.clubs.create', compact('sports', 'leagues'));
     }
 
     /**
@@ -70,7 +71,8 @@ class ClubController extends Controller
             'description.ar' => 'nullable|string',
             'city' => 'required|string',
             'logo' => 'nullable|image',
-            'sports' => 'array'
+            'sports' => 'array',
+            'leagues' => 'array',
         ]);
 
         $data = [
@@ -101,6 +103,10 @@ class ClubController extends Controller
             $club->sports()->sync($request->sports);
         }
 
+        if ($request->has('leagues')) {
+            $club->leagues()->sync($request->leagues);
+        }
+
         $this->flashSuccess('Club created successfully');
         return redirect()->route('admin.clubs.index');
     }
@@ -126,7 +132,8 @@ class ClubController extends Controller
     public function edit(Club $club)
     {
         $sports = Sport::all();
-        return view('admin.clubs.edit', compact('club', 'sports'));
+        $leagues = \App\Models\League::all();
+        return view('admin.clubs.edit', compact('club', 'sports', 'leagues'));
     }
 
     /**
@@ -176,6 +183,10 @@ class ClubController extends Controller
 
         if ($request->has('sports')) {
             $club->sports()->sync($request->sports);
+        }
+
+        if ($request->has('leagues')) {
+            $club->leagues()->sync($request->leagues);
         }
 
         $this->flashSuccess('Club updated successfully');
