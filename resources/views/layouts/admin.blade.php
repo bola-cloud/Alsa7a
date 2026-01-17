@@ -342,6 +342,12 @@
                                 <span class="menu-title">{{ __('admin.tickets.title') }}</span>
                             </a>
                         </li>
+                        <li class="nav-item {{ request()->routeIs('admin.notifications.*') ? 'active' : '' }}">
+                            <a href="{{ route('admin.notifications.create') }}">
+                                <i class="la la-bell"></i>
+                                <span class="menu-title">{{ __('Push Notifications') }}</span>
+                            </a>
+                        </li>
                         <li class="nav-item {{ Route::is('admin.settings.*') ? 'active' : '' }}">
                             <a href="{{ route('admin.settings.index') }}">
                                 <i class="la la-cog"></i>

@@ -28,11 +28,19 @@ Protected routes require a Bearer Token in the header.
 
 ### Register
 **POST** `/auth/register`
-**Body:** `name`, `email`, `password`, `password_confirmation`...
+**Body:**
+- `name`: string
+- `email`: string
+- `password`: string
+- `password_confirmation`: string
+- `onesignal_subscription`: object/array (Optional, full subscription object from OneSignal SDK)
 
 ### Login
 **POST** `/auth/login`
-**Body:** `email`, `password`
+**Body:**
+- `email`: string
+- `password`: string
+- `onesignal_subscription`: object/array (Optional)
 **Response:** Returns token.
 
 ### Logout (Protected)
@@ -41,6 +49,12 @@ Protected routes require a Bearer Token in the header.
 ### Get User (Protected)
 **GET** `/user`
 **Response:** Current user data.
+
+### Update OneSignal Subscription (Protected)
+**POST** `/users/onesignal-subscription`
+**Body:**
+- `onesignal_subscription`: object (Required, e.g. `{ "id": "uuid", "token": "..." }`)
+**Response:** Success message.
 
 ### Home (Public)
 **GET** `/home`

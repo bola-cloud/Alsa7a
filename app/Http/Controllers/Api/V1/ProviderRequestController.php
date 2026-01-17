@@ -8,8 +8,17 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use App\Notifications\RequestStatusUpdated;
 
+use App\Services\OneSignalService;
+
 class ProviderRequestController extends Controller
 {
+    protected $oneSignal;
+
+    public function __construct(OneSignalService $oneSignal)
+    {
+        $this->oneSignal = $oneSignal;
+    }
+
     /**
      * List incoming requests for the provider.
      */
@@ -58,7 +67,7 @@ class ProviderRequestController extends Controller
      */
     public function updateStatus(Request $request, $id)
     {
-        $serviceRequest = ServiceRequest::where('provider_id', $request->user()->id)
+        $serviceRequest = ServiceRequest::with('requester', 'service')->where('provider_id', $request->user()->id)
             ->find($id);
 
         if (!$serviceRequest) {
@@ -80,12 +89,53 @@ class ProviderRequestController extends Controller
             ], 422);
         }
 
+        $oldStatus = $serviceRequest->status;
         $serviceRequest->status = $request->status;
         $serviceRequest->save();
 
-        // Notify Requester
+        // Notify Requester (Database Notification)
         if ($serviceRequest->requester) {
-            $serviceRequest->requester->notify(new RequestStatusUpdated($serviceRequest));
+            try {
+                $serviceRequest->requester->notify(new RequestStatusUpdated($serviceRequest));
+            } catch (\Exception $e) {
+                // Log error but don't break flow
+                \Illuminate\Support\Facades\Log::error("Failed to send DB notification: " . $e->getMessage());
+            }
+
+            // PUSH NOTIFICATION
+            if (!empty($serviceRequest->requester->onesignal_subscription['id'])) {
+                $playerId = $serviceRequest->requester->onesignal_subscription['id'];
+                $msg = '';
+                $title = 'Service Update';
+
+                switch ($request->status) {
+                    case 'accepted':
+                        $title = 'Request Accepted';
+                        $msg = "Your request for {$serviceRequest->service->title} has been accepted!";
+                        break;
+                    case 'rejected':
+                        $title = 'Request Declined';
+                        $msg = "Your request for {$serviceRequest->service->title} has been declined.";
+                        break;
+                    case 'completed':
+                        $title = 'Service Completed';
+                        $msg = "Your request for {$serviceRequest->service->title} is marked as completed.";
+                        break;
+                    case 'canceled':
+                        $title = 'Request Canceled';
+                        $msg = "Your request for {$serviceRequest->service->title} has been canceled.";
+                        break;
+                }
+
+                if ($msg) {
+                    $this->oneSignal->sendToPlayers(
+                        [$playerId],
+                        $title,
+                        $msg,
+                        ['request_id' => $serviceRequest->id, 'type' => 'status_update']
+                    );
+                }
+            }
         }
 
         // Create Chat Conversation if Accepted

@@ -8,8 +8,17 @@ use App\Models\Service;
 use App\Models\ServiceRequest;
 use Illuminate\Support\Facades\Validator;
 
+use App\Services\OneSignalService;
+
 class ServiceRequestController extends Controller
 {
+    protected $oneSignal;
+
+    public function __construct(OneSignalService $oneSignal)
+    {
+        $this->oneSignal = $oneSignal;
+    }
+
     /**
      * Book a service (Create a Request).
      * POST /services/{id}/request
@@ -50,6 +59,18 @@ class ServiceRequestController extends Controller
         ]);
 
         \Illuminate\Support\Facades\Log::info("Service Request Created: ID {$serviceRequest->id} by User {$request->user()->id}");
+
+        // Notify Provider
+        $provider = $service->provider; // Assuming relation exists on Service model
+        if ($provider && !empty($provider->onesignal_subscription['id'])) {
+            $playerId = $provider->onesignal_subscription['id'];
+            $this->oneSignal->sendToPlayers(
+                [$playerId],
+                'New Service Request',
+                "{$request->user()->name} has requested your service: {$service->title}",
+                ['request_id' => $serviceRequest->id, 'type' => 'new_request']
+            );
+        }
 
         return response()->json([
             'status' => true,
