@@ -30,7 +30,7 @@ class ChatController extends Controller
 
         // Optional: Transform to unify "other_user" for frontend convenience
         $chats = $conversations->map(function ($chat) use ($userId) {
-            $otherUser = $chat->user_one_id === $userId ? $chat->userOne : $chat->userTwo;
+            $otherUser = ($chat->user_one_id == $userId) ? $chat->userTwo : $chat->userOne;
             return [
                 'id' => $chat->id,
                 'other_user' => $otherUser, // Frontend can just use this
