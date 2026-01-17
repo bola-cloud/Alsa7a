@@ -31,6 +31,7 @@ class ProviderRequestController extends Controller
             ->paginate(10);
 
         // Transform to include full image URL
+        // Transform to include full image URL
         $requests->getCollection()->transform(function ($req) {
             if ($req->service && $req->service->media->isNotEmpty()) {
                 $firstMedia = $req->service->media->first();
@@ -44,12 +45,8 @@ class ProviderRequestController extends Controller
 
             // Fix Requester Image
             if ($req->requester) {
+                // Now handled by accessors mostly, but explicitly ensuring full URL
                 $req->requester->image = $req->requester->profile_photo_url;
-                if ($req->requester->profile_photo_path) {
-                    $url = url('storage/' . $req->requester->profile_photo_path);
-                    $req->requester->image = $url;
-                    $req->requester->profile_photo_url = $url;
-                }
             }
 
             return $req;

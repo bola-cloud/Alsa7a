@@ -40,7 +40,7 @@ class CommunityController extends Controller
         $user = $request->user('sanctum');
 
         $query = CommunityPost::with(['user', 'category'])
-            ->withCount('comments')
+            ->withCount(['comments', 'likes'])
             ->where('is_hidden', false)
             ->latest();
 
@@ -128,7 +128,7 @@ class CommunityController extends Controller
         $user = $request->user('sanctum');
 
         $post = CommunityPost::with(['user', 'category'])
-            ->withCount('comments')
+            ->withCount(['comments', 'likes'])
             ->where('is_hidden', false)
             ->find($id);
 

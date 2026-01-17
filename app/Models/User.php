@@ -215,6 +215,30 @@ class User extends Authenticatable
         return $answered;
     }
 
+    /**
+     * Get the URL to the user's profile photo.
+     * Overrides HasProfilePhoto trait.
+     *
+     * @return string
+     */
+    public function getProfilePhotoUrlAttribute()
+    {
+        $path = $this->profile_photo_path;
+
+        if ($path) {
+            // If path is already a URL, return it
+            if (preg_match('#^https?://#i', $path)) {
+                return $path;
+            }
+
+            // Return full URL to storage
+            return asset('storage/' . $path);
+        }
+
+        // Return default profile photo
+        return $this->defaultProfilePhotoUrl();
+    }
+
     public function getQuestionsCompleteAttribute()
     {
         if (!$this->category_id)

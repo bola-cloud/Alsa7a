@@ -74,7 +74,7 @@ class Club extends Model
             return null;
         if (preg_match('#^https?://#i', $val))
             return $val;
-        return url(ltrim($val, '/'));
+        return asset(ltrim($val, '/'));
     }
 
     public function setLogoUrlAttribute($value)
@@ -103,7 +103,7 @@ class Club extends Model
             return null;
         if (preg_match('#^https?://#i', $val))
             return $val;
-        return url(ltrim($val, '/'));
+        return asset(ltrim($val, '/'));
     }
 
     public function setBannerUrlAttribute($value)

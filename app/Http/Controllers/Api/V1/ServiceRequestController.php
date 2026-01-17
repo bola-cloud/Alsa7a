@@ -108,6 +108,12 @@ class ServiceRequestController extends Controller
             } else {
                 $req->service->featured_image = null;
             }
+
+            // Fix Provider Image if loaded
+            if ($req->provider) {
+                $req->provider->image = $req->provider->profile_photo_url;
+            }
+
             return $req;
         });
 
