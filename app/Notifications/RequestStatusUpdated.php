@@ -28,9 +28,11 @@ class RequestStatusUpdated extends Notification
         return [
             'title' => 'Request Updated',
             'body' => 'Your request status is now: ' . $this->serviceRequest->status,
-            'service_request_id' => $this->serviceRequest->id,
-            'type' => 'request_status',
-            'status' => $this->serviceRequest->status
+            'request_id' => $this->serviceRequest->id,
+            'service_id' => $this->serviceRequest->service_id,
+            'type' => 'status_update',
+            'status' => $this->serviceRequest->status,
+            'sender_id' => null // System or Provider
         ];
     }
 }

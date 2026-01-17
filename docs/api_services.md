@@ -949,11 +949,78 @@ Returns a list of conversations for the authenticated user (both Provider and Us
     "data": { "id": 103, "body": "Ok great!", ... }
 }
 ```
+    "data": { "id": 103, "body": "Ok great!", ... }
+}
+```
 **Side Effect**: Triggers `MessageSent` event on channel `private-chat.{id}`.
 
 ---
 
-## 8. Realtime / WebSockets (Laravel Reverb)
+## 8. Notifications API
+
+### Get Notifications (History)
+**GET** `/notifications`
+**Response:**
+```json
+{
+    "status": true,
+    "data": {
+        "current_page": 1,
+        "data": [
+            {
+                "id": "uuid-string",
+                "type": "App\\Notifications\\ServiceRequestNotification",
+                "data": {
+                    "title": "New Service Request",
+                    "body": "User X requested Service Y",
+                    "type": "new_request",
+                    "request_id": 10,
+                    "service_id": 5
+                },
+                "read_at": null,
+                "created_at": "..."
+            }
+        ],
+        "total": 5
+    },
+    "unread_count": 3,
+    "message": "Notifications retrieved successfully"
+}
+```
+
+### Mark as Read
+**POST** `/notifications/{id}/read`
+**Response:**
+```json
+{
+    "status": true,
+    "message": "Notification marked as read"
+}
+```
+
+### Mark All as Read
+**POST** `/notifications/read-all`
+**Response:**
+```json
+{
+    "status": true,
+    "message": "All notifications marked as read"
+}
+```
+
+### Delete Notification
+**DELETE** `/notifications/{id}`
+**Response:**
+```json
+{
+    "status": true,
+    "message": "Notification deleted"
+}
+```
+
+---
+
+## 9. Realtime / WebSockets (Laravel Reverb)
 
 The application uses **Laravel Reverb** for real-time updates (similar to Pusher).
 Mobile developers should use a standard Pusher client (e.g., `pusher-js` or `laravel-echo`) with the following configuration:

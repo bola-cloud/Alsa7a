@@ -142,6 +142,12 @@ Route::prefix('v1')->middleware('set.api.locale')->group(function () {
         Route::post('events/{id}/book', [App\Http\Controllers\Api\V1\EventBookingController::class, 'store']);
         Route::get('my-bookings', [App\Http\Controllers\Api\V1\EventBookingController::class, 'index']); // New Endpoint
 
+        // --- Notifications ---
+        Route::get('notifications', [App\Http\Controllers\Api\V1\NotificationController::class, 'index']);
+        Route::post('notifications/{id}/read', [App\Http\Controllers\Api\V1\NotificationController::class, 'markAsRead']);
+        Route::post('notifications/read-all', [App\Http\Controllers\Api\V1\NotificationController::class, 'markAllAsRead']);
+        Route::delete('notifications/{id}', [App\Http\Controllers\Api\V1\NotificationController::class, 'destroy']);
+
         // --- Verification ---
         Route::post('users/verification/upload', [App\Http\Controllers\Api\V1\VerificationController::class, 'upload']);
         Route::get('users/verification/status', [App\Http\Controllers\Api\V1\VerificationController::class, 'status']);
@@ -158,6 +164,18 @@ Route::prefix('v1')->middleware('set.api.locale')->group(function () {
             } catch (\Exception $e) {
                 return response()->json(['status' => false, 'message' => 'Reverb Error: ' . $e->getMessage()], 500);
             }
+        });
+
+        // --- Notification Test ---
+        Route::get('test-create-notification', function (Illuminate\Http\Request $request) {
+            $request->user()->notify(new App\Notifications\ServiceRequestNotification([
+                'title' => 'Test Notification',
+                'body' => 'This is a test notification generated at ' . now(),
+                'type' => 'test',
+                'request_id' => 1,
+                'service_id' => 1
+            ]));
+            return response()->json(['status' => true, 'message' => 'Test notification created']);
         });
     });
 });

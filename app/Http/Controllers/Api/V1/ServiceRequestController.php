@@ -77,6 +77,38 @@ class ServiceRequestController extends Controller
                 $messages,
                 ['request_id' => $serviceRequest->id, 'type' => 'new_request']
             );
+            $this->oneSignal->sendToPlayers(
+                [$playerId],
+                $titles,
+                $messages,
+                ['request_id' => $serviceRequest->id, 'type' => 'new_request']
+            );
+        }
+
+        // Feature: Notification History (Database)
+        try {
+            $provider->notify(new \App\Notifications\ServiceRequestNotification([
+                'title' => 'New Service Request',
+                'body' => "{$request->user()->name} has requested your service: {$service->title}",
+                'type' => 'new_request',
+                'request_id' => $serviceRequest->id,
+                'service_id' => $service->id,
+                'sender_id' => $request->user()->id
+            ]));
+        } catch (\Exception $e) {
+        }
+
+        // Feature: Notification History (Database)
+        try {
+            $provider->notify(new \App\Notifications\ServiceRequestNotification([
+                'title' => 'New Service Request',
+                'body' => "{$request->user()->name} has requested your service: {$service->title}",
+                'type' => 'new_request',
+                'request_id' => $serviceRequest->id,
+                'service_id' => $service->id,
+                'sender_id' => $request->user()->id
+            ]));
+        } catch (\Exception $e) {
         }
 
         return response()->json([
@@ -157,6 +189,20 @@ class ServiceRequestController extends Controller
                 $messages,
                 ['request_id' => $serviceRequest->id, 'type' => 'status_update']
             );
+        }
+
+        // Feature: Notification History (Database)
+        try {
+            $provider->notify(new \App\Notifications\ServiceRequestNotification([
+                'title' => 'Request Canceled',
+                'body' => "{$request->user()->name} canceled their request.",
+                'type' => 'status_update',
+                'request_id' => $serviceRequest->id,
+                'service_id' => $serviceRequest->service_id,
+                'sender_id' => $request->user()->id
+            ]));
+        } catch (\Exception $e) {
+            // Ignore notification errors to not block the response
         }
 
         return response()->json([
