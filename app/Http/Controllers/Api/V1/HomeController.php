@@ -53,11 +53,13 @@ class HomeController extends Controller
 
         // Return the home payload in the order requested by the design
         // Fetch Leagues with their Clubs
+        // Fetch Leagues with their Clubs
         $leagues = \App\Models\League::with([
             'clubs' => function ($q) {
-                $q->where('active', true)->take(10); // Limit clubs per league if needed
+                // $q->where('active', true)->take(10); // Club has no active column
+                $q->take(10);
             }
-        ])->where('active', true)->get();
+        ])->where('is_active', true)->get();
 
         // The following variables are not defined in the original code,
         // but are included in the provided `Code Edit` for the response structure.
