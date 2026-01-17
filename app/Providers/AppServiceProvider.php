@@ -24,5 +24,15 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Paginator::useBootstrapFive();
+
+        if (request()->server('HTTP_X_FORWARDED_PROTO') == 'https') {
+            \Illuminate\Support\Facades\URL::forceScheme('https');
+        }
+
+        // Force APP_URL if we are on the production domain (fixes asset() returning localhost)
+        if (request()->getHost() === 'saha.wasl-x.com' || config('app.env') === 'production') {
+            config(['app.url' => 'https://saha.wasl-x.com']);
+            \Illuminate\Support\Facades\URL::forceScheme('https');
+        }
     }
 }

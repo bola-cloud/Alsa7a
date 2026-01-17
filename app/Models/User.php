@@ -191,6 +191,7 @@ class User extends Authenticatable
      */
     protected $appends = [
         'profile_photo_url',
+        'cover_photo_url', // Added
         'answered_question_ids',
         'questions_complete',
     ];
@@ -226,17 +227,32 @@ class User extends Authenticatable
         $path = $this->profile_photo_path;
 
         if ($path) {
-            // If path is already a URL, return it
             if (preg_match('#^https?://#i', $path)) {
                 return $path;
             }
-
-            // Return full URL to storage
             return asset('storage/' . $path);
         }
 
-        // Return default profile photo
         return $this->defaultProfilePhotoUrl();
+    }
+
+    /**
+     * Get the URL to the user's cover photo.
+     *
+     * @return string|null
+     */
+    public function getCoverPhotoUrlAttribute()
+    {
+        $path = $this->cover_photo_path;
+
+        if ($path) {
+            if (preg_match('#^https?://#i', $path)) {
+                return $path;
+            }
+            return asset('storage/' . $path);
+        }
+
+        return null;
     }
 
     public function getQuestionsCompleteAttribute()
