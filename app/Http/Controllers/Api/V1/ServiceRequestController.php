@@ -123,4 +123,46 @@ class ServiceRequestController extends Controller
             'message' => 'Requests retrieved successfully'
         ]);
     }
+    /**
+     * Cancel a request (User/Requester).
+     * POST /requests/{id}/cancel
+     */
+    public function cancel(Request $request, $id)
+    {
+        $serviceRequest = ServiceRequest::where('requester_id', $request->user()->id)->find($id);
+
+        if (!$serviceRequest) {
+            return response()->json(['status' => false, 'message' => 'Request not found'], 404);
+        }
+
+        if (in_array($serviceRequest->status, ['completed', 'canceled', 'rejected'])) {
+            return response()->json(['status' => false, 'message' => 'Cannot cancel request with status: ' . $serviceRequest->status], 400);
+        }
+
+        $serviceRequest->status = 'canceled';
+        $serviceRequest->save();
+
+        // Notify Provider
+        $provider = $serviceRequest->provider;
+        if ($provider && !empty($provider->onesignal_subscription['id'])) {
+            $playerId = $provider->onesignal_subscription['id'];
+            $titles = ['en' => 'Request Canceled', 'ar' => 'تم إلغاء الطلب'];
+            $messages = [
+                'en' => "{$request->user()->name} canceled their request.",
+                'ar' => "قام {$request->user()->name} بإلغاء طلبه."
+            ];
+            $this->oneSignal->sendToPlayers(
+                [$playerId],
+                $titles,
+                $messages,
+                ['request_id' => $serviceRequest->id, 'type' => 'status_update']
+            );
+        }
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Request canceled successfully',
+            'data' => $serviceRequest
+        ]);
+    }
 }

@@ -93,6 +93,7 @@ Route::prefix('v1')->middleware('set.api.locale')->group(function () {
         Route::get('payment/status', [App\Http\Controllers\Api\V1\PaymentController::class, 'checkStatus']);
         Route::post('payment/webhook', [App\Http\Controllers\Api\V1\PaymentController::class, 'webhook']);
         Route::get('my-requests', [App\Http\Controllers\Api\V1\ServiceRequestController::class, 'index']);
+        Route::post('requests/{id}/cancel', [App\Http\Controllers\Api\V1\ServiceRequestController::class, 'cancel']); // Cancel Request
         Route::post('services/{id}/rate', [App\Http\Controllers\Api\V1\ServiceReviewController::class, 'store']);
 
         // --- Chat Routes ---
