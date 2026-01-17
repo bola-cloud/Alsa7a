@@ -61,12 +61,9 @@ class HomeController extends Controller
             }
         ])->where('is_active', true)->get();
 
-        // The following variables are not defined in the original code,
-        // but are included in the provided `Code Edit` for the response structure.
-        // To make the code syntactically correct, they are initialized as empty.
-        $categories = [];
-        $featuredClubs = [];
-        // $latestNews is commented out in the provided `Code Edit`
+        // Populate response data from fetched variables
+        $categories = $sports;
+        $featuredClubs = $topClubs;
 
         return response()->json([
             'status' => true,
@@ -74,8 +71,9 @@ class HomeController extends Controller
                 'sliders' => $sliders,
                 'categories' => $categories,
                 'featured_clubs' => $featuredClubs,
-                'leagues' => $leagues, // Added leagues section
-                // 'latest_news' => $latestNews
+                'featured_events' => $featuredEvents, // Added
+                'top_players' => $topPlayers, // Added
+                'leagues' => $leagues,
             ],
             'message' => 'Home data retrieved successfully'
         ]);
