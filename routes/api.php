@@ -145,5 +145,19 @@ Route::prefix('v1')->middleware('set.api.locale')->group(function () {
         // --- Verification ---
         Route::post('users/verification/upload', [App\Http\Controllers\Api\V1\VerificationController::class, 'upload']);
         Route::get('users/verification/status', [App\Http\Controllers\Api\V1\VerificationController::class, 'status']);
+
+        // --- Reverb Test ---
+        Route::get('reverb-test', function () {
+            try {
+                $fp = fsockopen("127.0.0.1", 6001, $errno, $errstr, 3);
+                if (!$fp) {
+                    return response()->json(['status' => false, 'message' => "Reverb Down: $errstr ($errno)"], 500);
+                }
+                fclose($fp);
+                return response()->json(['status' => true, 'message' => 'Reverb is RUNNING and listening on port 6001']);
+            } catch (\Exception $e) {
+                return response()->json(['status' => false, 'message' => 'Reverb Error: ' . $e->getMessage()], 500);
+            }
+        });
     });
 });

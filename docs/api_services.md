@@ -950,3 +950,42 @@ Returns a list of conversations for the authenticated user (both Provider and Us
 }
 ```
 **Side Effect**: Triggers `MessageSent` event on channel `private-chat.{id}`.
+
+---
+
+## 8. Realtime / WebSockets (Laravel Reverb)
+
+The application uses **Laravel Reverb** for real-time updates (similar to Pusher).
+Mobile developers should use a standard Pusher client (e.g., `pusher-js` or `laravel-echo`) with the following configuration:
+
+### Connection Configuration
+- **Host**: `saha.wasl-x.com`
+- **Port**: `443` (Default HTTPS/WSS port)
+- **Scheme**: `wss` (Secure WebSocket)
+- **App Key**: `my_app_key` (As currently configured on server, pending update)
+  - *Note: Please check `.env` on server. Recommended key: `t6o995a86az28cff`.*
+- **Cluster**: `mt1` (Default)
+- **Force TLS**: `true`
+
+### Channels
+- **User Notifications**: `App.Models.User.{id}` (Private channel)
+  - Events: `Illuminate\Notifications\Events\BroadcastNotificationCreated`
+- **Chat**: `chat.conversations.{conversation_id}` (Presence/Private channel - TBD implementation)
+
+### Example (Laravel Echo / JS)
+```javascript
+import Echo from 'laravel-echo';
+import Pusher from 'pusher-js';
+
+window.Pusher = Pusher;
+
+window.Echo = new Echo({
+    broadcaster: 'reverb',
+    key: 'my_app_key', // Replace with actual server key
+    wsHost: 'saha.wasl-x.com',
+    wsPort: 443,
+    wssPort: 443,
+    forceTLS: true,
+    enabledTransports: ['ws', 'wss'],
+});
+```
