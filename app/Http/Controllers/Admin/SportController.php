@@ -136,10 +136,24 @@ class SportController extends Controller
      */
     public function destroy(Sport $sport)
     {
-        $this->imageService->delete($sport->icon_url);
+        // Check relationships to prevent foreign key constraint violations
+        if ($sport->leagues()->exists()) {
+            $this->flashError(__('Cannot delete sport because it has associated leagues. Please delete the leagues first.'));
+            return redirect()->back();
+        }
 
-        $sport->delete();
-        $this->flashSuccess(__('admin.messages.deleted'));
+        try {
+            $this->imageService->delete($sport->icon_url);
+            $sport->delete();
+            $this->flashSuccess(__('admin.messages.deleted'));
+        } catch (\Illuminate\Database\QueryException $e) {
+            if ($e->getCode() == 23000) {
+                $this->flashError(__('Cannot delete sport because it is referenced by other records (e.g., Clubs, Teams).'));
+            } else {
+                $this->flashError(__('An error occurred while deleting the sport.'));
+            }
+        }
+
         return redirect()->route('admin.sports.index');
     }
 }
