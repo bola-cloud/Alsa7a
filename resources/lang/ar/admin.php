@@ -290,5 +290,10 @@ return [
         'open' => 'مفتوح',
         'closed' => 'مغلق',
         'resolved' => 'تم الحل',
+        'paid' => 'مدفوع',
+        'unpaid' => 'غير مدفوع',
+        'completed' => 'مكتمل',
+        'canceled' => 'ملغي',
+        'accepted' => 'مقبول',
     ]
 ];

@@ -74,12 +74,17 @@
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label>{{ __('admin.sliders.image') }}</label>
-                                    @if($slider->image)
-                                        <div class="mb-2">
-                                            <img src="{{ $slider->image_url }}" alt="Slider" class="img-fluid rounded shadow-sm"
-                                                style="max-height: 150px;">
-                                        </div>
-                                    @endif
+
+                                    <div class="mb-2">
+                                        @if($slider->image)
+                                            <img id="imagePreview" src="{{ $slider->image_url }}" alt="Slider"
+                                                class="img-fluid rounded shadow-sm" style="max-height: 150px;">
+                                        @else
+                                            <img id="imagePreview" src="#" alt="Image Preview"
+                                                class="img-fluid rounded shadow-sm" style="max-height: 150px; display: none;">
+                                        @endif
+                                    </div>
+
                                     <div class="custom-file">
                                         <input type="file" name="image" class="custom-file-input" id="imageUpload">
                                         <label class="custom-file-label" for="imageUpload">Choose Image</label>
@@ -102,4 +107,21 @@
             </div>
         </div>
     </div>
+
+    @push('scripts')
+        <script>
+            $(document).ready(function () {
+                $('#imageUpload').change(function (event) {
+                    var reader = new FileReader();
+                    reader.onload = function (e) {
+                        $('#imagePreview').attr('src', e.target.result).show();
+                    }
+                    if (event.target.files && event.target.files[0]) {
+                        reader.readAsDataURL(event.target.files[0]);
+                        $(this).next('.custom-file-label').html(event.target.files[0].name);
+                    }
+                });
+            });
+        </script>
+    @endpush
 @endsection

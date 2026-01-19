@@ -290,5 +290,10 @@ return [
         'open' => 'Open',
         'closed' => 'Closed',
         'resolved' => 'Resolved',
+        'paid' => 'Paid',
+        'unpaid' => 'Unpaid',
+        'completed' => 'Completed',
+        'canceled' => 'Canceled',
+        'accepted' => 'Accepted',
     ]
 ];

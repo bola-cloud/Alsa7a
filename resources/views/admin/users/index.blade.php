@@ -25,7 +25,9 @@
                             <label class="text-muted small mb-1">{{ __('admin.buttons.search') }}</label>
                             <div class="position-relative">
                                 <input type="text" name="search" class="form-control pl-4" placeholder="{{ __('admin.users.search_placeholder') }}" value="{{ request('search') }}">
-                                <i class="la la-search position-absolute" style="top: 10px; left: 10px; color: #b0afb5;"></i>
+                                <button type="submit" class="position-absolute border-0 bg-transparent p-0" style="top: 8px; left: 10px; color: #b0afb5; cursor: pointer;">
+                                    <i class="la la-search"></i>
+                                </button>
                             </div>
                         </div>
                         <div class="col-md-4 mb-2 mb-md-0">
