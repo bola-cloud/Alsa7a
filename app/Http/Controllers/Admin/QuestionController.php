@@ -49,45 +49,47 @@ class QuestionController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'question_en' => 'required|string',
-            'question_ar' => 'required|string',
+            'question_en' => 'required|string|max:65000',
+            'question_ar' => 'required|string|max:65000',
             'type' => 'required|in:text,number,boolean,rating,multiple_choice',
             'category_id' => 'required|exists:categories,id',
-            'choices' => 'nullable|string', // Validated as json if needed, but simple string is easier for now
+            'choices' => 'nullable|string',
         ]);
 
-        $data = $request->only(['type', 'category_id']);
-        $data['question'] = [
-            'en' => $request->question_en,
-            'ar' => $request->question_ar
-        ];
+        try {
+            $data = $request->only(['type', 'category_id']);
+            $data['question'] = [
+                'en' => $request->question_en,
+                'ar' => $request->question_ar
+            ];
 
-        if ($request->filled('choices')) {
-            // Fallback for raw JSON if sent via API or old form? 
-            // Actually, let's prioritize the dynamic inputs if present.
-            $choices = json_decode($request->choices, true);
-            if (json_last_error() === JSON_ERROR_NONE) {
-                $data['choices'] = $choices;
-            }
-        }
-
-        // Handle dynamic inputs from blade (choice_keys / choice_labels)
-        if ($request->has('choice_keys') && $request->has('choice_labels')) {
-            $formattedChoices = [];
-            foreach ($request->choice_keys as $index => $key) {
-                $label = $request->choice_labels[$index] ?? '';
-                if (!empty($key) && !empty($label)) {
-                    $formattedChoices[$key] = $label;
+            if ($request->filled('choices')) {
+                $choices = json_decode($request->choices, true);
+                if (json_last_error() === JSON_ERROR_NONE) {
+                    $data['choices'] = $choices;
                 }
             }
-            if (!empty($formattedChoices)) {
-                $data['choices'] = $formattedChoices;
+
+            // Handle dynamic inputs from blade
+            if ($request->has('choice_keys') && $request->has('choice_labels')) {
+                $formattedChoices = [];
+                foreach ($request->choice_keys as $index => $key) {
+                    $label = $request->choice_labels[$index] ?? '';
+                    if (!empty($key) && !empty($label)) {
+                        $formattedChoices[$key] = $label;
+                    }
+                }
+                if (!empty($formattedChoices)) {
+                    $data['choices'] = $formattedChoices;
+                }
             }
+
+            Question::create($data);
+
+            return redirect()->route('admin.questions.index')->with('swal_success', __('admin.messages.created_successfully'));
+        } catch (\Exception $e) {
+            abort(404);
         }
-
-        Question::create($data);
-
-        return redirect()->route('admin.questions.index')->with('swal_success', __('admin.messages.created_successfully'));
     }
 
     /**
@@ -105,54 +107,53 @@ class QuestionController extends Controller
     public function update(Request $request, Question $question)
     {
         $request->validate([
-            'question_en' => 'required|string',
-            'question_ar' => 'required|string',
+            'question_en' => 'required|string|max:65000',
+            'question_ar' => 'required|string|max:65000',
             'type' => 'required|in:text,number,boolean,rating,multiple_choice',
             'category_id' => 'required|exists:categories,id',
             'choices' => 'nullable|string',
         ]);
 
-        $data = $request->only(['type', 'category_id']);
-        $data['question'] = [
-            'en' => $request->question_en,
-            'ar' => $request->question_ar
-        ];
+        try {
+            $data = $request->only(['type', 'category_id']);
+            $data['question'] = [
+                'en' => $request->question_en,
+                'ar' => $request->question_ar
+            ];
 
-        if ($request->filled('choices')) {
-            $choices = json_decode($request->choices, true);
-            if (json_last_error() === JSON_ERROR_NONE) {
-                $data['choices'] = $choices;
+            if ($request->filled('choices')) {
+                $choices = json_decode($request->choices, true);
+                if (json_last_error() === JSON_ERROR_NONE) {
+                    $data['choices'] = $choices;
+                }
+            } else {
+                $data['choices'] = null;
             }
-        } else {
-            $data['choices'] = null;
-        }
 
-        // Handle dynamic inputs from blade
-        if ($request->has('choice_keys') && $request->has('choice_labels')) {
-            $formattedChoices = [];
-            foreach ($request->choice_keys as $index => $key) {
-                $label = $request->choice_labels[$index] ?? '';
-                if (!empty($key) && !empty($label)) {
-                    $formattedChoices[$key] = $label;
+            // Handle dynamic inputs from blade
+            if ($request->has('choice_keys') && $request->has('choice_labels')) {
+                $formattedChoices = [];
+                foreach ($request->choice_keys as $index => $key) {
+                    $label = $request->choice_labels[$index] ?? '';
+                    if (!empty($key) && !empty($label)) {
+                        $formattedChoices[$key] = $label;
+                    }
+                }
+                if (!empty($formattedChoices)) {
+                    $data['choices'] = $formattedChoices;
                 }
             }
-            if (!empty($formattedChoices)) {
-                $data['choices'] = $formattedChoices;
-            }
+
+            $question->question = $data['question']; // Explicitly set translation
+            $question->type = $data['type'];
+            $question->category_id = $data['category_id'];
+            $question->choices = $data['choices'] ?? null;
+            $question->save();
+
+            return redirect()->route('admin.questions.index')->with('swal_success', __('admin.messages.updated_successfully'));
+        } catch (\Exception $e) {
+            abort(404);
         }
-
-        // We use query 'update' or model 'update'? Model update works with casts.
-        // However, Spatie Translatable trait usually hooks into setAttribute.
-        // We need to verify if $question->update($data) works with the array for 'question'.
-        // It should if $fillable and casts are set up.
-
-        $question->question = $data['question']; // Explicitly set translation
-        $question->type = $data['type'];
-        $question->category_id = $data['category_id'];
-        $question->choices = $data['choices'] ?? null;
-        $question->save();
-
-        return redirect()->route('admin.questions.index')->with('swal_success', __('admin.messages.updated_successfully'));
     }
 
     /**

@@ -147,11 +147,7 @@ class SportController extends Controller
             $sport->delete();
             $this->flashSuccess(__('admin.messages.deleted'));
         } catch (\Illuminate\Database\QueryException $e) {
-            if ($e->getCode() == 23000) {
-                $this->flashError(__('Cannot delete sport because it is referenced by other records (e.g., Clubs, Teams).'));
-            } else {
-                $this->flashError(__('An error occurred while deleting the sport.'));
-            }
+            abort(404);
         }
 
         return redirect()->route('admin.sports.index');

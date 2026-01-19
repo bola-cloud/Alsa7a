@@ -26,5 +26,37 @@ class Handler extends ExceptionHandler
         $this->reportable(function (Throwable $e) {
             //
         });
+
+        $this->renderable(function (Throwable $e, $request) {
+            // Only handle if debug is OFF
+            if (!config('app.debug')) {
+                // API Errors
+                if ($request->is('api/*') || $request->wantsJson()) {
+                    // Start by checking specific non-fatal exceptions (Validation, Auth)
+                    if (
+                        $e instanceof \Illuminate\Validation\ValidationException ||
+                        $e instanceof \Illuminate\Auth\AuthenticationException
+                    ) {
+                        return null; // Let standard handling work
+                    }
+
+                    $status = method_exists($e, 'getStatusCode') ? $e->getStatusCode() : 500;
+
+                    // Mask 500 errors
+                    $message = $status === 500 ? 'Server Error' : $e->getMessage();
+
+                    return response()->json([
+                        'status' => false,
+                        'message' => $message
+                    ], $status);
+                }
+
+                // Web Errors (Admin Panel)
+                // Redirect critical errors (like DB foreign key constraint) to 404 page as requested
+                if ($e instanceof \Illuminate\Database\QueryException || $e instanceof \Error) {
+                    abort(404);
+                }
+            }
+        });
     }
 }
