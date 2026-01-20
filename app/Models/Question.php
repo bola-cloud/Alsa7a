@@ -4,11 +4,9 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use App\Traits\Translatable;
-
 class Question extends Model
 {
-    use HasFactory, Translatable;
+    use HasFactory;
 
     protected $fillable = [
         'category_id',
@@ -21,10 +19,22 @@ class Question extends Model
     protected $casts = [
         'meta' => 'array',
         'choices' => 'array',
+        'question' => 'array',
     ];
 
     public function category()
     {
         return $this->belongsTo(Category::class);
+    }
+
+    /**
+     * Get translation for a specific key (simulates Translatable trait behavior for JSON column)
+     */
+    public function getTranslation($key, $locale)
+    {
+        if ($key === 'question') {
+            return $this->question[$locale] ?? null;
+        }
+        return $this->$key;
     }
 }
