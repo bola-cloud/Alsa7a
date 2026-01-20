@@ -58,11 +58,15 @@
                                 <div class="form-group">
                                     <label>{{ __('admin.questions.type') }}</label>
                                     <select name="type" class="form-control" required id="typeSelect">
-                                        <option value="text" {{ old('type') == 'text' ? 'selected' : '' }}>{{ __('admin.questions.types.text') }}</option>
-                                        <option value="number" {{ old('type') == 'number' ? 'selected' : '' }}>{{ __('admin.questions.types.number') }}</option>
-                                        <option value="boolean" {{ old('type') == 'boolean' ? 'selected' : '' }}>{{ __('admin.questions.types.boolean') }}
+                                        <option value="text" {{ old('type') == 'text' ? 'selected' : '' }}>
+                                            {{ __('admin.questions.types.text') }}</option>
+                                        <option value="number" {{ old('type') == 'number' ? 'selected' : '' }}>
+                                            {{ __('admin.questions.types.number') }}</option>
+                                        <option value="boolean" {{ old('type') == 'boolean' ? 'selected' : '' }}>
+                                            {{ __('admin.questions.types.boolean') }}
                                         </option>
-                                        <option value="rating" {{ old('type') == 'rating' ? 'selected' : '' }}>{{ __('admin.questions.types.rating') }}
+                                        <option value="rating" {{ old('type') == 'rating' ? 'selected' : '' }}>
+                                            {{ __('admin.questions.types.rating') }}
                                         </option>
                                         <option value="multiple_choice" {{ old('type') == 'multiple_choice' ? 'selected' : '' }}>{{ __('admin.questions.types.multiple_choice') }}</option>
                                     </select>
@@ -75,13 +79,16 @@
                                         <!-- Dynamic inputs will appear here -->
                                         <div class="row mb-1 choice-row">
                                             <div class="col-md-5">
-                                                <input type="text" name="choice_keys[]" class="form-control" placeholder="Key (e.g., red)">
+                                                <input type="text" name="choice_keys[]" class="form-control"
+                                                    placeholder="Key (e.g., red)">
                                             </div>
                                             <div class="col-md-5">
-                                                <input type="text" name="choice_labels[]" class="form-control" placeholder="Label (e.g., Red Color)">
+                                                <input type="text" name="choice_labels[]" class="form-control"
+                                                    placeholder="Label (e.g., Red Color)">
                                             </div>
                                             <div class="col-md-2">
-                                                <button type="button" class="btn btn-danger btn-sm remove-choice"><i class="la la-trash"></i></button>
+                                                <button type="button" class="btn btn-danger btn-sm remove-choice"><i
+                                                        class="la la-trash"></i></button>
                                             </div>
                                         </div>
                                     </div>
@@ -106,7 +113,7 @@
             </div>
         </div>
     </div>
-@push('scripts')
+    @push('js')
         <script>
             document.addEventListener('DOMContentLoaded', function () {
                 const typeSelect = document.getElementById('typeSelect');
@@ -126,25 +133,25 @@
                 toggleChoices(); // Run on load
 
                 // Add Choice
-                addChoiceBtn.addEventListener('click', function() {
+                addChoiceBtn.addEventListener('click', function () {
                     const row = document.createElement('div');
                     row.className = 'row mb-1 choice-row';
                     row.innerHTML = `
-                        <div class="col-md-5">
-                             <input type="text" name="choice_keys[]" class="form-control" placeholder="Key">
-                        </div>
-                        <div class="col-md-5">
-                             <input type="text" name="choice_labels[]" class="form-control" placeholder="Label">
-                        </div>
-                        <div class="col-md-2">
-                             <button type="button" class="btn btn-danger btn-sm remove-choice"><i class="la la-trash"></i></button>
-                        </div>
-                    `;
+                                <div class="col-md-5">
+                                     <input type="text" name="choice_keys[]" class="form-control" placeholder="Key">
+                                </div>
+                                <div class="col-md-5">
+                                     <input type="text" name="choice_labels[]" class="form-control" placeholder="Label">
+                                </div>
+                                <div class="col-md-2">
+                                     <button type="button" class="btn btn-danger btn-sm remove-choice"><i class="la la-trash"></i></button>
+                                </div>
+                            `;
                     choicesContainer.appendChild(row);
                 });
 
                 // Remove Choice
-                choicesContainer.addEventListener('click', function(e) {
+                choicesContainer.addEventListener('click', function (e) {
                     if (e.target.closest('.remove-choice')) {
                         e.target.closest('.choice-row').remove();
                     }

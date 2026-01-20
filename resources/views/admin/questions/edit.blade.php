@@ -64,7 +64,8 @@
                                 <div class="form-group">
                                     <label>{{ __('admin.questions.type') }}</label>
                                     <select name="type" class="form-control" required id="typeSelect">
-                                        <option value="text" {{ old('type', $question->type) == 'text' ? 'selected' : '' }}>{{ __('admin.questions.types.text') }}</option>
+                                        <option value="text" {{ old('type', $question->type) == 'text' ? 'selected' : '' }}>
+                                            {{ __('admin.questions.types.text') }}</option>
                                         <option value="number" {{ old('type', $question->type) == 'number' ? 'selected' : '' }}>{{ __('admin.questions.types.number') }}</option>
                                         <option value="boolean" {{ old('type', $question->type) == 'boolean' ? 'selected' : '' }}>{{ __('admin.questions.types.boolean') }}</option>
                                         <option value="rating" {{ old('type', $question->type) == 'rating' ? 'selected' : '' }}>{{ __('admin.questions.types.rating') }}</option>
@@ -80,32 +81,38 @@
                                         @php
                                             $currentChoices = is_array($question->choices) ? $question->choices : json_decode($question->choices ?? '{}', true);
                                         @endphp
-                                        
+
                                         @if($currentChoices && is_array($currentChoices) && count($currentChoices) > 0)
                                             @foreach($currentChoices as $key => $label)
                                                 <div class="row mb-1 choice-row">
                                                     <div class="col-md-5">
-                                                        <input type="text" name="choice_keys[]" class="form-control" value="{{ $key }}" placeholder="Key">
+                                                        <input type="text" name="choice_keys[]" class="form-control"
+                                                            value="{{ $key }}" placeholder="Key">
                                                     </div>
                                                     <div class="col-md-5">
-                                                        <input type="text" name="choice_labels[]" class="form-control" value="{{ $label }}" placeholder="Label">
+                                                        <input type="text" name="choice_labels[]" class="form-control"
+                                                            value="{{ $label }}" placeholder="Label">
                                                     </div>
                                                     <div class="col-md-2">
-                                                        <button type="button" class="btn btn-danger btn-sm remove-choice"><i class="la la-trash"></i></button>
+                                                        <button type="button" class="btn btn-danger btn-sm remove-choice"><i
+                                                                class="la la-trash"></i></button>
                                                     </div>
                                                 </div>
                                             @endforeach
                                         @else
                                             <div class="row mb-1 choice-row">
-                                                    <div class="col-md-5">
-                                                        <input type="text" name="choice_keys[]" class="form-control" placeholder="Key">
-                                                    </div>
-                                                    <div class="col-md-5">
-                                                        <input type="text" name="choice_labels[]" class="form-control" placeholder="Label">
-                                                    </div>
-                                                    <div class="col-md-2">
-                                                        <button type="button" class="btn btn-danger btn-sm remove-choice"><i class="la la-trash"></i></button>
-                                                    </div>
+                                                <div class="col-md-5">
+                                                    <input type="text" name="choice_keys[]" class="form-control"
+                                                        placeholder="Key">
+                                                </div>
+                                                <div class="col-md-5">
+                                                    <input type="text" name="choice_labels[]" class="form-control"
+                                                        placeholder="Label">
+                                                </div>
+                                                <div class="col-md-2">
+                                                    <button type="button" class="btn btn-danger btn-sm remove-choice"><i
+                                                            class="la la-trash"></i></button>
+                                                </div>
                                             </div>
                                         @endif
                                     </div>
@@ -130,7 +137,7 @@
             </div>
         </div>
     </div>
-@push('scripts')
+    @push('js')
         <script>
             document.addEventListener('DOMContentLoaded', function () {
                 const typeSelect = document.getElementById('typeSelect');
@@ -150,25 +157,25 @@
                 toggleChoices(); // Run on load
 
                 // Add Choice
-                addChoiceBtn.addEventListener('click', function() {
+                addChoiceBtn.addEventListener('click', function () {
                     const row = document.createElement('div');
                     row.className = 'row mb-1 choice-row';
                     row.innerHTML = `
-                        <div class="col-md-5">
-                             <input type="text" name="choice_keys[]" class="form-control" placeholder="Key">
-                        </div>
-                        <div class="col-md-5">
-                             <input type="text" name="choice_labels[]" class="form-control" placeholder="Label">
-                        </div>
-                        <div class="col-md-2">
-                             <button type="button" class="btn btn-danger btn-sm remove-choice"><i class="la la-trash"></i></button>
-                        </div>
-                    `;
+                                <div class="col-md-5">
+                                     <input type="text" name="choice_keys[]" class="form-control" placeholder="Key">
+                                </div>
+                                <div class="col-md-5">
+                                     <input type="text" name="choice_labels[]" class="form-control" placeholder="Label">
+                                </div>
+                                <div class="col-md-2">
+                                     <button type="button" class="btn btn-danger btn-sm remove-choice"><i class="la la-trash"></i></button>
+                                </div>
+                            `;
                     choicesContainer.appendChild(row);
                 });
 
                 // Remove Choice
-                choicesContainer.addEventListener('click', function(e) {
+                choicesContainer.addEventListener('click', function (e) {
                     if (e.target.closest('.remove-choice')) {
                         e.target.closest('.choice-row').remove();
                     }

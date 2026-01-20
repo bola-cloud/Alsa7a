@@ -56,40 +56,37 @@ class QuestionController extends Controller
             'choices' => 'nullable|string',
         ]);
 
-        try {
-            $data = $request->only(['type', 'category_id']);
-            $data['question'] = [
-                'en' => $request->question_en,
-                'ar' => $request->question_ar
-            ];
+        // try-catch removed to allow debugging
+        $data = $request->only(['type', 'category_id']);
+        $data['question'] = [
+            'en' => $request->question_en,
+            'ar' => $request->question_ar
+        ];
 
-            if ($request->filled('choices')) {
-                $choices = json_decode($request->choices, true);
-                if (json_last_error() === JSON_ERROR_NONE) {
-                    $data['choices'] = $choices;
-                }
+        if ($request->filled('choices')) {
+            $choices = json_decode($request->choices, true);
+            if (json_last_error() === JSON_ERROR_NONE) {
+                $data['choices'] = $choices;
             }
-
-            // Handle dynamic inputs from blade
-            if ($request->has('choice_keys') && $request->has('choice_labels')) {
-                $formattedChoices = [];
-                foreach ($request->choice_keys as $index => $key) {
-                    $label = $request->choice_labels[$index] ?? '';
-                    if (!empty($key) && !empty($label)) {
-                        $formattedChoices[$key] = $label;
-                    }
-                }
-                if (!empty($formattedChoices)) {
-                    $data['choices'] = $formattedChoices;
-                }
-            }
-
-            Question::create($data);
-
-            return redirect()->route('admin.questions.index')->with('swal_success', __('admin.messages.created_successfully'));
-        } catch (\Exception $e) {
-            abort(404);
         }
+
+        // Handle dynamic inputs from blade
+        if ($request->has('choice_keys') && $request->has('choice_labels')) {
+            $formattedChoices = [];
+            foreach ($request->choice_keys as $index => $key) {
+                $label = $request->choice_labels[$index] ?? '';
+                if (!empty($key) && !empty($label)) {
+                    $formattedChoices[$key] = $label;
+                }
+            }
+            if (!empty($formattedChoices)) {
+                $data['choices'] = $formattedChoices;
+            }
+        }
+
+        Question::create($data);
+
+        return redirect()->route('admin.questions.index')->with('swal_success', __('admin.messages.created_successfully'));
     }
 
     /**
@@ -114,46 +111,43 @@ class QuestionController extends Controller
             'choices' => 'nullable|string',
         ]);
 
-        try {
-            $data = $request->only(['type', 'category_id']);
-            $data['question'] = [
-                'en' => $request->question_en,
-                'ar' => $request->question_ar
-            ];
+        // try-catch removed to allow debugging
+        $data = $request->only(['type', 'category_id']);
+        $data['question'] = [
+            'en' => $request->question_en,
+            'ar' => $request->question_ar
+        ];
 
-            if ($request->filled('choices')) {
-                $choices = json_decode($request->choices, true);
-                if (json_last_error() === JSON_ERROR_NONE) {
-                    $data['choices'] = $choices;
-                }
-            } else {
-                $data['choices'] = null;
+        if ($request->filled('choices')) {
+            $choices = json_decode($request->choices, true);
+            if (json_last_error() === JSON_ERROR_NONE) {
+                $data['choices'] = $choices;
             }
-
-            // Handle dynamic inputs from blade
-            if ($request->has('choice_keys') && $request->has('choice_labels')) {
-                $formattedChoices = [];
-                foreach ($request->choice_keys as $index => $key) {
-                    $label = $request->choice_labels[$index] ?? '';
-                    if (!empty($key) && !empty($label)) {
-                        $formattedChoices[$key] = $label;
-                    }
-                }
-                if (!empty($formattedChoices)) {
-                    $data['choices'] = $formattedChoices;
-                }
-            }
-
-            $question->question = $data['question']; // Explicitly set translation
-            $question->type = $data['type'];
-            $question->category_id = $data['category_id'];
-            $question->choices = $data['choices'] ?? null;
-            $question->save();
-
-            return redirect()->route('admin.questions.index')->with('swal_success', __('admin.messages.updated_successfully'));
-        } catch (\Exception $e) {
-            abort(404);
+        } else {
+            $data['choices'] = null;
         }
+
+        // Handle dynamic inputs from blade
+        if ($request->has('choice_keys') && $request->has('choice_labels')) {
+            $formattedChoices = [];
+            foreach ($request->choice_keys as $index => $key) {
+                $label = $request->choice_labels[$index] ?? '';
+                if (!empty($key) && !empty($label)) {
+                    $formattedChoices[$key] = $label;
+                }
+            }
+            if (!empty($formattedChoices)) {
+                $data['choices'] = $formattedChoices;
+            }
+        }
+
+        $question->question = $data['question']; // Explicitly set translation
+        $question->type = $data['type'];
+        $question->category_id = $data['category_id'];
+        $question->choices = $data['choices'] ?? null;
+        $question->save();
+
+        return redirect()->route('admin.questions.index')->with('swal_success', __('admin.messages.updated_successfully'));
     }
 
     /**
