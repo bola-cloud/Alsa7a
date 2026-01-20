@@ -189,6 +189,8 @@ return [
             'multiple_choice' => 'اختيار من متعدد',
             'number' => 'رقم',
         ],
+        'choice_en' => 'الخيار (English)',
+        'choice_ar' => 'الخيار (العربية)',
     ],
     'service_requests' => [
         'title' => 'طلبات الخدمات',

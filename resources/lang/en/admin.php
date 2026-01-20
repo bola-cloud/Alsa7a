@@ -189,6 +189,8 @@ return [
             'multiple_choice' => 'Multiple Choice',
             'number' => 'Number',
         ],
+        'choice_en' => 'English Option',
+        'choice_ar' => 'Arabic Option',
     ],
     'service_requests' => [
         'title' => 'Service Requests',
