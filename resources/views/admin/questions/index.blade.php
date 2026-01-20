@@ -96,8 +96,10 @@
                                     @forelse($questions as $question)
                                         <tr>
                                             <td>{{ $question->id }}</td>
-                                            <td>{{ $question->question }}</td>
-                                            <td><span class="badge badge-info">{{ __('admin.questions.types.' . $question->type) }}</span></td>
+                                            <td>{{ $question->getTranslation('question', app()->getLocale()) }}</td>
+                                            <td><span
+                                                    class="badge badge-info">{{ __('admin.questions.types.' . $question->type) }}</span>
+                                            </td>
                                             <td>
                                                 @if($question->category)
                                                     <span class="badge badge-primary">{{ $question->category->name }}</span>
@@ -107,7 +109,8 @@
                                             </td>
                                             <td>
                                                 <a href="{{ route('admin.questions.answers', $question->id) }}"
-                                                    class="btn btn-sm btn-info" title="View Answers"><i class="la la-users"></i></a>
+                                                    class="btn btn-sm btn-info" title="View Answers"><i
+                                                        class="la la-users"></i></a>
                                                 <a href="{{ route('admin.questions.edit', $question->id) }}"
                                                     class="btn btn-sm btn-primary"><i class="la la-edit"></i></a>
                                                 <form action="{{ route('admin.questions.destroy', $question->id) }}"
