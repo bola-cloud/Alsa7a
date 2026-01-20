@@ -20,7 +20,8 @@
 
     <div class="card">
         <div class="card-header">
-            <h4>Question: <span class="text-primary">{{ $question->question }}</span></h4>
+            <h4>Question: <span class="text-primary">{{ $question->getTranslation('question', app()->getLocale()) }}</span>
+            </h4>
             <p class="text-muted">Type: {{ __('admin.questions.types.' . $question->type) }}</p>
         </div>
         <div class="card-content">
