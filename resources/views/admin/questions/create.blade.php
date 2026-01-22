@@ -89,7 +89,7 @@
                                         </div>
                                     </div>
                                     <div id="choices-container"
-                                        style="max-height: 300px; overflow-y: auto; overflow-x: hidden;">
+                                        style="max-height: 300px; overflow-y: auto; overflow-x: hidden; border: 1px solid #e3e3e3; padding: 10px; border-radius: 5px; margin-bottom: 10px;">
                                         <!-- Dynamic inputs will appear here -->
                                         <div class="row mb-1 choice-row">
                                             <div class="col-md-5">
@@ -100,33 +100,17 @@
                                                 <input type="text" name="choice_labels[]" class="form-control"
                                                     placeholder="Choice (AR)">
                                             </div>
-                                            <div id="choices-container"
-                                                style="max-height: 250px; overflow-y: auto; overflow-x: hidden;">
-                                                <!-- Dynamic inputs will appear here -->
-                                                <div class="row mb-1 choice-row">
-                                                    <div class="col-md-5">
-                                                        <input type="text" name="choice_keys[]" class="form-control"
-                                                            placeholder="Choice (EN)">
-                                                    </div>
-                                                    <div class="col-md-5">
-                                                        <input type="text" name="choice_labels[]" class="form-control"
-                                                            placeholder="Choice (AR)">
-                                                    </div>
-                                                    <div class="col-md-2">
-                                                        <button type="button" class="btn btn-danger btn-sm remove-choice"><i
-                                                                class="la la-trash"></i></button>
-                                                    </div>
-                                                </div>
+                                            <div class="col-md-2">
+                                                <button type="button" class="btn btn-danger btn-sm remove-choice"><i
+                                                        class="la la-trash"></i></button>
                                             </div>
-                                            <button type="button" class="btn btn-info btn-sm mt-1" id="add-choice">
-                                                <i class="la la-plus"></i> {{ __('admin.buttons.add_new') }}
-                                            </button>
                                         </div>
-
                                     </div>
+                                    <button type="button" class="btn btn-info btn-sm mt-1" id="add-choice">
+                                        <i class="la la-plus"></i> {{ __('admin.buttons.add_new') }}
+                                    </button>
 
-                                    <div class="form-actions right"
-                                        style="position: sticky; bottom: 0; background: #fff; z-index: 10; padding: 10px; border-top: 1px solid #eee;">
+                                    <div class="form-actions right">
                                         <a href="{{ route('admin.questions.index') }}" class="btn btn-warning mr-1">
                                             <i class="ft-x"></i> {{ __('admin.buttons.cancel') }}
                                         </a>
@@ -164,16 +148,16 @@
                     const row = document.createElement('div');
                     row.className = 'row mb-1 choice-row';
                     row.innerHTML = `
-                                                                                <div class="col-md-5">
-                                                                                     <input type="text" name="choice_keys[]" class="form-control" placeholder="Choice (EN)">
-                                                                                </div>
-                                                                                <div class="col-md-5">
-                                                                                     <input type="text" name="choice_labels[]" class="form-control" placeholder="Choice (AR)">
-                                                                                </div>
-                                                                                <div class="col-md-2">
-                                                                                     <button type="button" class="btn btn-danger btn-sm remove-choice"><i class="la la-trash"></i></button>
-                                                                                </div>
-                                                                            `;
+                                                                                                <div class="col-md-5">
+                                                                                                     <input type="text" name="choice_keys[]" class="form-control" placeholder="Choice (EN)">
+                                                                                                </div>
+                                                                                                <div class="col-md-5">
+                                                                                                     <input type="text" name="choice_labels[]" class="form-control" placeholder="Choice (AR)">
+                                                                                                </div>
+                                                                                                <div class="col-md-2">
+                                                                                                     <button type="button" class="btn btn-danger btn-sm remove-choice"><i class="la la-trash"></i></button>
+                                                                                                </div>
+                                                                                            `;
                     choicesContainer.appendChild(row);
                 });
 
