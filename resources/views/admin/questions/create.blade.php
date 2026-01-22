@@ -126,6 +126,12 @@
             </div>
         </div>
     </div>
+    </div>
+    </div>
+
+    <!-- Massive Spacer to prevent Footer Overlap -->
+    <div style="height: 200px;"></div>
+
     @push('js')
         <script>
             document.addEventListener('DOMContentLoaded', function () {
@@ -150,16 +156,16 @@
                     const row = document.createElement('div');
                     row.className = 'row mb-1 choice-row';
                     row.innerHTML = `
-                                                                                                                <div class="col-md-5">
-                                                                                                                     <input type="text" name="choice_keys[]" class="form-control" placeholder="Choice (EN)">
-                                                                                                                </div>
-                                                                                                                <div class="col-md-5">
-                                                                                                                     <input type="text" name="choice_labels[]" class="form-control" placeholder="Choice (AR)">
-                                                                                                                </div>
-                                                                                                                <div class="col-md-2">
-                                                                                                                     <button type="button" class="btn btn-danger btn-sm remove-choice"><i class="la la-trash"></i></button>
-                                                                                                                </div>
-                                                                                                            `;
+                                                                                                                        <div class="col-md-5">
+                                                                                                                             <input type="text" name="choice_keys[]" class="form-control" placeholder="Choice (EN)">
+                                                                                                                        </div>
+                                                                                                                        <div class="col-md-5">
+                                                                                                                             <input type="text" name="choice_labels[]" class="form-control" placeholder="Choice (AR)">
+                                                                                                                        </div>
+                                                                                                                        <div class="col-md-2">
+                                                                                                                             <button type="button" class="btn btn-danger btn-sm remove-choice"><i class="la la-trash"></i></button>
+                                                                                                                        </div>
+                                                                                                                    `;
                     choicesContainer.appendChild(row);
                 });
 

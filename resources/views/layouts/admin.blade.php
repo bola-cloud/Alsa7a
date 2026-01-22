@@ -87,11 +87,6 @@
             }
         }
 
-        /* Fix content overlapping with footer */
-        .content-body {
-            padding-bottom: 100px !important;
-        }
-
         /* Search Dropdown CSS */
         .search-results-dropdown {
             position: absolute;
