@@ -88,7 +88,8 @@
                                             <small class="text-muted">{{ __('admin.questions.choice_ar') }}</small>
                                         </div>
                                     </div>
-                                    <div id="choices-container">
+                                    <div id="choices-container"
+                                        style="max-height: 300px; overflow-y: auto; overflow-x: hidden;">
                                         @php
                                             $currentChoices = is_array($question->choices) ? $question->choices : json_decode($question->choices ?? '{}', true);
                                         @endphp
@@ -172,16 +173,16 @@
                     const row = document.createElement('div');
                     row.className = 'row mb-1 choice-row';
                     row.innerHTML = `
-                                                        <div class="col-md-5">
-                                                             <input type="text" name="choice_keys[]" class="form-control" placeholder="Choice (EN)">
-                                                        </div>
-                                                        <div class="col-md-5">
-                                                             <input type="text" name="choice_labels[]" class="form-control" placeholder="Choice (AR)">
-                                                        </div>
-                                                        <div class="col-md-2">
-                                                             <button type="button" class="btn btn-danger btn-sm remove-choice"><i class="la la-trash"></i></button>
-                                                        </div>
-                                                    `;
+                                                                <div class="col-md-5">
+                                                                     <input type="text" name="choice_keys[]" class="form-control" placeholder="Choice (EN)">
+                                                                </div>
+                                                                <div class="col-md-5">
+                                                                     <input type="text" name="choice_labels[]" class="form-control" placeholder="Choice (AR)">
+                                                                </div>
+                                                                <div class="col-md-2">
+                                                                     <button type="button" class="btn btn-danger btn-sm remove-choice"><i class="la la-trash"></i></button>
+                                                                </div>
+                                                            `;
                     choicesContainer.appendChild(row);
                 });
 
