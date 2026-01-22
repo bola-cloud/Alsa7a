@@ -111,7 +111,7 @@
                                     </button>
                                 </div>
 
-                                <div class="form-actions right" style="margin-top: 30px; margin-bottom: 80px;">
+                                <div class="form-actions right" style="margin-top: 30px; margin-bottom: 150px;">
                                     <a href="{{ route('admin.questions.index') }}" class="btn btn-warning mr-1">
                                         <i class="ft-x"></i> {{ __('admin.buttons.cancel') }}
                                     </a>
