@@ -72,6 +72,8 @@
                                         <option value="rating" {{ old('type', $question->type) == 'rating' ? 'selected' : '' }}>{{ __('admin.questions.types.rating') }}</option>
                                         <option value="multiple_choice" {{ old('type', $question->type) == 'multiple_choice' ? 'selected' : '' }}>{{ __('admin.questions.types.multiple_choice') }}
                                         </option>
+                                        <option value="multi_select" {{ old('type', $question->type) == 'multi_select' ? 'selected' : '' }}>{{ __('admin.questions.types.multi_select') }}
+                                        </option>
                                     </select>
                                     @error('type') <span class="text-danger">{{ $message }}</span> @enderror
                                 </div>
@@ -155,7 +157,7 @@
                 const addChoiceBtn = document.getElementById('add-choice');
 
                 function toggleChoices() {
-                    if (typeSelect.value === 'multiple_choice') {
+                    if (typeSelect.value === 'multiple_choice' || typeSelect.value === 'multi_select') {
                         choicesGroup.style.display = 'block';
                     } else {
                         choicesGroup.style.display = 'none';
@@ -170,16 +172,16 @@
                     const row = document.createElement('div');
                     row.className = 'row mb-1 choice-row';
                     row.innerHTML = `
-                                        <div class="col-md-5">
-                                             <input type="text" name="choice_keys[]" class="form-control" placeholder="Choice (EN)">
-                                        </div>
-                                        <div class="col-md-5">
-                                             <input type="text" name="choice_labels[]" class="form-control" placeholder="Choice (AR)">
-                                        </div>
-                                        <div class="col-md-2">
-                                             <button type="button" class="btn btn-danger btn-sm remove-choice"><i class="la la-trash"></i></button>
-                                        </div>
-                                    `;
+                                                        <div class="col-md-5">
+                                                             <input type="text" name="choice_keys[]" class="form-control" placeholder="Choice (EN)">
+                                                        </div>
+                                                        <div class="col-md-5">
+                                                             <input type="text" name="choice_labels[]" class="form-control" placeholder="Choice (AR)">
+                                                        </div>
+                                                        <div class="col-md-2">
+                                                             <button type="button" class="btn btn-danger btn-sm remove-choice"><i class="la la-trash"></i></button>
+                                                        </div>
+                                                    `;
                     choicesContainer.appendChild(row);
                 });
 

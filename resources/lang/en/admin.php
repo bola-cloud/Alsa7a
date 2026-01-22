@@ -187,6 +187,7 @@ return [
             'boolean' => 'Yes/No',
             'rating' => 'Rating',
             'multiple_choice' => 'Multiple Choice',
+            'multi_select' => 'Multi-Select (Checkboxes)',
             'number' => 'Number',
         ],
         'choice_en' => 'English Option',

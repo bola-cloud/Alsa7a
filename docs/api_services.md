@@ -114,7 +114,68 @@ Protected routes require a Bearer Token in the header.
 
 ### Questions
 **GET** `/questions`
-**POST** `/questions/answers` (Protected)
+**Params:**
+- `category_id`: int (Required)
+
+**Response:**
+```json
+{
+    "questions": [
+        {
+            "id": 55,
+            "category_id": 13,
+            "type": "multiple_choice",
+            "question": "What is your gender?",
+            "question_en": "What is your gender?",
+            "question_ar": "ما هو جنسك؟",
+            "choices": ["Male", "Female"],
+            "choices_en": ["Male", "Female"],
+            "choices_ar": ["ذكر", "أنثى"],
+            "created_at": "...",
+            "updated_at": "..."
+        },
+        {
+            "id": 60,
+            "type": "multi_select",
+            "question": "Select your interests:",
+            "question_en": "Select your interests:",
+            "question_ar": "حدد اهتماماتك:",
+            "choices": ["Sports", "Coding"],
+            "choices_en": ["Sports", "Coding"],
+            "choices_ar": ["رياضة", "برمجة"]
+        }
+    ]
+}
+```
+
+### Submit Answers (Protected)
+**POST** `/questions/submit`
+**Body:**
+```json
+{
+    "category_id": 13,
+    "answers": [
+        {
+            "question_id": 55,
+            "answer": "Male" 
+        },
+        {
+            "question_id": 60,
+            "answer": ["Sports", "Coding"] 
+        },
+        {
+            "question_id": 57,
+            "answer": "My textual answer"
+        }
+    ]
+}
+```
+**Response (201):**
+```json
+{
+    "saved": [ ... ]
+}
+```
 
 ### Search (New)
 **GET** `/search`

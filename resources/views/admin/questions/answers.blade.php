@@ -48,6 +48,14 @@
                                                 $displayVal = 'No';
                                         } elseif ($question->type == 'multiple_choice' && is_array($question->choices)) {
                                             $displayVal = $question->choices[$val] ?? $val;
+                                        } elseif ($question->type == 'multi_select' && is_array($val) && is_array($question->choices)) {
+                                            $labels = [];
+                                            foreach ($val as $k) {
+                                                $labels[] = $question->choices[$k] ?? $k;
+                                            }
+                                            $displayVal = implode(', ', $labels);
+                                        } elseif (is_array($val)) {
+                                            $displayVal = json_encode($val, JSON_UNESCAPED_UNICODE);
                                         } else {
                                             $displayVal = $val;
                                         }

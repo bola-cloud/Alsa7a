@@ -120,12 +120,8 @@ class QuestionController extends Controller
             }
 
             $answerValue = $item['answer'] ?? null;
-            // normalize to JSON-storable value
-            if (is_array($answerValue)) {
-                $stored = $answerValue;
-            } else {
-                $stored = ['value' => $answerValue];
-            }
+            // Always wrap in 'value' key to ensure consistency for Admin Panel
+            $stored = ['value' => $answerValue];
 
             $qa = QuestionAnswer::create([
                 'user_id' => $user ? $user->id : null,
