@@ -187,7 +187,7 @@ return [
             'boolean' => 'نعم/لا',
             'rating' => 'تقييم',
             'multiple_choice' => 'اختيار من متعدد',
-            'multi_select' => 'اختيار متعدد (مربعات اختيار)',
+            'multi_select' => 'اختيار متعدد (اكثر من اختيار)',
             'number' => 'رقم',
         ],
         'choice_en' => 'الخيار (English)',
