@@ -110,6 +110,8 @@
                                         <i class="la la-plus"></i> {{ __('admin.buttons.add_new') }}
                                     </button>
 
+                                    <div style="height: 100px;"></div>
+
                                     <div class="form-actions right">
                                         <a href="{{ route('admin.questions.index') }}" class="btn btn-warning mr-1">
                                             <i class="ft-x"></i> {{ __('admin.buttons.cancel') }}
@@ -148,16 +150,16 @@
                     const row = document.createElement('div');
                     row.className = 'row mb-1 choice-row';
                     row.innerHTML = `
-                                                                                                <div class="col-md-5">
-                                                                                                     <input type="text" name="choice_keys[]" class="form-control" placeholder="Choice (EN)">
-                                                                                                </div>
-                                                                                                <div class="col-md-5">
-                                                                                                     <input type="text" name="choice_labels[]" class="form-control" placeholder="Choice (AR)">
-                                                                                                </div>
-                                                                                                <div class="col-md-2">
-                                                                                                     <button type="button" class="btn btn-danger btn-sm remove-choice"><i class="la la-trash"></i></button>
-                                                                                                </div>
-                                                                                            `;
+                                                                                                        <div class="col-md-5">
+                                                                                                             <input type="text" name="choice_keys[]" class="form-control" placeholder="Choice (EN)">
+                                                                                                        </div>
+                                                                                                        <div class="col-md-5">
+                                                                                                             <input type="text" name="choice_labels[]" class="form-control" placeholder="Choice (AR)">
+                                                                                                        </div>
+                                                                                                        <div class="col-md-2">
+                                                                                                             <button type="button" class="btn btn-danger btn-sm remove-choice"><i class="la la-trash"></i></button>
+                                                                                                        </div>
+                                                                                                    `;
                     choicesContainer.appendChild(row);
                 });
 
