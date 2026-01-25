@@ -30,6 +30,23 @@
                                 </div>
 
                                 <div class="row">
+                                    <div class="col-md-12">
+                                        <div class="form-group">
+                                            <label
+                                                for="parent_category_id">{{ __('admin.parent_categories.index') }}</label>
+                                            <select name="parent_category_id" id="parent_category_id" class="form-control">
+                                                <option value="">{{ __('admin.buttons.select') }}</option>
+                                                @foreach($parentCategories as $parent)
+                                                    <option value="{{ $parent->id }}" {{ old('parent_category_id') == $parent->id ? 'selected' : '' }}>
+                                                        {{ $parent->name }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
                                     <div class="col-md-6">
                                         <div class="form-group">
                                             <label for="image">{{ __('admin.categories.image') }}</label>
@@ -41,14 +58,18 @@
                                 <div class="row">
                                     <div class="col-md-6">
                                         <div class="form-group">
-                                            <label for="description_en">{{ __('admin.categories.description') }} (EN)</label>
-                                            <textarea id="description_en" class="form-control round" name="description[en]" rows="3">{{ old('description.en') }}</textarea>
+                                            <label for="description_en">{{ __('admin.categories.description') }}
+                                                (EN)</label>
+                                            <textarea id="description_en" class="form-control round" name="description[en]"
+                                                rows="3">{{ old('description.en') }}</textarea>
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-group">
-                                            <label for="description_ar">{{ __('admin.categories.description') }} (AR)</label>
-                                            <textarea id="description_ar" class="form-control round" name="description[ar]" rows="3">{{ old('description.ar') }}</textarea>
+                                            <label for="description_ar">{{ __('admin.categories.description') }}
+                                                (AR)</label>
+                                            <textarea id="description_ar" class="form-control round" name="description[ar]"
+                                                rows="3">{{ old('description.ar') }}</textarea>
                                         </div>
                                     </div>
                                 </div>

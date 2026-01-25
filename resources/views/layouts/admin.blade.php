@@ -268,6 +268,12 @@
                                 <span class="menu-title">{{ __('admin.menu.categories') }}</span>
                             </a>
                         </li>
+                        <li class="nav-item {{ Route::is('admin.parent_categories.*') ? 'active' : '' }}">
+                            <a href="{{ route('admin.parent_categories.index') }}">
+                                <i class="la la-sitemap"></i>
+                                <span class="menu-title">{{ __('admin.parent_categories.index') }}</span>
+                            </a>
+                        </li>
                         <li class="nav-item {{ Route::is('admin.sports.*') ? 'active' : '' }}">
                             <a href="{{ route('admin.sports.index') }}">
                                 <i class="la la-trophy"></i>

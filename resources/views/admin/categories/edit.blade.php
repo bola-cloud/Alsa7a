@@ -32,6 +32,23 @@
                                 </div>
 
                                 <div class="row">
+                                    <div class="col-md-12">
+                                        <div class="form-group">
+                                            <label
+                                                for="parent_category_id">{{ __('admin.parent_categories.index') }}</label>
+                                            <select name="parent_category_id" id="parent_category_id" class="form-control">
+                                                <option value="">{{ __('admin.buttons.select') }}</option>
+                                                @foreach($parentCategories as $parent)
+                                                    <option value="{{ $parent->id }}" {{ $category->parent_category_id == $parent->id ? 'selected' : '' }}>
+                                                        {{ $parent->name }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
                                     <div class="col-md-6">
                                         <div class="form-group">
                                             <label for="image">{{ __('admin.categories.image') }}</label>

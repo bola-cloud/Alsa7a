@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Category;
+use App\Models\ParentCategory;
 use App\Services\ImageService;
 use Illuminate\Http\Request;
 
@@ -27,7 +28,8 @@ class CategoryController extends Controller
 
     public function create()
     {
-        return view('admin.categories.create');
+        $parentCategories = ParentCategory::all();
+        return view('admin.categories.create', compact('parentCategories'));
     }
 
     public function store(Request $request)
@@ -41,12 +43,14 @@ class CategoryController extends Controller
             'description' => 'required|array',
             'description.en' => 'nullable|string',
             'description.ar' => 'nullable|string',
+            'parent_category_id' => 'nullable|exists:parent_categories,id',
         ]);
 
         $categoryData = [
             'name' => $data['name']['en'],
             'name_en' => $data['name']['en'],
             'name_ar' => $data['name']['ar'],
+            'parent_category_id' => $data['parent_category_id'] ?? null,
             'description' => $data['description']['en'] ?? null,
             'description_en' => $data['description']['en'] ?? null,
             'description_ar' => $data['description']['ar'] ?? null,
@@ -70,7 +74,8 @@ class CategoryController extends Controller
 
     public function edit(Category $category)
     {
-        return view('admin.categories.edit', compact('category'));
+        $parentCategories = ParentCategory::all();
+        return view('admin.categories.edit', compact('category', 'parentCategories'));
     }
 
     public function update(Request $request, Category $category)
@@ -84,12 +89,14 @@ class CategoryController extends Controller
             'description' => 'required|array',
             'description.en' => 'nullable|string',
             'description.ar' => 'nullable|string',
+            'parent_category_id' => 'nullable|exists:parent_categories,id',
         ]);
 
         $categoryData = [
             'name' => $data['name']['en'],
             'name_en' => $data['name']['en'],
             'name_ar' => $data['name']['ar'],
+            'parent_category_id' => $data['parent_category_id'] ?? null,
             'description' => $data['description']['en'] ?? null,
             'description_en' => $data['description']['en'] ?? null,
             'description_ar' => $data['description']['ar'] ?? null,

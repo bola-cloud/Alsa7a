@@ -33,6 +33,7 @@ Route::group([
         Route::get('/dashboard', [Dashboard::class, 'index'])->name('dashboard');
 
         Route::resource('categories', CategoryController::class);
+        Route::resource('parent_categories', \App\Http\Controllers\Admin\ParentCategoryController::class);
         Route::get('questions/{question}/answers', [\App\Http\Controllers\Admin\QuestionController::class, 'answers'])->name('questions.answers');
         Route::resource('questions', \App\Http\Controllers\Admin\QuestionController::class);
         Route::resource('sports', SportController::class);

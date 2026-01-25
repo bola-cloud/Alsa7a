@@ -6,31 +6,23 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Traits\Translatable;
 
-class Category extends Model
+class ParentCategory extends Model
 {
     use HasFactory, Translatable;
 
     protected $fillable = [
-        'name',
         'name_en',
         'name_ar',
-        'parent_category_id',
         'image',
-        'description',
-        'description_en',
-        'description_ar',
-        'is_service_provider',
-        'requires_verification',
     ];
 
-    protected $casts = [
-        'is_service_provider' => 'boolean',
-        'requires_verification' => 'boolean',
-    ];
+    public function categories()
+    {
+        return $this->hasMany(Category::class);
+    }
 
     /**
      * Return `image` as full URL for API consumers.
-     * Eloquent will pass the raw stored value as $value.
      */
     public function getImageAttribute($value)
     {
@@ -43,10 +35,8 @@ class Category extends Model
         return url(ltrim($value, '/'));
     }
 
-
-
     /**
-     * Mutator: store relative path when possible, keep external URLs as-is
+     * Mutator: store relative path when possible
      */
     public function setImageAttribute($value)
     {
@@ -55,13 +45,11 @@ class Category extends Model
             return;
         }
 
-        // If already relative, normalize
         if (!preg_match('#^https?://#i', $value)) {
             $this->attributes['image'] = ltrim($value, '/');
             return;
         }
 
-        // If absolute and same host as app.url, store only the path
         $appHost = parse_url(config('app.url') ?? url('/'), PHP_URL_HOST);
         $givenHost = parse_url($value, PHP_URL_HOST);
 
@@ -71,22 +59,6 @@ class Category extends Model
             return;
         }
 
-        // External URL: store as-is
         $this->attributes['image'] = $value;
-    }
-
-    public function parentCategory()
-    {
-        return $this->belongsTo(ParentCategory::class);
-    }
-
-    public function questions()
-    {
-        return $this->hasMany(Question::class);
-    }
-
-    public function users()
-    {
-        return $this->hasMany(User::class);
     }
 }

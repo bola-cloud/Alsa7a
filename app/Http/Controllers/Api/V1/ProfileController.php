@@ -98,10 +98,47 @@ class ProfileController extends Controller
 
             // Questions & Answers (Detailed List)
             'questions_data' => $user->answers->map(function ($answer) {
+                $q = $answer->question;
+
+                // Logic to extract en/ar question text
+                $qRaw = $q->getAttributes()['question'] ?? '';
+                $qData = $q->question;
+
+                $questionEn = null;
+                $questionAr = null;
+                $mainQuestion = '';
+
+                if (is_array($qData)) {
+                    $questionEn = $qData['en'] ?? null;
+                    $questionAr = $qData['ar'] ?? null;
+                    $mainQuestion = !empty($questionEn) ? $questionEn : ($questionAr ?? '');
+                } else {
+                    $mainQuestion = (string) $qRaw;
+                    $questionEn = $mainQuestion;
+                    $questionAr = $mainQuestion;
+                }
+
+                // Logic to extract choices
+                $choicesData = $q->choices;
+                $choices = [];
+                $choicesEn = [];
+                $choicesAr = [];
+
+                if (is_array($choicesData) && !empty($choicesData)) {
+                    $choices = array_values($choicesData);
+                    $choicesEn = array_keys($choicesData);
+                    $choicesAr = array_values($choicesData);
+                }
+
                 return [
                     'question_id' => $answer->question_id,
-                    'question' => $answer->question->question ?? null,
-                    'type' => $answer->question->type ?? null,
+                    'question' => $mainQuestion,
+                    'question_en' => $questionEn,
+                    'question_ar' => $questionAr,
+                    'type' => $q->type ?? null,
+                    'choices' => $choices,
+                    'choices_en' => $choicesEn,
+                    'choices_ar' => $choicesAr,
                     'answer' => $answer->answer,
                 ];
             }),

@@ -25,9 +25,16 @@ class SearchController extends Controller
             });
         }
 
-        // 2. Category Filter
+        // 2. Category Filter (Legacy direct category_id)
         if ($request->has('category_id') && $request->category_id != null) {
             $query->where('category_id', $request->category_id);
+        }
+
+        // 2.1 Parent Category Filter (NEW) - Get all users in subcategories of this parent
+        if ($request->has('parent_category_id') && $request->parent_category_id != null) {
+            $query->whereHas('category', function ($q) use ($request) {
+                $q->where('parent_category_id', $request->parent_category_id);
+            });
         }
 
         // 3. Dynamic Question/Answer Filters
@@ -82,13 +89,52 @@ class SearchController extends Controller
 
             // 2. Format Answers (questions_data)
             $user->questions_data = $user->answers->map(function ($answer) {
+                $q = $answer->question;
+                if (!$q)
+                    return null;
+
+                // Logic to extract en/ar question text
+                $qRaw = $q->getAttributes()['question'] ?? '';
+                $qData = $q->question;
+
+                $questionEn = null;
+                $questionAr = null;
+                $mainQuestion = '';
+
+                if (is_array($qData)) {
+                    $questionEn = $qData['en'] ?? null;
+                    $questionAr = $qData['ar'] ?? null;
+                    $mainQuestion = !empty($questionEn) ? $questionEn : ($questionAr ?? '');
+                } else {
+                    $mainQuestion = (string) $qRaw;
+                    $questionEn = $mainQuestion;
+                    $questionAr = $mainQuestion;
+                }
+
+                // Logic to extract choices
+                $choicesData = $q->choices;
+                $choices = [];
+                $choicesEn = [];
+                $choicesAr = [];
+
+                if (is_array($choicesData) && !empty($choicesData)) {
+                    $choices = array_values($choicesData);
+                    $choicesEn = array_keys($choicesData);
+                    $choicesAr = array_values($choicesData);
+                }
+
                 return [
                     'question_id' => $answer->question_id,
-                    'question' => $answer->question->question ?? null,
-                    'type' => $answer->question->type ?? null,
+                    'question' => $mainQuestion,
+                    'question_en' => $questionEn,
+                    'question_ar' => $questionAr,
+                    'type' => $q->type ?? null,
+                    'choices' => $choices,
+                    'choices_en' => $choicesEn,
+                    'choices_ar' => $choicesAr,
                     'answer' => $answer->answer,
                 ];
-            });
+            })->filter();
 
             // 3. Format Cover Photo
             if ($user->cover_photo_path) {

@@ -111,6 +111,28 @@ Protected routes require a Bearer Token in the header.
 
 ### Categories
 **GET** `/categories`
+**Response:**
+```json
+{
+    "parent_categories": [
+        {
+            "id": 1,
+            "name": "Sports",
+            "name_en": "Sports",
+            "name_ar": "رياضة",
+            "image": "...",
+            "categories": [
+                {
+                    "id": 10,
+                    "name": "Football",
+                    "image": "...",
+                    "parent_category_id": 1
+                }
+            ]
+        }
+    ]
+}
+```
 
 ### Questions
 **GET** `/questions`
@@ -182,6 +204,7 @@ Protected routes require a Bearer Token in the header.
 **Params:**
 - `search`: string (Optional) - Search by User Name, Email, Phone, or Title.
 - `category_id`: int (Optional) - Filter by User Category.
+- `parent_category_id`: int (Optional) - Filter by Parent Category (returns users in any subcategory).
 - `filters[question_id]`: value (Optional) - Filter users by their answer to a specific question.
   - Example: `filters[10]=Yes` (Find users who answered "Yes" to Q10).
 
@@ -191,7 +214,24 @@ Protected routes require a Bearer Token in the header.
     "users": {
         "current_page": 1,
         "data": [
-            { "id": 5, "name": "Coach Ahmed", "category_id": 3, ... }
+            { 
+                "id": 5, 
+                "name": "Coach Ahmed", 
+                "category_id": 3,
+                "questions_data": [
+                    {
+                        "question_id": 55,
+                        "question": "What is your gender?",
+                        "question_en": "What is your gender?",
+                        "question_ar": "ما هو جنسك؟",
+                        "choices": ["Male", "Female"],
+                        "choices_en": ["Male", "Female"],
+                        "choices_ar": ["ذكر", "أنثى"],
+                        "type": "multiple_choice",
+                        "answer": "Male"
+                    }
+                ]
+            }
         ],
         "total": 5
     },
@@ -511,7 +551,12 @@ Lists requests where the logged-in user is the **Provider**.
             {
                 "question_id": 1,
                 "question": "Years of Experience?",
+                "question_en": "Years of Experience?",
+                "question_ar": "سنوات الخبرة؟",
                 "type": "text",
+                "choices": [],
+                "choices_en": [],
+                "choices_ar": [],
                 "answer": "5 Years"
             }
         ],

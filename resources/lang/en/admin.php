@@ -69,6 +69,12 @@ return [
         'create' => 'Create Community Category',
         'edit' => 'Edit Community Category',
     ],
+    'parent_categories' => [
+        'index' => 'Parent Categories',
+        'create' => 'Create Parent Category',
+        'edit' => 'Edit Parent Category',
+        'add_new' => 'Add New',
+    ],
     'categories' => [
         'index' => 'Categories',
         'create' => 'Create Category',
