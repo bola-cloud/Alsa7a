@@ -218,6 +218,17 @@ Protected routes require a Bearer Token in the header.
                 "id": 5, 
                 "name": "Coach Ahmed", 
                 "category_id": 3,
+                "category_data": {
+                    "id": 3,
+                    "name": "Football Coach",
+                    "is_service_provider": true,
+                    "parent_category_id": 1,
+                    "parent_category": {
+                        "id": 1,
+                        "name": "Sports",
+                        "image": "..."
+                    }
+                },
                 "questions_data": [
                     {
                         "question_id": 55,
@@ -286,7 +297,17 @@ Accepts optional filters.
                     "id": 5,
                     "name": "Coach Ahmed",
                     "profile_photo_url": "http://domain.com/storage/profiles/photo.jpg",
-                    "category_id": 3
+                    "name": "Coach Ahmed",
+                    "profile_photo_url": "http://domain.com/storage/profiles/photo.jpg",
+                    "category_id": 3,
+                    "category": {
+                         "id": 3,
+                         "name": "Football Coach",
+                         "parent_category": {
+                             "id": 1,
+                             "name": "Sports"
+                         }
+                    }
                 },
                 "sport": { "id": 1, "name": "Football" },
                 "club": { "id": 2, "name": "Amman FC" }
@@ -546,7 +567,18 @@ Lists requests where the logged-in user is the **Provider**.
         "phone": "962791234567",
         "profile_title": "Pro Coach",
         "bio": "Experienced football coach...",
-        "image": "http://...",
+        "cover_photo": "http://...",
+        "category": {
+            "id": 3,
+            "name": "Football Coach",
+            "is_service_provider": true,
+            "parent_category_id": 1,
+            "parent_category": {
+                "id": 1,
+                "name": "Sports",
+                "image": "..."
+            }
+        },
         "questions_data": [
             {
                 "question_id": 1,

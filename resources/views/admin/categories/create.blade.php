@@ -34,10 +34,11 @@
                                         <div class="form-group">
                                             <label
                                                 for="parent_category_id">{{ __('admin.parent_categories.index') }}</label>
-                                            <select name="parent_category_id" id="parent_category_id" class="form-control">
+                                            <select name="parent_category_id" id="parent_category_id" class="form-control"
+                                                required>
                                                 <option value="">{{ __('admin.buttons.select') }}</option>
                                                 @foreach($parentCategories as $parent)
-                                                    <option value="{{ $parent->id }}" {{ old('parent_category_id') == $parent->id ? 'selected' : '' }}>
+                                                    <option value="{{ $parent->id }}" {{ (old('parent_category_id') == $parent->id || (isset($selectedParentId) && $selectedParentId == $parent->id)) ? 'selected' : '' }}>
                                                         {{ $parent->name }}
                                                     </option>
                                                 @endforeach

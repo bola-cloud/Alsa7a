@@ -3,11 +3,17 @@
 @section('content')
     <div class="content-header row mb-2">
         <div class="content-header-left col-md-6 col-12 mb-2">
-            <h3 class="content-header-title text-bold-700">{{ __('admin.categories.index') }}</h3>
+            <h3 class="content-header-title text-bold-700">
+                {{ __('admin.categories.index') }}
+                @if(isset($parentCategory))
+                    <small class="text-muted"> / {{ $parentCategory->name }}</small>
+                @endif
+            </h3>
         </div>
         <div class="content-header-right col-md-6 col-12">
             <div class="btn-group float-md-right">
-                <a href="{{ route('admin.categories.create') }}" class="btn btn-primary">
+                <a href="{{ route('admin.categories.create', isset($parentCategory) ? ['parent_category_id' => $parentCategory->id] : []) }}"
+                    class="btn btn-primary">
                     <i class="la la-plus"></i> {{ __('admin.categories.add_new') }}
                 </a>
             </div>
@@ -70,7 +76,8 @@
                 <div class="card">
                     <div class="card-body text-center">
                         <h4 class="text-muted">{{ __('admin.categories.no_records') }}</h4>
-                        <a href="{{ route('admin.categories.create') }}" class="btn btn-primary mt-2">
+                        <a href="{{ route('admin.categories.create', isset($parentCategory) ? ['parent_category_id' => $parentCategory->id] : []) }}"
+                            class="btn btn-primary mt-2">
                             {{ __('admin.buttons.add_new') }}
                         </a>
                     </div>

@@ -14,7 +14,7 @@ class ServiceController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Service::with(['provider', 'sport', 'club', 'reviews', 'media'])
+        $query = Service::with(['provider.category.parentCategory', 'sport', 'club', 'reviews', 'media'])
             ->where('is_active', true);
 
         // Filter by Sport
@@ -60,7 +60,7 @@ class ServiceController extends Controller
      */
     public function show($id)
     {
-        $service = Service::with(['provider', 'sport', 'club', 'reviews.user', 'media'])
+        $service = Service::with(['provider.category.parentCategory', 'sport', 'club', 'reviews.user', 'media'])
             ->where('is_active', true)
             ->find($id);
 

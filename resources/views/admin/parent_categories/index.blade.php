@@ -35,6 +35,11 @@
                         <h5 class="card-title">{{ $category->name }}</h5>
 
                         <div class="card-actions">
+                            <a href="{{ route('admin.categories.index', ['parent_category_id' => $category->id]) }}"
+                                class="btn btn-sm btn-outline-info" title="{{ __('admin.buttons.view') }}">
+                                <i class="la la-list"></i>
+                            </a>
+
                             <a href="{{ route('admin.parent_categories.edit', $category->id) }}"
                                 class="btn btn-sm btn-outline-primary" title="{{ __('admin.buttons.edit') }}">
                                 <i class="la la-edit"></i>

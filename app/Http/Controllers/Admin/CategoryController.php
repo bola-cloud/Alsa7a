@@ -20,16 +20,25 @@ class CategoryController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $categories = Category::latest()->paginate(10);
-        return view('admin.categories.index', compact('categories'));
+        $query = Category::latest();
+        $parentCategory = null;
+
+        if ($request->has('parent_category_id')) {
+            $query->where('parent_category_id', $request->parent_category_id);
+            $parentCategory = ParentCategory::find($request->parent_category_id);
+        }
+
+        $categories = $query->paginate(10);
+        return view('admin.categories.index', compact('categories', 'parentCategory'));
     }
 
-    public function create()
+    public function create(Request $request)
     {
         $parentCategories = ParentCategory::all();
-        return view('admin.categories.create', compact('parentCategories'));
+        $selectedParentId = $request->query('parent_category_id');
+        return view('admin.categories.create', compact('parentCategories', 'selectedParentId'));
     }
 
     public function store(Request $request)
@@ -43,14 +52,14 @@ class CategoryController extends Controller
             'description' => 'required|array',
             'description.en' => 'nullable|string',
             'description.ar' => 'nullable|string',
-            'parent_category_id' => 'nullable|exists:parent_categories,id',
+            'parent_category_id' => 'required|exists:parent_categories,id',
         ]);
 
         $categoryData = [
             'name' => $data['name']['en'],
             'name_en' => $data['name']['en'],
             'name_ar' => $data['name']['ar'],
-            'parent_category_id' => $data['parent_category_id'] ?? null,
+            'parent_category_id' => $data['parent_category_id'],
             'description' => $data['description']['en'] ?? null,
             'description_en' => $data['description']['en'] ?? null,
             'description_ar' => $data['description']['ar'] ?? null,
@@ -64,7 +73,7 @@ class CategoryController extends Controller
         Category::create($categoryData);
 
         $this->flashSuccess(__('admin.messages.created'));
-        return redirect()->route('admin.categories.index');
+        return redirect()->route('admin.categories.index', ['parent_category_id' => $data['parent_category_id']]);
     }
 
     public function show(Category $category)
@@ -89,14 +98,14 @@ class CategoryController extends Controller
             'description' => 'required|array',
             'description.en' => 'nullable|string',
             'description.ar' => 'nullable|string',
-            'parent_category_id' => 'nullable|exists:parent_categories,id',
+            'parent_category_id' => 'required|exists:parent_categories,id',
         ]);
 
         $categoryData = [
             'name' => $data['name']['en'],
             'name_en' => $data['name']['en'],
             'name_ar' => $data['name']['ar'],
-            'parent_category_id' => $data['parent_category_id'] ?? null,
+            'parent_category_id' => $data['parent_category_id'],
             'description' => $data['description']['en'] ?? null,
             'description_en' => $data['description']['en'] ?? null,
             'description_ar' => $data['description']['ar'] ?? null,
@@ -114,15 +123,16 @@ class CategoryController extends Controller
         $category->update($categoryData);
 
         $this->flashSuccess(__('admin.messages.updated'));
-        return redirect()->route('admin.categories.index');
+        return redirect()->route('admin.categories.index', ['parent_category_id' => $category->parent_category_id]);
     }
 
     public function destroy(Category $category)
     {
+        $parentId = $category->parent_category_id;
         $this->imageService->delete($category->image_url ?? $category->image);
 
         $category->delete();
         $this->flashSuccess(__('admin.messages.deleted'));
-        return redirect()->route('admin.categories.index');
+        return redirect()->route('admin.categories.index', ['parent_category_id' => $parentId]);
     }
 }

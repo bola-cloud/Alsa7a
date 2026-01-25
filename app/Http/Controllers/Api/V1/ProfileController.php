@@ -79,7 +79,13 @@ class ProfileController extends Controller
             'category' => $user->category ? [
                 'id' => $user->category->id,
                 'name' => $user->category->name,
-                'is_service_provider' => $user->category->is_service_provider
+                'is_service_provider' => $user->category->is_service_provider,
+                'parent_category_id' => $user->category->parent_category_id,
+                'parent_category' => $user->category->parentCategory ? [
+                    'id' => $user->category->parentCategory->id,
+                    'name' => $user->category->parentCategory->name,
+                    'image' => $user->category->parentCategory->image ? url('storage/' . $user->category->parentCategory->image) : null,
+                ] : null,
             ] : null,
 
             // Professional Details
