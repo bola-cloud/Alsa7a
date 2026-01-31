@@ -256,10 +256,17 @@
                                     data-i18n="nav.morris_charts.main">{{ __('admin.menu.dashboard') }}</span>
                             </a>
                         </li>
-                        <li class="nav-item {{ Route::is('admin.users.*') ? 'active' : '' }}">
+                        <li
+                            class="nav-item {{ Route::is('admin.users.*') && !request()->has('pending_verification') ? 'active' : '' }}">
                             <a href="{{ route('admin.users.index') }}">
                                 <i class="la la-users"></i>
                                 <span class="menu-title">{{ __('admin.dashboard.users') }}</span>
+                            </a>
+                        </li>
+                        <li class="nav-item {{ request()->has('pending_verification') ? 'active' : '' }}">
+                            <a href="{{ route('admin.users.index', ['pending_verification' => 1]) }}">
+                                <i class="la la-check-circle"></i>
+                                <span class="menu-title">{{ __('admin.menu.verification_requests') }}</span>
                             </a>
                         </li>
                         <li class="nav-item {{ Route::is('admin.categories.*') ? 'active' : '' }}">

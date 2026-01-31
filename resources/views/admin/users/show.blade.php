@@ -69,7 +69,7 @@
                             <h5 class="mt-2">{{ __('admin.users.doc_verification') }}</h5>
                             @if($user->verification_documents)
                                 @foreach($user->verification_documents as $doc)
-                                    <a href="{{ $doc }}" target="_blank"
+                                    <a href="{{ url('storage/' . $doc) }}" target="_blank"
                                         class="btn btn-sm btn-outline-info mb-1">{{ __('admin.users.view_document') }}</a>
                                 @endforeach
                             @else

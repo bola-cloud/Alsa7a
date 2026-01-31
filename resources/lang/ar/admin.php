@@ -26,7 +26,9 @@ return [
         'tickets' => ['title' => 'تذاكر الدعم'],
         'settings' => ['index' => 'الإعدادات'],
         'questions' => 'الأسئلة',
+        'questions' => 'الأسئلة',
         'notifications' => ['title' => 'الإشعارات'],
+        'verification_requests' => 'طلبات التوثيق',
     ],
     'notifications' => [
         'title' => 'الإشعارات',

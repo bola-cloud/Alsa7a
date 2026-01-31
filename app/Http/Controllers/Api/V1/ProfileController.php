@@ -25,7 +25,7 @@ class ProfileController extends Controller
             'answers.question' // Load answers with their questions
         ]);
 
-        return $this->formatProfileResponse($user, true);
+        return $this->formatProfileResponse($user, true, $user);
     }
 
     /**
@@ -49,21 +49,22 @@ class ProfileController extends Controller
         }
 
         // Check if authenticated user is following this profile
+        $currentUser = $request->user('sanctum');
         $isFollowing = false;
-        if ($request->user('sanctum')) {
-            $isFollowing = $request->user('sanctum')->following()->where('following_id', $user->id)->exists();
+        if ($currentUser) {
+            $isFollowing = $currentUser->following()->where('following_id', $user->id)->exists();
         }
 
-        return $this->formatProfileResponse($user, $isFollowing);
+        return $this->formatProfileResponse($user, $isFollowing, $currentUser);
     }
 
     /**
      * Helper to format profile response.
      */
-    protected function formatProfileResponse($user, $isFollowing)
+    protected function formatProfileResponse($user, $isFollowing, $currentUser = null)
     {
         // Check if viewing own profile
-        $isMe = request()->user() && request()->user()->id === $user->id;
+        $isMe = $currentUser && $currentUser->id === $user->id;
 
         $data = [
             'id' => $user->id,
@@ -155,12 +156,52 @@ class ProfileController extends Controller
                 'following' => $user->following_count,
             ],
             'is_following' => $isFollowing,
+            'is_club_account' => $user->club ? ($user->club->user_id === $user->id) : false,
         ];
+
+        // Specialized Club Account View
+        if ($data['is_club_account']) {
+            $club = $user->club;
+            $data['club_details'] = [
+                'id' => $club->id,
+                'name' => $club->name,
+                'logo' => $club->logo_url,
+                // Add more details if needed
+            ];
+            // We can defer loading complex relations (teams, members) to a separate endpoint 
+            // or include brief summary here if requested.
+            // For now, the flag is the critical part requested.
+        }
 
         // Add private/progress info if it's my profile
         if ($isMe) {
             $data['answered_question_ids'] = $user->answered_question_ids;
             $data['questions_complete'] = (bool) $user->questions_complete;
+
+            // Verification Status
+            $data['verification_status'] = $user->verification_status; // 'pending', 'approved', 'rejected', null
+            $data['is_verified'] = ($user->verification_status === 'approved');
+
+            // Club Requests (Pending)
+            // If Club Admin: Show people wanting to join
+            if ($data['is_club_account']) {
+                $data['pending_join_requests'] = \App\Models\ClubRequest::where('club_id', $user->club->id)
+                    ->where('type', 'join')
+                    ->where('status', 'pending')
+                    ->with('user:id,name,email,profile_photo_path') // minimal user info
+                    ->get()
+                    ->transform(function ($req) {
+                        $req->user->image = $req->user->profile_photo_url;
+                        return $req;
+                    });
+            } else {
+                // If Regular User: Show clubs inviting me
+                $data['pending_club_invites'] = \App\Models\ClubRequest::where('user_id', $user->id)
+                    ->where('type', 'invite')
+                    ->where('status', 'pending')
+                    ->with('club:id,name,logo_url')
+                    ->get();
+            }
         }
 
         return response()->json([

@@ -1,0 +1,161 @@
+<?php
+
+namespace App\Http\Controllers\Api\V1;
+
+use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
+use App\Models\ClubRequest;
+use App\Models\User;
+use App\Models\Club;
+use Illuminate\Support\Facades\Validator;
+
+class ClubRequestController extends Controller
+{
+    /**
+     * List my pending requests (Incoming to me).
+     * If I am a user: invites from clubs.
+     * If I am a club admin: join requests from users.
+     */
+    public function index(Request $request)
+    {
+        $user = $request->user();
+        $isClubAdmin = $user->ownedClub()->exists();
+        $club = $user->ownedClub;
+
+        $query = ClubRequest::query();
+
+        // If requesting 'sent' requests
+        if ($request->has('sent')) {
+            if ($isClubAdmin) {
+                // Invites sent by my club to users
+                $query->where('club_id', $club->id)->where('type', 'invite');
+            } else {
+                // Join requests sent by me to clubs
+                $query->where('user_id', $user->id)->where('type', 'join');
+            }
+        } else {
+            // Received requests (incoming)
+            if ($isClubAdmin) {
+                // Users asking to join my club
+                $query->where('club_id', $club->id)->where('type', 'join');
+            } else {
+                // Clubs inviting me
+                $query->where('user_id', $user->id)->where('type', 'invite');
+            }
+        }
+
+        // Filter by status if provided, default pending
+        $status = $request->get('status', 'pending');
+        $query->where('status', $status);
+
+        $requests = $query->with(['user', 'club'])->latest()->paginate(20);
+
+        return response()->json(['status' => true, 'data' => $requests]);
+    }
+
+    /**
+     * Create a request.
+     * User -> join club
+     * Club -> invite user
+     */
+    public function store(Request $request)
+    {
+        $user = $request->user();
+        $isClubAdmin = $user->ownedClub()->exists();
+        $club = $user->ownedClub;
+
+        $validator = Validator::make($request->all(), [
+            'user_id' => 'required_if:type,invite|exists:users,id',
+            'club_id' => 'required_if:type,join|exists:clubs,id',
+            'type' => 'required|in:join,invite',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['status' => false, 'errors' => $validator->errors()], 422);
+        }
+
+        $type = $request->type;
+        $targetUserId = $type === 'invite' ? $request->user_id : $user->id;
+        $targetClubId = $type === 'join' ? $request->club_id : $club->id;
+
+        // Validate permissions
+        if ($type === 'invite' && (!$isClubAdmin || $club->id != $targetClubId)) {
+            return response()->json(['status' => false, 'message' => 'Unauthorized to invite'], 403);
+        }
+        if ($type === 'join' && $isClubAdmin) {
+            // Club admin joining another club? Maybe allowed, but unusual.
+            // For now assume user joining logic.
+        }
+
+        // Check existence
+        $exists = ClubRequest::where('user_id', $targetUserId)
+            ->where('club_id', $targetClubId)
+            ->whereIn('status', ['pending', 'accepted'])
+            ->exists();
+
+        if ($exists) {
+            return response()->json(['status' => false, 'message' => 'Request already exists or user already member'], 400);
+        }
+
+        $req = ClubRequest::create([
+            'user_id' => $targetUserId,
+            'club_id' => $targetClubId,
+            'type' => $type,
+            'status' => 'pending'
+        ]);
+
+        return response()->json(['status' => true, 'message' => 'Request sent successfully', 'data' => $req]);
+    }
+
+    /**
+     * Respond to a request (Accept/Reject).
+     */
+    public function respond(Request $request, $id)
+    {
+        $clubRequest = ClubRequest::find($id);
+        if (!$clubRequest) {
+            return response()->json(['status' => false, 'message' => 'Request not found'], 404);
+        }
+
+        $user = $request->user();
+        $action = $request->input('action'); // 'accept' or 'reject'
+
+        if (!in_array($action, ['accept', 'reject'])) {
+            return response()->json(['status' => false, 'message' => 'Invalid action'], 400);
+        }
+
+        // Authorization check
+        // If join request (User wants to join Club), Club Admin must respond.
+        // If invite request (Club invites User), User must respond.
+
+        $authorized = false;
+        if ($clubRequest->type === 'join') {
+            // Check if current user is the owner of the club
+            if ($user->ownedClub && $user->ownedClub->id === $clubRequest->club_id) {
+                $authorized = true;
+            }
+        } else { // invite
+            // Check if current user is the target user
+            if ($user->id === $clubRequest->user_id) {
+                $authorized = true;
+            }
+        }
+
+        if (!$authorized) {
+            return response()->json(['status' => false, 'message' => 'Unauthorized'], 403);
+        }
+
+        $status = ($action === 'accept') ? 'accepted' : 'rejected';
+        $clubRequest->status = $status;
+        $clubRequest->save();
+
+        // Perform side effects on accept (Add user to club members logic)
+        if ($status === 'accepted') {
+            $member = User::find($clubRequest->user_id);
+            $member->club_id = $clubRequest->club_id;
+            $member->save();
+        }
+
+        return response()->json(['status' => true, 'message' => "Request $status"]);
+    }
+}

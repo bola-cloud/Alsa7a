@@ -34,6 +34,20 @@ Protected routes require a Bearer Token in the header.
 - `password`: string
 - `password_confirmation`: string
 - `onesignal_subscription`: string/object (Optional, Player ID string or subscription object)
+- `club_account_claim_id`: int (Optional, ID of the club to claim as admin)
+
+### Get Available Clubs
+**GET** `/auth/clubs-available`
+**Response:** List of clubs available for claiming.
+```json
+{
+    "status": true,
+    "data": [
+        { "id": 1, "name": "Al Ahli" },
+        { "id": 5, "name": "Free Club" }
+    ]
+}
+```
 
 ### Login
 **POST** `/auth/login`
@@ -613,6 +627,10 @@ Lists requests where the logged-in user is the **Provider**.
 - `gallery` (Posts)
 - `answered_question_ids`: `[1, 2, 5]` (IDs of answered questions)
 - `questions_complete`: `true` (Boolean status)
+- `verification_status`: `pending|approved` (string)
+- `is_verified`: `true|false` (boolean)
+- `pending_join_requests`: `[...]` (List of user objects, if Club Admin)
+- `pending_club_invites`: `[...]` (List of club objects, if Regular User)
 
 ### Update My Profile (Protected)
 **POST** `/users/profile`

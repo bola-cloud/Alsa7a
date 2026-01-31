@@ -26,7 +26,9 @@ class Club extends Model
         'website',
         'rating',
         'is_featured',
-        'meta'
+        'is_featured',
+        'meta',
+        'user_id', // Owner
     ];
 
     protected $casts = [
@@ -62,6 +64,16 @@ class Club extends Model
     public function media()
     {
         return $this->morphMany(Media::class, 'mediaable');
+    }
+
+    public function owner()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
+
+    public function requests()
+    {
+        return $this->hasMany(ClubRequest::class);
     }
 
     // Return full URLs for logo and banner

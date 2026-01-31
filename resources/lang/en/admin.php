@@ -26,7 +26,9 @@ return [
         'tickets' => ['title' => 'Support Tickets'],
         'settings' => ['index' => 'Settings'],
         'questions' => 'Questions',
+        'questions' => 'Questions',
         'notifications' => ['title' => 'Push Notifications'],
+        'verification_requests' => 'Verification Requests',
     ],
     'notifications' => [
         'title' => 'Push Notifications',

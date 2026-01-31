@@ -24,6 +24,7 @@ Route::prefix('v1')->middleware('set.api.locale')->group(function () {
     Route::prefix('auth')->group(function () {
         Route::post('register', [AuthController::class, 'register']);
         Route::post('login', [AuthController::class, 'login']);
+        Route::get('clubs-available', [AuthController::class, 'clubsAvailable']); // New
     });
 
     // Public home endpoint for guests
@@ -106,6 +107,11 @@ Route::prefix('v1')->middleware('set.api.locale')->group(function () {
         Route::get('clubs', [App\Http\Controllers\Api\V1\ClubController::class, 'index']);
         Route::get('clubs/{id}', [App\Http\Controllers\Api\V1\ClubController::class, 'show']);
         Route::post('clubs/{id}/leagues', [App\Http\Controllers\Api\V1\ClubController::class, 'updateLeagues']);
+
+        // --- Club Requests (Join/Invite) ---
+        Route::get('club-requests', [App\Http\Controllers\Api\V1\ClubRequestController::class, 'index']);
+        Route::post('club-requests', [App\Http\Controllers\Api\V1\ClubRequestController::class, 'store']); // Create request
+        Route::post('club-requests/{id}/respond', [App\Http\Controllers\Api\V1\ClubRequestController::class, 'respond']); // Accept/Reject
 
         // --- Provider Actions ---
         Route::get('provider/requests', [App\Http\Controllers\Api\V1\ProviderRequestController::class, 'index']);

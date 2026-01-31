@@ -91,9 +91,25 @@ class User extends Authenticatable
         return $this->belongsTo(Team::class);
     }
 
+    /**
+     * Get the club associated with the user.
+     * Use 'club_id' for members/players.
+     * However, the Club Account Owner is linked via clubs.user_id.
+     * We might need a separate relation for "ownedClub".
+     */
     public function club()
     {
         return $this->belongsTo(Club::class);
+    }
+
+    public function ownedClub()
+    {
+        return $this->hasOne(Club::class, 'user_id');
+    }
+
+    public function clubRequests()
+    {
+        return $this->hasMany(ClubRequest::class);
     }
 
     /**
