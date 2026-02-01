@@ -25,7 +25,7 @@ class AuthController extends Controller
 
     public function register(Request $request)
     {
-        $data = $request->only(['name', 'email', 'phone', 'password', 'onesignal_subscription', 'club_account_claim_id']);
+        $data = $request->only(['name', 'email', 'phone', 'password', 'onesignal_subscription']);
 
         $validator = Validator::make($data, [
             'name' => 'required|string|max:255',
@@ -33,7 +33,6 @@ class AuthController extends Controller
             'phone' => 'required|string|unique:users,phone',
             'password' => 'required|string|min:6',
             'onesignal_subscription' => 'nullable',
-            'club_account_claim_id' => 'nullable|exists:clubs,id',
         ]);
 
         if ($validator->fails()) {
@@ -42,10 +41,6 @@ class AuthController extends Controller
 
         // Check Global Manual Approval Setting
         $autoApprove = setting('manual_user_approval') ? false : true;
-
-        // If claiming a club, check if setting requires specific club owner approval?
-        // For now, if claiming a club, we might enforce manual approval regardless of global (or check specific setting)
-        // Ignoring specific setting for now, relying on global.
 
         // Normalize OneSignal
         $subscription = $data['onesignal_subscription'] ?? null;
@@ -61,20 +56,6 @@ class AuthController extends Controller
             'is_approved' => $autoApprove,
             'onesignal_subscription' => $subscription,
         ]);
-
-        // Handle Club Claim
-        if (!empty($data['club_account_claim_id'])) {
-            $club = Club::where('id', $data['club_account_claim_id'])->whereNull('user_id')->first();
-            if ($club) {
-                $club->user_id = $user->id;
-                $club->save();
-
-                // Also set user's club_id ? (Assuming owner is also a member/related, but strict ownership is via use_id)
-                // Depending on app logic, we might want to also set $user->club_id = $club->id
-                $user->club_id = $club->id;
-                $user->save();
-            }
-        }
 
         if (!$user->is_approved) {
             return response()->json([

@@ -34,7 +34,6 @@ Protected routes require a Bearer Token in the header.
 - `password`: string
 - `password_confirmation`: string
 - `onesignal_subscription`: string/object (Optional, Player ID string or subscription object)
-- `club_account_claim_id`: int (Optional, ID of the club to claim as admin)
 
 ### Get Available Clubs
 **GET** `/auth/clubs-available`
@@ -185,11 +184,19 @@ Protected routes require a Bearer Token in the header.
 ```
 
 ### Submit Answers (Protected)
-**POST** `/questions/submit`
+**POST** `/questions/answers`
 **Body:**
+- `category_id`: int (Required)
+- `club_account_claim_id`: int (Optional, for Club Account categories)
+- `answers`: array (Required)
+    - `question_id`: int
+    - `answer`: string|array
+
+**Example Body:**
 ```json
 {
     "category_id": 13,
+    "club_account_claim_id": 5,
     "answers": [
         {
             "question_id": 55,
@@ -198,10 +205,6 @@ Protected routes require a Bearer Token in the header.
         {
             "question_id": 60,
             "answer": ["Sports", "Coding"] 
-        },
-        {
-            "question_id": 57,
-            "answer": "My textual answer"
         }
     ]
 }
@@ -629,8 +632,14 @@ Lists requests where the logged-in user is the **Provider**.
 - `questions_complete`: `true` (Boolean status)
 - `verification_status`: `pending|approved` (string)
 - `is_verified`: `true|false` (boolean)
+- `role_in_club`: `'admin'|'member'|null` (Indicates owner vs member status)
 - `pending_join_requests`: `[...]` (List of user objects, if Club Admin)
 - `pending_club_invites`: `[...]` (List of club objects, if Regular User)
+- `club_details`: (For Club Admins/Members)
+    - `banner`: string (Banner image URL)
+    - `teams`: array
+        - `id`, `name`, `age_group`, `image`
+        - `members`: array of users (`id`, `name`, `image`, `position`, `number`)
 
 ### Update My Profile (Protected)
 **POST** `/users/profile`

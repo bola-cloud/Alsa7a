@@ -93,6 +93,7 @@ class QuestionController extends Controller
             'answers' => 'required|array|min:1',
             'answers.*.question_id' => 'required|integer|exists:questions,id',
             'answers.*.answer' => 'nullable',
+            'club_account_claim_id' => 'nullable|exists:clubs,id',
         ]);
 
         if ($validator->fails()) {
@@ -107,6 +108,19 @@ class QuestionController extends Controller
         if ($user) {
             $user->category_id = $categoryId;
             $user->save();
+
+            // Handle Club Claim if provided
+            if ($request->filled('club_account_claim_id')) {
+                $claimId = $request->input('club_account_claim_id');
+                $club = \App\Models\Club::where('id', $claimId)->whereNull('user_id')->first();
+                if ($club) {
+                    $club->user_id = $user->id;
+                    $club->save();
+
+                    $user->club_id = $club->id;
+                    $user->save();
+                }
+            }
         }
 
         $created = [];

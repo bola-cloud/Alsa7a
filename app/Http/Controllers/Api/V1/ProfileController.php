@@ -157,6 +157,13 @@ class ProfileController extends Controller
             ],
             'is_following' => $isFollowing,
             'is_club_account' => $user->club ? ($user->club->user_id === $user->id) : false,
+            'role_in_club' => (function () use ($user) {
+                if (!$user->club_id && !$user->ownedClub)
+                    return null;
+                if ($user->ownedClub || ($user->club && $user->club->user_id === $user->id))
+                    return 'admin';
+                return 'member';
+            })(),
         ];
 
         // Specialized Club Account View
@@ -166,11 +173,25 @@ class ProfileController extends Controller
                 'id' => $club->id,
                 'name' => $club->name,
                 'logo' => $club->logo_url,
-                // Add more details if needed
+                'banner' => $club->banner_url,
+                'teams' => $club->teams()->with('members:id,name,email,profile_photo_path,position,number,team_id')->get()->map(function ($team) {
+                    return [
+                        'id' => $team->id,
+                        'name' => $team->name,
+                        'age_group' => $team->age_group,
+                        'image' => $team->image ? url('storage/' . $team->image) : null,
+                        'members' => $team->members->map(function ($member) {
+                            return [
+                                'id' => $member->id,
+                                'name' => $member->name,
+                                'image' => $member->profile_photo_url,
+                                'position' => $member->position,
+                                'number' => $member->number,
+                            ];
+                        })
+                    ];
+                }),
             ];
-            // We can defer loading complex relations (teams, members) to a separate endpoint 
-            // or include brief summary here if requested.
-            // For now, the flag is the critical part requested.
         }
 
         // Add private/progress info if it's my profile
