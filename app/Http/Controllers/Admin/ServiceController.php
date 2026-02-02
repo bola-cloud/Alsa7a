@@ -47,6 +47,14 @@ class ServiceController extends Controller
         return redirect()->back();
     }
 
+    public function toggleFeatured(Service $service)
+    {
+        $service->update(['is_featured' => !$service->is_featured]);
+        $status = $service->is_featured ? __('admin.messages.featured_activated') : __('admin.messages.featured_deactivated');
+        $this->flashSuccess($status);
+        return redirect()->back();
+    }
+
     public function destroy(Service $service)
     {
         $service->delete();

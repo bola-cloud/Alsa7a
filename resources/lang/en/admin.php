@@ -26,7 +26,6 @@ return [
         'tickets' => ['title' => 'Support Tickets'],
         'settings' => ['index' => 'Settings'],
         'questions' => 'Questions',
-        'questions' => 'Questions',
         'notifications' => ['title' => 'Push Notifications'],
         'verification_requests' => 'Verification Requests',
     ],
@@ -180,6 +179,7 @@ return [
         'mins' => 'mins',
         'activate' => 'Activate',
         'deactivate' => 'Deactivate',
+        'featured' => 'Featured',
         'general' => 'General',
     ],
     'questions' => [
@@ -240,6 +240,10 @@ return [
         'updated' => 'Updated successfully',
         'created' => 'Created successfully',
         'deleted' => 'Deleted successfully',
+        'activated' => 'Activated successfully',
+        'deactivated' => 'Deactivated successfully',
+        'featured_activated' => 'Marked as featured successfully',
+        'featured_deactivated' => 'Removed from featured successfully',
         'hello' => 'Hello',
     ],
     'modal' => [

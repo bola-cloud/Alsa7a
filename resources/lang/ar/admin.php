@@ -26,7 +26,6 @@ return [
         'tickets' => ['title' => 'تذاكر الدعم'],
         'settings' => ['index' => 'الإعدادات'],
         'questions' => 'الأسئلة',
-        'questions' => 'الأسئلة',
         'notifications' => ['title' => 'الإشعارات'],
         'verification_requests' => 'طلبات التوثيق',
     ],
@@ -180,6 +179,7 @@ return [
         'mins' => 'دقيقة',
         'activate' => 'تفعيل',
         'deactivate' => 'تعطيل',
+        'featured' => 'مميز',
         'general' => 'عام',
     ],
     'questions' => [
@@ -240,6 +240,10 @@ return [
         'updated' => 'تم التحديث بنجاح',
         'created' => 'تم الإنشاء بنجاح',
         'deleted' => 'تم الحذف بنجاح',
+        'activated' => 'تم التفعيل بنجاح',
+        'deactivated' => 'تم التعطيل بنجاح',
+        'featured_activated' => 'تم تعيين الخدمة كمميزة بنجاح',
+        'featured_deactivated' => 'تمت إزالة التمييز عن الخدمة بنجاح',
         'hello' => 'مرحبا',
     ],
     'modal' => [

@@ -65,14 +65,18 @@ class HomeController extends Controller
         $categories = $sports;
         $featuredClubs = $topClubs;
 
+        // featured services
+        $featuredServices = Service::with(['provider', 'sport', 'club'])->where('is_featured', true)->where('is_active', true)->take(10)->get();
+
         return response()->json([
             'status' => true,
             'data' => [
                 'sliders' => $sliders,
                 'categories' => $categories,
                 'featured_clubs' => $featuredClubs,
-                'featured_events' => $featuredEvents, // Added
-                'top_players' => $topPlayers, // Added
+                'featured_events' => $featuredEvents,
+                'top_players' => $topPlayers,
+                'featured_services' => $featuredServices,
                 'leagues' => $leagues,
             ],
             'message' => 'Home data retrieved successfully'

@@ -6,7 +6,8 @@
             <div class="row breadcrumbs-top">
                 <div class="breadcrumb-wrapper col-12">
                     <ol class="breadcrumb">
-                        <li class="breadcrumb-item"><a href="{{ route('admin.dashboard') }}">{{ __('admin.menu.dashboard') }}</a></li>
+                        <li class="breadcrumb-item"><a
+                                href="{{ route('admin.dashboard') }}">{{ __('admin.menu.dashboard') }}</a></li>
                         <li class="breadcrumb-item active">{{ __('admin.services.title') }}</li>
                     </ol>
                 </div>
@@ -22,7 +23,9 @@
                     <div class="col-md-5 mb-2 mb-md-0">
                         <label class="text-muted small mb-1">{{ __('admin.categories.search') }}</label>
                         <div class="position-relative">
-                            <input type="text" name="search" class="form-control pl-4" placeholder="{{ __('admin.services.title') }} / {{ __('admin.services.provider') }}..." value="{{ request('search') }}">
+                            <input type="text" name="search" class="form-control pl-4"
+                                placeholder="{{ __('admin.services.title') }} / {{ __('admin.services.provider') }}..."
+                                value="{{ request('search') }}">
                             <i class="la la-search position-absolute" style="top: 10px; left: 10px; color: #b0afb5;"></i>
                         </div>
                     </div>
@@ -59,6 +62,7 @@
                                 <th class="border-top-0">{{ __('admin.services.provider') }}</th>
                                 <th class="border-top-0">{{ __('admin.services.price') }}</th>
                                 <th class="border-top-0">{{ __('admin.sports.active') }}</th>
+                                <th class="border-top-0">{{ __('admin.services.featured') }}</th>
                                 <th class="border-top-0 text-right">{{ __('admin.buttons.actions') }}</th>
                             </tr>
                         </thead>
@@ -68,26 +72,42 @@
                                     <td class="align-middle">{{ $loop->iteration }}</td>
                                     <td class="align-middle font-weight-bold">
                                         {{ $service->title }}
-                                        @if($service->sport)<br><small class="text-muted">{{ $service->sport->name }}</small>@endif
+                                        @if($service->sport)<br><small
+                                        class="text-muted">{{ $service->sport->name }}</small>@endif
                                     </td>
                                     <td class="align-middle">{{ $service->provider->name ?? '-' }}</td>
                                     <td class="align-middle">{{ $service->price }} <small>{{ $service->currency }}</small></td>
                                     <td class="align-middle">
-                                        <form action="{{ route('admin.services.toggle', $service->id) }}" method="POST" style="display:inline-block">
+                                        <form action="{{ route('admin.services.toggle', $service->id) }}" method="POST"
+                                            style="display:inline-block">
                                             @csrf
-                                            <button type="submit" class="btn btn-sm {{ $service->is_active ? 'btn-success' : 'btn-danger' }} round" title="{{ __('admin.buttons.toggle') }}">
+                                            <button type="submit"
+                                                class="btn btn-sm {{ $service->is_active ? 'btn-success' : 'btn-danger' }} round"
+                                                title="{{ __('admin.buttons.toggle') }}">
                                                 {{ $service->is_active ? __('admin.categories.yes') : __('admin.categories.no') }}
+                                            </button>
+                                        </form>
+                                    <td class="align-middle text-center">
+                                        <form action="{{ route('admin.services.toggle_featured', $service->id) }}" method="POST"
+                                            style="display:inline-block">
+                                            @csrf
+                                            <button type="submit"
+                                                class="btn btn-sm {{ $service->is_featured ? 'btn-warning' : 'btn-outline-warning' }} round"
+                                                title="{{ __('admin.services.featured') }}">
+                                                <i class="la {{ $service->is_featured ? 'la-star' : 'la-star-o' }}"></i>
                                             </button>
                                         </form>
                                     </td>
                                     <td class="align-middle text-right">
                                         <div class="btn-group">
                                             <a href="{{ route('admin.services.show', $service->id) }}"
-                                                class="btn btn-sm btn-outline-info round" title="{{ __('admin.buttons.view') }}">
+                                                class="btn btn-sm btn-outline-info round"
+                                                title="{{ __('admin.buttons.view') }}">
                                                 <i class="la la-eye"></i>
                                             </a>
                                             <form action="{{ route('admin.services.destroy', $service->id) }}" method="POST"
-                                                style="display:inline-block" onsubmit="return confirm('{{ __('admin.buttons.confirm_delete') }}');">
+                                                style="display:inline-block"
+                                                onsubmit="return confirm('{{ __('admin.buttons.confirm_delete') }}');">
                                                 @csrf
                                                 @method('DELETE')
                                                 <button type="submit" class="btn btn-sm btn-outline-danger round ml-1"

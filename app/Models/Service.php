@@ -22,13 +22,15 @@ class Service extends Model
         'duration_minutes',
         'currency',
         'is_active',
+        'is_featured',
         'meta'
     ];
 
     protected $casts = [
         'meta' => 'array',
         'days_available' => 'array',
-        'is_active' => 'boolean'
+        'is_active' => 'boolean',
+        'is_featured' => 'boolean'
     ];
 
     public function provider()
