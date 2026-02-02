@@ -305,6 +305,12 @@
                                 <span class="menu-title">{{ __('admin.events.index') }}</span>
                             </a>
                         </li>
+                        <li class="nav-item {{ request()->routeIs('admin.clubs.*') ? 'active' : '' }}">
+                            <a href="{{ route('admin.clubs.index') }}">
+                                <i class="la la-shield"></i>
+                                <span class="menu-title">{{ __('admin.menu.clubs') }}</span>
+                            </a>
+                        </li>
 
                         <li class=" navigation-header">
                             <span data-i18n="nav.category.community">Community</span><i

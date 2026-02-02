@@ -116,11 +116,12 @@ class ClubController extends Controller
      */
     public function show(Club $club)
     {
-        // Fetch roster grouped by category
-        // Assuming we rely on User model query as in API
+        $club->load(['sports', 'leagues', 'owner', 'teams.members']);
+
+        // Fetch roster grouped by category (consistent with API keys)
         $members = User::where('club_id', $club->id)->with('category')->get();
         $roster = $members->groupBy(function ($user) {
-            return $user->category ? $user->category->name : 'Uncategorized';
+            return $user->category ? ($user->category->name_en ?: $user->category->name) : 'Other';
         });
 
         return view('admin.clubs.show', compact('club', 'roster'));

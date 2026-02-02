@@ -27,6 +27,7 @@ return [
         'settings' => ['index' => 'الإعدادات'],
         'questions' => 'الأسئلة',
         'notifications' => ['title' => 'الإشعارات'],
+        'clubs' => 'الأندية',
         'verification_requests' => 'طلبات التوثيق',
     ],
     'notifications' => [
@@ -310,5 +311,22 @@ return [
         'completed' => 'مكتمل',
         'canceled' => 'ملغي',
         'accepted' => 'مقبول',
+    ],
+    'clubs' => [
+        'title' => 'الأندية',
+        'index' => 'الأندية',
+        'create' => 'إنشاء نادي',
+        'edit' => 'تعديل نادي',
+        'name' => 'الاسم',
+        'city' => 'المدينة',
+        'country' => 'الدولة',
+        'founded_year' => 'سنة التأسيس',
+        'website' => 'الموقع الإلكتروني',
+        'logo' => 'الشعار',
+        'banner' => 'الغلاف',
+        'featured' => 'مميز',
+        'owner' => 'المالك',
+        'teams' => 'الفرق',
+        'roster' => 'قائمة اللاعبين',
     ]
 ];

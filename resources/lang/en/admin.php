@@ -27,6 +27,7 @@ return [
         'settings' => ['index' => 'Settings'],
         'questions' => 'Questions',
         'notifications' => ['title' => 'Push Notifications'],
+        'clubs' => 'Clubs',
         'verification_requests' => 'Verification Requests',
     ],
     'notifications' => [
@@ -310,5 +311,22 @@ return [
         'completed' => 'Completed',
         'canceled' => 'Canceled',
         'accepted' => 'Accepted',
+    ],
+    'clubs' => [
+        'title' => 'Clubs',
+        'index' => 'Clubs',
+        'create' => 'Create Club',
+        'edit' => 'Edit Club',
+        'name' => 'Name',
+        'city' => 'City',
+        'country' => 'Country',
+        'founded_year' => 'Founded Year',
+        'website' => 'Website',
+        'logo' => 'Logo',
+        'banner' => 'Banner',
+        'featured' => 'Featured',
+        'owner' => 'Owner',
+        'teams' => 'Teams',
+        'roster' => 'Roster',
     ]
 ];
