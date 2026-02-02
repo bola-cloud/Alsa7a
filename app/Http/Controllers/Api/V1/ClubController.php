@@ -59,7 +59,7 @@ class ClubController extends Controller
             ->with(['category', 'media']) // Load category and media
             ->get()
             ->groupBy(function ($user) {
-                return $user->category ? $user->category->name : 'Other';
+                return $user->category ? ($user->category->name_en ?: $user->category->name) : 'Other';
             });
 
         return response()->json([
