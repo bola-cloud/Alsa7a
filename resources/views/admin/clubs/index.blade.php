@@ -8,15 +8,15 @@
                     <ol class="breadcrumb">
                         <li class="breadcrumb-item"><a
                                 href="{{ route('admin.dashboard') }}">{{ __('admin.menu.dashboard') }}</a></li>
-                        <li class="breadcrumb-item active">{{ __('Clubs') }}</li>
+                        <li class="breadcrumb-item active">{{ __('admin.clubs.title') }}</li>
                     </ol>
                 </div>
             </div>
-            <h3 class="content-header-title mb-0">{{ __('Clubs') }}</h3>
+            <h3 class="content-header-title mb-0">{{ __('admin.clubs.title') }}</h3>
         </div>
         <div class="content-header-right col-md-6 col-12 text-right">
             <a href="{{ route('admin.clubs.create') }}" class="btn btn-primary shadow-soft">
-                <i class="la la-plus"></i> {{ __('Add New Club') }}
+                <i class="la la-plus"></i> {{ __('admin.clubs.add_new') }}
             </a>
         </div>
     </div>
@@ -28,8 +28,8 @@
                     <div class="col-md-5 mb-2 mb-md-0">
                         <label class="text-muted small mb-1">{{ __('admin.categories.search') }}</label>
                         <div class="position-relative">
-                            <input type="text" name="search" class="form-control pl-4" placeholder="{{ __('Name') }}..."
-                                value="{{ request('search') }}">
+                            <input type="text" name="search" class="form-control pl-4"
+                                placeholder="{{ __('admin.clubs.name') }}..." value="{{ request('search') }}">
                             <i class="la la-search position-absolute" style="top: 10px; left: 10px; color: #b0afb5;"></i>
                         </div>
                     </div>
@@ -58,19 +58,19 @@
         <div class="col-12">
             <div class="card">
                 <div class="card-header border-bottom-0">
-                    <h4 class="card-title">{{ __('Clubs List') }}</h4>
+                    <h4 class="card-title">{{ __('admin.clubs.list') }}</h4>
                 </div>
                 <div class="card-body p-0">
                     <div class="table-responsive">
                         <table class="table">
                             <thead class="bg-light">
                                 <tr>
-                                    <th>ID</th>
-                                    <th>Image</th>
-                                    <th>Name</th>
-                                    <th>City</th>
-                                    <th>Sports</th>
-                                    <th>Actions</th>
+                                    <th>{{ __('admin.users.id') }}</th>
+                                    <th>{{ __('admin.clubs.logo') }}</th>
+                                    <th>{{ __('admin.clubs.name') }}</th>
+                                    <th>{{ __('admin.clubs.city') }}</th>
+                                    <th>{{ __('admin.menu.sports') }}</th>
+                                    <th>{{ __('admin.buttons.actions') }}</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -91,13 +91,20 @@
                                         <td>{{ $club->city }}</td>
                                         <td>
                                             @foreach($club->sports as $sport)
-                                                <span class="badge badge-light-primary round mb-1">{{ $sport->name }}</span>
+                                                <span class="badge badge-primary round mb-1">{{ $sport->name }}</span>
                                             @endforeach
                                         </td>
                                         <td>
+                                            <a href="{{ route('admin.clubs.show', $club->id) }}"
+                                                class="btn btn-sm btn-icon btn-white text-info mr-1"
+                                                title="{{ __('admin.buttons.view') }}">
+                                                <i class="la la-eye"></i>
+                                            </a>
                                             <a href="{{ route('admin.clubs.edit', $club->id) }}"
-                                                class="btn btn-sm btn-icon btn-white text-primary mr-1"><i
-                                                    class="la la-edit"></i></a>
+                                                class="btn btn-sm btn-icon btn-white text-primary mr-1"
+                                                title="{{ __('admin.buttons.edit') }}">
+                                                <i class="la la-edit"></i>
+                                            </a>
                                             <form action="{{ route('admin.clubs.destroy', $club->id) }}" method="POST"
                                                 style="display:inline-block;"
                                                 onsubmit="return confirm('{{ __('admin.messages.confirm_delete') }}');">

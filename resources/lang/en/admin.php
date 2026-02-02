@@ -328,5 +328,11 @@ return [
         'owner' => 'Owner',
         'teams' => 'Teams',
         'roster' => 'Roster',
+        'details' => 'Club Details',
+        'add_new' => 'Add New Club',
+        'list' => 'Clubs List',
+        'members' => 'Members',
+        'position' => 'Position',
+        'number' => 'Number',
     ]
 ];

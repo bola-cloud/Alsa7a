@@ -50,7 +50,8 @@
                     <div class="col-md-8">
                         <h2 class="font-weight-bold text-primary">{{ $club->name }}</h2>
                         <p class="text-muted"><i class="la la-map-marker text-danger"></i> {{ $club->city }},
-                            {{ $club->country }}</p>
+                            {{ $club->country }}
+                        </p>
                         <p class="mt-3">{{ $club->description }}</p>
 
                         <div class="mt-4">
@@ -63,7 +64,8 @@
 
                         <div class="mt-4">
                             <h5 class="text-muted small text-uppercase font-weight-bold mb-2">
-                                {{ __('admin.leagues.index') }}</h5>
+                                {{ __('admin.leagues.index') }}
+                            </h5>
                             @foreach($club->leagues as $league)
                                 <span class="badge badge-info badge-pill mr-1">{{ $league->name }}</span>
                             @endforeach
@@ -72,7 +74,8 @@
                     <div class="col-md-4">
                         <div class="bg-light p-3 rounded">
                             <h6 class="font-weight-bold mb-3 border-bottom pb-2">
-                                {{ __('admin.clubs.details') ?? 'Club Details' }}</h6>
+                                {{ __('admin.clubs.details') ?? 'Club Details' }}
+                            </h6>
                             <p class="mb-2"><strong>{{ __('admin.clubs.founded_year') }}:</strong> <span
                                     class="float-right">{{ $club->founded_year }}</span></p>
                             <p class="mb-2"><strong>{{ __('admin.clubs.website') }}:</strong> <span class="float-right"><a
@@ -119,8 +122,8 @@
                                         </div>
                                     </div>
 
-                                    <h6 class="small font-weight-bold text-muted text-uppercase mb-2">Members
-                                        ({{ $team->members->count() }})</h6>
+                                    <h6 class="small font-weight-bold text-muted text-uppercase mb-2">
+                                        {{ __('admin.clubs.members') }} ({{ $team->members->count() }})</h6>
                                     <div class="d-flex flex-wrap">
                                         @foreach($team->members->take(8) as $member)
                                             <div class="text-center mr-3 mb-2" style="width: 60px;">
@@ -165,9 +168,9 @@
                                     <thead>
                                         <tr>
                                             <th>{{ __('admin.users.name') }}</th>
-                                            <th>Email</th>
+                                            <th>{{ __('admin.users.email') }}</th>
                                             <th>{{ __('admin.users.phone') }}</th>
-                                            <th>{{ __('admin.users.role') }}</th>
+                                            <th>{{ __('admin.clubs.position') }}</th>
                                             <th class="text-right">{{ __('admin.buttons.actions') }}</th>
                                         </tr>
                                     </thead>
@@ -185,15 +188,16 @@
                                                 <td class="align-middle small">{{ $member->phone }}</td>
                                                 <td class="align-middle">
                                                     @if($member->position)
-                                                        <span class="badge badge-outline-primary">{{ $member->position }}</span>
+                                                        <span class="badge badge-primary">{{ $member->position }}</span>
                                                     @endif
                                                     @if($member->number)
-                                                        <span class="badge badge-outline-secondary">#{{ $member->number }}</span>
+                                                        <span class="badge badge-secondary">#{{ $member->number }}</span>
                                                     @endif
                                                 </td>
                                                 <td class="align-middle text-right">
                                                     <a href="{{ route('admin.users.show', $member->id) }}"
-                                                        class="btn btn-sm btn-outline-info round" title="View Profile">
+                                                        class="btn btn-sm btn-outline-info round"
+                                                        title="{{ __('admin.buttons.view') }}">
                                                         <i class="la la-eye"></i>
                                                     </a>
                                                 </td>
