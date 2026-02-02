@@ -57,6 +57,7 @@ return [
         'hidden' => 'Hidden',
         'active' => 'Active',
         'select' => 'Select',
+        'manage' => 'Manage',
     ],
     'community_posts' => [
         'title' => 'Community Posts',
@@ -334,5 +335,21 @@ return [
         'members' => 'Members',
         'position' => 'Position',
         'number' => 'Number',
-    ]
+        'media' => 'Media',
+        'manage_teams' => 'Manage Teams',
+        'roster_details' => 'Club & Roster Details',
+    ],
+    'teams' => [
+        'title' => 'Teams',
+        'add_new' => 'Add New Team',
+        'name' => 'Team Name',
+        'short_name' => 'Short Name',
+        'sport' => 'Sport',
+        'age_group' => 'Age Group',
+        'jersey_color' => 'Jersey Color',
+        'coach' => 'Coach Name',
+        'founded_year' => 'Founded Year',
+        'image' => 'Team Image / Logo',
+        'active' => 'Active Team',
+    ],
 ];

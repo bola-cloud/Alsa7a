@@ -58,7 +58,8 @@ class UserController extends Controller
     public function create()
     {
         $categories = \App\Models\Category::all();
-        return view('admin.users.create', compact('categories'));
+        $clubs = \App\Models\Club::all();
+        return view('admin.users.create', compact('categories', 'clubs'));
     }
 
     public function store(Request $request)
@@ -68,9 +69,11 @@ class UserController extends Controller
             'email' => 'required|email|unique:users,email',
             'phone' => 'required|string|unique:users,phone',
             'password' => 'required|string|min:8|confirmed',
-            'category_id' => 'nullable|exists:categories,id',
-            'is_admin' => 'boolean',
             'is_approved' => 'boolean',
+            'club_id' => 'nullable|exists:clubs,id',
+            'team_id' => 'nullable|exists:teams,id',
+            'position' => 'nullable|string|max:100',
+            'number' => 'nullable|string|max:10',
         ]);
 
         $data = $request->except(['password', 'password_confirmation']);
@@ -81,14 +84,18 @@ class UserController extends Controller
 
         return redirect()->route('admin.users.index')->with('swal_success', __('admin.messages.created_successfully'));
     }
-
     public function edit(User $user)
     {
         if ($user->email === 'admin@alsa7a.com') {
             return redirect()->route('admin.users.index')->with('swal_error', 'Super Admin cannot be edited.');
         }
         $categories = \App\Models\Category::all();
-        return view('admin.users.edit', compact('user', 'categories'));
+        $clubs = \App\Models\Club::all();
+        $teams = collect();
+        if ($user->club_id) {
+            $teams = \App\Models\Team::where('club_id', $user->club_id)->get();
+        }
+        return view('admin.users.edit', compact('user', 'categories', 'clubs', 'teams'));
     }
 
     public function update(Request $request, User $user)
@@ -102,9 +109,11 @@ class UserController extends Controller
             'email' => 'required|email|unique:users,email,' . $user->id,
             'phone' => 'required|string|unique:users,phone,' . $user->id,
             'password' => 'nullable|string|min:8|confirmed',
-            'category_id' => 'nullable|exists:categories,id',
-            'is_admin' => 'boolean',
             'is_approved' => 'boolean',
+            'club_id' => 'nullable|exists:clubs,id',
+            'team_id' => 'nullable|exists:teams,id',
+            'position' => 'nullable|string|max:100',
+            'number' => 'nullable|string|max:10',
         ]);
 
         $data = $request->except(['password', 'password_confirmation']);

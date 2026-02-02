@@ -112,6 +112,7 @@ Route::prefix('v1')->middleware('set.api.locale')->group(function () {
         Route::get('club-requests', [App\Http\Controllers\Api\V1\ClubRequestController::class, 'index']);
         Route::post('club-requests', [App\Http\Controllers\Api\V1\ClubRequestController::class, 'store']); // Create request
         Route::post('club-requests/{id}/respond', [App\Http\Controllers\Api\V1\ClubRequestController::class, 'respond']); // Accept/Reject
+        Route::delete('club-requests/{id}', [App\Http\Controllers\Api\V1\ClubRequestController::class, 'destroy']); // Cancel/Delete
 
         // --- Provider Actions ---
         Route::get('provider/requests', [App\Http\Controllers\Api\V1\ProviderRequestController::class, 'index']);

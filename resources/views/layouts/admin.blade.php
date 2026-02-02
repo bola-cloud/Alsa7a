@@ -76,6 +76,7 @@
     <link rel="stylesheet" type="text/css" href="{{asset("assets/css/custom.css")}}">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <link rel="stylesheet"
         href="https://maxst.icons8.com/vue-static/landings/line-awesome/line-awesome/1.3.0/css/line-awesome.min.css">
     @stack('css')
@@ -562,6 +563,15 @@
                 if ($(this).val().length >= 2) {
                     resultsContainer.slideDown(200);
                 }
+            });
+
+            // Initialize Select2
+            $('.select2').each(function () {
+                $(this).select2({
+                    width: '100%',
+                    placeholder: "{{ __('admin.buttons.select') }}",
+                    dir: "{{ app()->getLocale() == 'ar' ? 'rtl' : 'ltr' }}"
+                });
             });
         });
     </script>

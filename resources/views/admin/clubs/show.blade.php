@@ -97,9 +97,12 @@
         <!-- Teams Section -->
         <div class="col-md-12">
             <div class="card shadow-sm border-0">
-                <div class="card-header bg-white border-bottom pt-4">
-                    <h4 class="card-title font-weight-bold text-primary"><i class="la la-group"></i>
+                <div class="card-header bg-white border-bottom pt-4 d-flex justify-content-between align-items-center">
+                    <h4 class="card-title font-weight-bold text-primary mb-0"><i class="la la-group"></i>
                         {{ __('admin.clubs.teams') }}</h4>
+                    <a href="{{ route('admin.clubs.teams.index', $club->id) }}" class="btn btn-sm btn-outline-primary">
+                        <i class="la la-cog"></i> {{ __('admin.buttons.manage') }}
+                    </a>
                 </div>
                 <div class="card-body">
                     <div class="row">
@@ -123,7 +126,8 @@
                                     </div>
 
                                     <h6 class="small font-weight-bold text-muted text-uppercase mb-2">
-                                        {{ __('admin.clubs.members') }} ({{ $team->members->count() }})</h6>
+                                        {{ __('admin.clubs.members') }} ({{ $team->members->count() }})
+                                    </h6>
                                     <div class="d-flex flex-wrap">
                                         @foreach($team->members->take(8) as $member)
                                             <div class="text-center mr-3 mb-2" style="width: 60px;">

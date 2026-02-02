@@ -43,6 +43,7 @@ Route::group([
 
         // Club Management
         Route::resource('clubs', \App\Http\Controllers\Admin\ClubController::class);
+        Route::resource('clubs.teams', \App\Http\Controllers\Admin\TeamController::class);
 
         // User Verification & Management
         Route::post('users/{user}/approve', [\App\Http\Controllers\Admin\UserController::class, 'approve'])->name('users.approve');

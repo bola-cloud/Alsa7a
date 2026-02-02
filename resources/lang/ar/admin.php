@@ -57,6 +57,7 @@ return [
         'hidden' => 'مخفي',
         'active' => 'نشط',
         'select' => 'اختر',
+        'manage' => 'إدارة',
     ],
     'community_posts' => [
         'title' => 'منشورات المجتمع',
@@ -334,5 +335,21 @@ return [
         'members' => 'الأعضاء',
         'position' => 'المركز',
         'number' => 'الرقم',
-    ]
+        'media' => 'الوسائط',
+        'manage_teams' => 'إدارة الفرق',
+        'roster_details' => 'تفاصيل النادي والقائمة',
+    ],
+    'teams' => [
+        'title' => 'الفرق',
+        'add_new' => 'إضافة فريق جديد',
+        'name' => 'اسم الفريق',
+        'short_name' => 'الاسم المختصر',
+        'sport' => 'الرياضة',
+        'age_group' => 'الفئة العمرية',
+        'jersey_color' => 'لون الطقم',
+        'coach' => 'اسم المدرب',
+        'founded_year' => 'سنة التأسيس',
+        'image' => 'شعار الفريق / الصورة',
+        'active' => 'فريق نشط',
+    ],
 ];

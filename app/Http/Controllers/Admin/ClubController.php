@@ -42,7 +42,7 @@ class ClubController extends Controller
         }
 
         $clubs = $query->paginate(10)->withQueryString();
-        $sports = \App\Models\Sport::all();
+        $sports = Sport::all();
 
         return view('admin.clubs.index', compact('clubs', 'sports'));
     }
@@ -54,7 +54,8 @@ class ClubController extends Controller
     {
         $sports = Sport::all();
         $leagues = \App\Models\League::all();
-        return view('admin.clubs.create', compact('sports', 'leagues'));
+        $owners = User::where('category_id', 3)->get(); // Club category
+        return view('admin.clubs.create', compact('sports', 'leagues', 'owners'));
     }
 
     /**
@@ -87,6 +88,7 @@ class ClubController extends Controller
             'founded_year' => $request->founded_year,
             'website' => $request->website,
             'is_featured' => $request->has('is_featured'),
+            'user_id' => $request->user_id,
         ];
 
         if ($request->hasFile('logo')) {
@@ -107,7 +109,7 @@ class ClubController extends Controller
             $club->leagues()->sync($request->leagues);
         }
 
-        $this->flashSuccess('Club created successfully');
+        $this->flashSuccess(__('admin.messages.created_successfully'));
         return redirect()->route('admin.clubs.index');
     }
 
@@ -134,7 +136,8 @@ class ClubController extends Controller
     {
         $sports = Sport::all();
         $leagues = \App\Models\League::all();
-        return view('admin.clubs.edit', compact('club', 'sports', 'leagues'));
+        $owners = User::where('category_id', 3)->get(); // Club category
+        return view('admin.clubs.edit', compact('club', 'sports', 'leagues', 'owners'));
     }
 
     /**
@@ -162,13 +165,14 @@ class ClubController extends Controller
             'country' => $request->country,
             'website' => $request->website,
             'is_featured' => $request->has('is_featured'),
+            'user_id' => $request->user_id,
         ];
 
         if ($request->hasFile('logo')) {
             $data['logo_url'] = $this->imageService->replace(
                 $request->file('logo'),
                 'clubs/logos',
-                $club->logo_url
+                $club->getRawOriginal('logo_url')
             );
         }
 
@@ -176,7 +180,7 @@ class ClubController extends Controller
             $data['banner_url'] = $this->imageService->replace(
                 $request->file('banner'),
                 'clubs/banners',
-                $club->banner_url
+                $club->getRawOriginal('banner_url')
             );
         }
 
@@ -190,7 +194,7 @@ class ClubController extends Controller
             $club->leagues()->sync($request->leagues);
         }
 
-        $this->flashSuccess('Club updated successfully');
+        $this->flashSuccess(__('admin.messages.updated_successfully'));
         return redirect()->route('admin.clubs.index');
     }
 

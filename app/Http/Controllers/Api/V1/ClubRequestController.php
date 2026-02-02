@@ -22,31 +22,41 @@ class ClubRequestController extends Controller
         $isClubAdmin = $user->ownedClub()->exists();
         $club = $user->ownedClub;
 
+        // Default view: if user owns a club, show club view. Otherwise, user view.
+        // User can explicitly pass 'view=user' or 'view=club'.
+        $view = $request->get('view', $isClubAdmin ? 'club' : 'user');
+
+        if ($view === 'club' && !$isClubAdmin) {
+            return response()->json(['status' => false, 'message' => 'You do not own a club'], 403);
+        }
+
         $query = ClubRequest::query();
 
-        // If requesting 'sent' requests
-        if ($request->has('sent')) {
-            if ($isClubAdmin) {
-                // Invites sent by my club to users
+        if ($view === 'club') {
+            // Club context: handling requests related to the club I own
+            if ($request->has('sent')) {
+                // Invites my club sent to users
                 $query->where('club_id', $club->id)->where('type', 'invite');
             } else {
-                // Join requests sent by me to clubs
-                $query->where('user_id', $user->id)->where('type', 'join');
+                // Join requests users sent to my club
+                $query->where('club_id', $club->id)->where('type', 'join');
             }
         } else {
-            // Received requests (incoming)
-            if ($isClubAdmin) {
-                // Users asking to join my club
-                $query->where('club_id', $club->id)->where('type', 'join');
+            // User context: handling requests related to me personally
+            if ($request->has('sent')) {
+                // Join requests I sent to clubs
+                $query->where('user_id', $user->id)->where('type', 'join');
             } else {
-                // Clubs inviting me
+                // Club invites I received
                 $query->where('user_id', $user->id)->where('type', 'invite');
             }
         }
 
         // Filter by status if provided, default pending
         $status = $request->get('status', 'pending');
-        $query->where('status', $status);
+        if ($status !== 'all') {
+            $query->where('status', $status);
+        }
 
         $requests = $query->with(['user', 'club'])->latest()->paginate(20);
 
@@ -157,5 +167,40 @@ class ClubRequestController extends Controller
         }
 
         return response()->json(['status' => true, 'message' => "Request $status"]);
+    }
+
+    /**
+     * Cancel/Delete a request.
+     */
+    public function destroy(Request $request, $id)
+    {
+        $clubRequest = ClubRequest::find($id);
+        if (!$clubRequest) {
+            return response()->json(['status' => false, 'message' => 'Request not found'], 404);
+        }
+
+        $user = $request->user();
+
+        // Authorization:
+        // Only the creator of the request can delete it while it's pending.
+        $canDelete = false;
+
+        if ($clubRequest->type === 'join' && $clubRequest->user_id === $user->id) {
+            $canDelete = true;
+        } elseif ($clubRequest->type === 'invite' && $user->ownedClub && $user->ownedClub->id === $clubRequest->club_id) {
+            $canDelete = true;
+        }
+
+        if (!$canDelete) {
+            return response()->json(['status' => false, 'message' => 'Unauthorized'], 403);
+        }
+
+        if ($clubRequest->status !== 'pending') {
+            return response()->json(['status' => false, 'message' => 'Cannot delete a processed request'], 400);
+        }
+
+        $clubRequest->delete();
+
+        return response()->json(['status' => true, 'message' => 'Request cancelled successfully']);
     }
 }

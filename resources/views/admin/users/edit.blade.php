@@ -97,6 +97,55 @@
                                     </div>
                                 </div>
 
+                                <div class="mt-4 mb-3">
+                                    <h5 class="text-muted text-uppercase small font-weight-bold"><i class="la la-users"></i>
+                                        {{ __('admin.clubs.roster_details') }}</h5>
+                                    <hr class="mt-1">
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label>{{ __('admin.clubs.title') }}</label>
+                                            <select name="club_id" id="club_id" class="form-control select2">
+                                                <option value="">{{ __('admin.buttons.select') }}</option>
+                                                @foreach($clubs as $club)
+                                                    <option value="{{ $club->id }}" {{ old('club_id', $user->club_id) == $club->id ? 'selected' : '' }}>
+                                                        {{ $club->name }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label>{{ __('admin.clubs.teams') }}</label>
+                                            <select name="team_id" id="team_id" class="form-control select2">
+                                                <option value="">{{ __('admin.buttons.select') }}</option>
+                                                @foreach($teams as $team)
+                                                    <option value="{{ $team->id }}" {{ old('team_id', $user->team_id) == $team->id ? 'selected' : '' }}>
+                                                        {{ $team->name }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label>{{ __('admin.clubs.position') }}</label>
+                                            <input type="text" name="position" class="form-control"
+                                                value="{{ old('position', $user->position) }}" placeholder="e.g. Forward">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label>{{ __('admin.clubs.number') }}</label>
+                                            <input type="text" name="number" class="form-control"
+                                                value="{{ old('number', $user->number) }}" placeholder="e.g. 10">
+                                        </div>
+                                    </div>
+                                </div>
+
                             </div>
 
                             <div class="form-actions right">
@@ -114,3 +163,30 @@
         </div>
     </div>
 @endsection
+
+@push('scripts')
+    <script>
+        $(document).ready(function () {
+            $('#club_id').on('change', function () {
+                var clubId = $(this).val();
+                var teamSelect = $('#team_id');
+                teamSelect.html('<option value="">Loading...</option>');
+
+                if (clubId) {
+                    // We'll use a simple fetch to get teams for this club
+                    // Using a generic API endpoint if exists, or adding a quick route
+                    $.get('/api/v1/clubs/' + clubId + '/teams', function (data) {
+                        teamSelect.html('<option value="">{{ __("admin.buttons.select") }}</option>');
+                        // Data might be under data.data depending on API structure
+                        var teams = data.data || data;
+                        $.each(teams, function (key, team) {
+                            teamSelect.append('<option value="' + team.id + '">' + team.name + '</option>');
+                        });
+                    });
+                } else {
+                    teamSelect.html('<option value="">{{ __("admin.buttons.select") }}</option>');
+                }
+            });
+        });
+    </script>
+@endpush

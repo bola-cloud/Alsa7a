@@ -489,6 +489,39 @@ Lists all requests made by the authenticated user.
 **Response:**
 Returns both social `stats` (posts, followers) and `professional` details (club, position, number).
 
+### Club Requests (Join/Invite)
+Manage relationships between users and clubs.
+
+#### List Requests
+**GET** `/club-requests`
+This endpoint is dynamic and detects your context (Club Owner or individual).
+
+**Params:**
+- `view`: (`user` | `club`). Optional. Default: `club` if you own one, otherwise `user`.
+- `sent`: (`0` | `1`). Optional. `0` for incoming requests, `1` for requests you sent.
+- `status`: (`pending` | `accepted` | `rejected` | `all`). Optional. Default: `pending`.
+
+**Example (As User - My Sent Join Requests):**
+`GET /club-requests?view=user&sent=1`
+
+#### Create Request (Join/Invite)
+**POST** `/club-requests`
+**Body:**
+- `type`: string (Required: `join` | `invite`)
+- `club_id`: int (Required if `type=join`) - The club you want to join.
+- `user_id`: int (Required if `type=invite`) - The user you want to invite to your club (Only for Club Owners).
+
+#### Respond to Request
+**POST** `/club-requests/{id}/respond`
+**Body:**
+- `action`: string (Required: `accept` | `reject`)
+
+*Note*: On `accept`, the user is automatically added as a member of the club.
+
+#### Cancel/Delete Request
+**DELETE** `/club-requests/{id}`
+Allows the creator of a pending request to cancel it.
+
 ---
 
 ## 4. Provider Endpoints (Protected)

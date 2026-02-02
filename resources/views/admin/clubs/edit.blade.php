@@ -8,20 +8,24 @@
                     <ol class="breadcrumb">
                         <li class="breadcrumb-item"><a
                                 href="{{ route('admin.dashboard') }}">{{ __('admin.menu.dashboard') }}</a></li>
-                        <li class="breadcrumb-item"><a href="{{ route('admin.clubs.index') }}">{{ __('Clubs') }}</a></li>
-                        <li class="breadcrumb-item active">{{ __('Edit Club') }}</li>
+                        <li class="breadcrumb-item"><a
+                                href="{{ route('admin.clubs.index') }}">{{ __('admin.clubs.title') }}</a></li>
+                        <li class="breadcrumb-item active">{{ __('admin.buttons.edit') }}</li>
                     </ol>
                 </div>
             </div>
-            <h3 class="content-header-title mb-0">{{ __('Edit Club') }}</h3>
+            <h3 class="content-header-title mb-0">{{ __('admin.buttons.edit') }}</h3>
         </div>
     </div>
 
     <div class="row justify-content-center">
         <div class="col-md-10">
             <div class="card">
-                <div class="card-header">
-                    <h4 class="card-title">{{ __('Edit Club') }}: {{ $club->name }}</h4>
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h4 class="card-title">{{ __('admin.buttons.edit') }}: {{ $club->name }}</h4>
+                    <a href="{{ route('admin.clubs.teams.index', $club->id) }}" class="btn btn-sm btn-outline-primary">
+                        <i class="la la-users"></i> {{ __('admin.clubs.manage_teams') }}
+                    </a>
                 </div>
                 <div class="card-body">
                     <form action="{{ route('admin.clubs.update', $club->id) }}" method="POST" enctype="multipart/form-data">
@@ -32,7 +36,8 @@
                             <div class="col-12 mb-3">
                                 <h6 class="text-muted text-uppercase font-weight-bold mb-3"><i
                                         class="la la-info-circle"></i> {{ __('admin.categories.name') }} &
-                                    {{ __('Description') }}</h6>
+                                    {{ __('admin.categories.description') }}
+                                </h6>
                             </div>
 
                             <div class="col-md-6">
@@ -68,34 +73,34 @@
                             <div class="col-12 mt-4 mb-3">
                                 <hr>
                                 <h6 class="text-muted text-uppercase font-weight-bold mb-3"><i class="la la-map-marker"></i>
-                                    {{ __('Details') }}</h6>
+                                    {{ __('admin.clubs.details') }}</h6>
                             </div>
 
                             <div class="col-md-4">
                                 <div class="form-group">
-                                    <label>City <span class="text-danger">*</span></label>
+                                    <label>{{ __('admin.clubs.city') }} <span class="text-danger">*</span></label>
                                     <input type="text" name="city" class="form-control" required
                                         value="{{ old('city', $club->city) }}">
                                 </div>
                             </div>
                             <div class="col-md-4">
                                 <div class="form-group">
-                                    <label>Country</label>
+                                    <label>{{ __('admin.clubs.country') }}</label>
                                     <input type="text" name="country" class="form-control"
                                         value="{{ old('country', $club->country) }}">
                                 </div>
                             </div>
                             <div class="col-md-4">
                                 <div class="form-group">
-                                    <label>Website</label>
+                                    <label>{{ __('admin.clubs.website') }}</label>
                                     <input type="url" name="website" class="form-control"
                                         value="{{ old('website', $club->website) }}">
                                 </div>
                             </div>
 
-                            <div class="col-md-12">
+                            <div class="col-md-6">
                                 <div class="form-group">
-                                    <label>Sports</label>
+                                    <label>{{ __('admin.menu.sports') }}</label>
                                     <select name="sports[]" class="form-control select2" multiple>
                                         @foreach($sports as $sport)
                                             <option value="{{ $sport->id }}" {{ $club->sports->contains($sport->id) ? 'selected' : '' }}>
@@ -106,9 +111,9 @@
                                 </div>
                             </div>
 
-                            <div class="col-md-12">
+                            <div class="col-md-6">
                                 <div class="form-group">
-                                    <label>Leagues</label>
+                                    <label>{{ __('admin.leagues.index') }}</label>
                                     <select name="leagues[]" class="form-control select2" multiple>
                                         @foreach($leagues as $league)
                                             <option value="{{ $league->id }}" {{ $club->leagues->contains($league->id) ? 'selected' : '' }}>
@@ -119,15 +124,29 @@
                                 </div>
                             </div>
 
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label>{{ __('admin.clubs.owner') }}</label>
+                                    <select name="user_id" class="form-control select2">
+                                        <option value="">{{ __('admin.buttons.select') }}</option>
+                                        @foreach($owners as $owner)
+                                            <option value="{{ $owner->id }}" {{ old('user_id', $club->user_id) == $owner->id ? 'selected' : '' }}>
+                                                {{ $owner->name }} ({{ $owner->email }})
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            </div>
+
                             <div class="col-12 mt-4 mb-3">
                                 <hr>
                                 <h6 class="text-muted text-uppercase font-weight-bold mb-3"><i class="la la-image"></i>
-                                    {{ __('Media') }}</h6>
+                                    {{ __('admin.clubs.media') }}</h6>
                             </div>
 
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label>Logo</label>
+                                    <label>{{ __('admin.clubs.logo') }}</label>
                                     @if($club->logo_url)
                                         <div class="mb-2">
                                             <img src="{{ $club->logo_url }}" height="60" class="rounded shadow-sm">
@@ -135,13 +154,14 @@
                                     @endif
                                     <div class="custom-file">
                                         <input type="file" name="logo" class="custom-file-input" id="logoUpload">
-                                        <label class="custom-file-label" for="logoUpload">Choose Logo</label>
+                                        <label class="custom-file-label"
+                                            for="logoUpload">{{ __('admin.settings.choose_file') }}</label>
                                     </div>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label>Banner</label>
+                                    <label>{{ __('admin.clubs.banner') }}</label>
                                     @if($club->banner_url)
                                         <div class="mb-2">
                                             <img src="{{ $club->banner_url }}" height="60" class="rounded shadow-sm">
@@ -149,7 +169,8 @@
                                     @endif
                                     <div class="custom-file">
                                         <input type="file" name="banner" class="custom-file-input" id="bannerUpload">
-                                        <label class="custom-file-label" for="bannerUpload">Choose Banner</label>
+                                        <label class="custom-file-label"
+                                            for="bannerUpload">{{ __('admin.settings.choose_file') }}</label>
                                     </div>
                                 </div>
                             </div>
@@ -160,8 +181,8 @@
                                         <div class="custom-control custom-checkbox">
                                             <input type="checkbox" class="custom-control-input" name="is_featured"
                                                 id="is_featured" value="1" {{ $club->is_featured ? 'checked' : '' }}>
-                                            <label class="custom-control-label font-weight-bold" for="is_featured">Featured
-                                                Club</label>
+                                            <label class="custom-control-label font-weight-bold"
+                                                for="is_featured">{{ __('admin.clubs.featured') }}</label>
                                         </div>
                                     </div>
                                 </div>
