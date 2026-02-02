@@ -50,7 +50,7 @@
 
                                 <div class="form-group">
                                     <label>{{ __('admin.sports.index') }}</label>
-                                    <select name="sport_id" class="form-control" required>
+                                    <select name="sport_id" class="form-control select2" required>
                                         @foreach($sports as $sport)
                                             <option value="{{ $sport->id }}" {{ $league->sport_id == $sport->id ? 'selected' : '' }}>{{ $sport->name }}</option>
                                         @endforeach
@@ -97,7 +97,7 @@
 
                                 <div class="form-group">
                                     <label>{{ __('admin.sports.active') }}</label>
-                                    <select name="is_active" class="form-control">
+                                    <select name="is_active" class="form-control select2">
                                         <option value="1" {{ $league->is_active ? 'selected' : '' }}>
                                             {{ __('admin.categories.yes') }}
                                         </option>

@@ -68,7 +68,7 @@
 
                                 <div class="form-group">
                                     <label>{{ __('admin.users.role_category') }}</label>
-                                    <select name="category_id" class="form-control">
+                                    <select name="category_id" class="form-control select2">
                                         <option value="">User (Standard)</option>
                                         @foreach($categories as $category)
                                             <option value="{{ $category->id }}" {{ old('category_id', $user->category_id) == $category->id ? 'selected' : '' }}>

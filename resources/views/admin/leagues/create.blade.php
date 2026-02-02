@@ -33,7 +33,8 @@
                             <div class="col-12 mb-3">
                                 <h6 class="text-muted text-uppercase font-weight-bold mb-3"><i
                                         class="la la-info-circle"></i> {{ __('admin.leagues.name') }} &
-                                    {{ __('admin.leagues.description') }}</h6>
+                                    {{ __('admin.leagues.description') }}
+                                </h6>
                             </div>
 
                             <div class="col-md-6">
@@ -95,7 +96,7 @@
                             <div class="col-md-4">
                                 <div class="form-group">
                                     <label>{{ __('admin.sports.active') }}</label>
-                                    <select name="is_active" class="form-control">
+                                    <select name="is_active" class="form-control select2">
                                         <option value="1" selected>{{ __('admin.categories.yes') }}</option>
                                         <option value="0">{{ __('admin.categories.no') }}</option>
                                     </select>

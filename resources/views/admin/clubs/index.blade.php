@@ -35,7 +35,7 @@
                     </div>
                     <div class="col-md-4 mb-2 mb-md-0">
                         <label class="text-muted small mb-1">{{ __('admin.sports.title') }}</label>
-                        <select name="sport_id" class="form-control">
+                        <select name="sport_id" class="form-control select2">
                             <option value="">{{ __('admin.categories.all') }}</option>
                             @foreach($sports as $sport)
                                 <option value="{{ $sport->id }}" {{ request('sport_id') == $sport->id ? 'selected' : '' }}>

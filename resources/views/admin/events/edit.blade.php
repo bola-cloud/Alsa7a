@@ -44,7 +44,7 @@
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label>{{ __('admin.sports.index') }}</label>
-                                    <select name="sport_id" class="form-control">
+                                    <select name="sport_id" class="form-control select2">
                                         <option value="">{{ __('admin.categories.no') }}</option>
                                         @foreach($sports as $sport)
                                             <option value="{{ $sport->id }}" {{ $event->sport_id == $sport->id ? 'selected' : '' }}>{{ $sport->name }}</option>
