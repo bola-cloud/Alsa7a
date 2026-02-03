@@ -6,9 +6,13 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Traits\Translatable;
 
+use App\Traits\HasSlug;
+
 class Event extends Model
 {
-    use HasFactory, Translatable;
+    use HasFactory, Translatable, HasSlug;
+
+    protected $slugSource = 'title';
 
     protected $fillable = ['club_id', 'sport_id', 'title_en', 'title_ar', 'slug', 'description_en', 'description_ar', 'start_at', 'end_at', 'venue', 'price', 'capacity', 'tickets_sold', 'featured_image', 'is_featured', 'meta', 'ticket_types'];
 

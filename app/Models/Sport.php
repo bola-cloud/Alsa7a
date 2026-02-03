@@ -6,9 +6,11 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Traits\Translatable;
 
+use App\Traits\HasSlug;
+
 class Sport extends Model
 {
-    use HasFactory, Translatable;
+    use HasFactory, Translatable, HasSlug;
 
     protected $fillable = ['name', 'name_en', 'name_ar', 'description', 'description_en', 'description_ar', 'slug', 'icon_url', 'active'];
 

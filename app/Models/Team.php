@@ -5,9 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+use App\Traits\HasSlug;
+
 class Team extends Model
 {
-    use HasFactory;
+    use HasFactory, HasSlug;
 
     protected $fillable = ['club_id', 'sport_id', 'name', 'short_name', 'slug', 'jersey_color', 'coach', 'founded_year', 'active', 'meta', 'image', 'age_group'];
 

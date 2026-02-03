@@ -6,9 +6,11 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Traits\Translatable;
 
+use App\Traits\HasSlug;
+
 class League extends Model
 {
-    use HasFactory, Translatable;
+    use HasFactory, Translatable, HasSlug;
 
     protected $fillable = ['sport_id', 'name', 'name_en', 'name_ar', 'slug', 'description', 'description_en', 'description_ar', 'season', 'start_date', 'end_date', 'is_active', 'meta', 'image'];
 
