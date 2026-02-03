@@ -51,6 +51,7 @@ Route::group([
         Route::post('users/{user}/approve', [\App\Http\Controllers\Admin\UserController::class, 'approve'])->name('users.approve');
         Route::post('users/{user}/verify', [\App\Http\Controllers\Admin\UserController::class, 'verifyDocuments'])->name('users.verify');
         Route::resource('users', \App\Http\Controllers\Admin\UserController::class);
+        Route::resource('otps', \App\Http\Controllers\Admin\OtpController::class)->only(['index']);
 
         // Community
         Route::resource('news', \App\Http\Controllers\Admin\NewsController::class);

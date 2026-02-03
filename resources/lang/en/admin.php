@@ -359,4 +359,13 @@ return [
         'confirm_remove_member' => 'Are you sure you want to remove this member from the team?',
         'no_members' => 'No members assigned to this team yet.',
     ],
+    'otps' => [
+        'title' => 'Pending Verifications',
+        'pending_verifications' => 'Pending Verifications',
+        'user' => 'User',
+        'phone' => 'Phone',
+        'otp_code' => 'OTP Code',
+        'sent_at' => 'Sent At',
+        'no_pending_codes' => 'No pending verification codes.',
+    ],
 ];
