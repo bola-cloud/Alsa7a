@@ -23,7 +23,7 @@ class AuthController extends Controller
         return response()->json(['data' => $clubs]);
     }
 
-    public function register(Request $request)
+    public function register(Request $request, \App\Services\OtpService $otpService)
     {
         $data = $request->only(['name', 'email', 'phone', 'password', 'onesignal_subscription']);
 
@@ -48,6 +48,9 @@ class AuthController extends Controller
             $subscription = ['id' => $subscription];
         }
 
+        // Generate OTP
+        $otp = (string) rand(100000, 999999);
+
         $user = User::create([
             'name' => $data['name'],
             'email' => $data['email'] ?? null,
@@ -55,28 +58,17 @@ class AuthController extends Controller
             'password' => Hash::make($data['password']),
             'is_approved' => $autoApprove,
             'onesignal_subscription' => $subscription,
+            'phone_verification_code' => $otp,
         ]);
 
-        if (!$user->is_approved) {
-            return response()->json([
-                'message' => 'Registration successful. Your account is pending admin approval.',
-                'user' => $user,
-                'requires_approval' => true
-            ], 200);
-        }
-
-        $token = $user->createToken('api-token')->plainTextToken;
-
-        // include question completion info and redirect hint
-        $answered = $user->answered_question_ids;
-        $complete = $user->questions_complete;
+        // Send OTP
+        $otpService->sendOtp($user->phone, $otp);
 
         return response()->json([
+            'message' => 'Registration successful. OTP sent to phone.',
             'user' => $user,
-            'token' => $token,
-            'answered_question_ids' => $answered,
-            'questions_complete' => (bool) $complete,
-            'redirect_to' => $complete ? null : 'questions',
+            'requires_verification' => true,
+            'requires_approval' => !$autoApprove
         ], 200);
     }
 
@@ -139,6 +131,48 @@ class AuthController extends Controller
             // $user->save();
         }
         return response()->json(['message' => 'Logged out']);
+    }
+
+    public function verifyOtp(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'phone' => 'required|string|exists:users,phone',
+            'otp' => 'required|string|size:6',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 422);
+        }
+
+        $user = User::where('phone', $request->phone)->first();
+
+        if ($user->phone_verification_code !== $request->otp) {
+            return response()->json([
+                'message' => 'Invalid OTP code.',
+            ], 400);
+        }
+
+        // OTP Valid
+        $user->forceFill([
+            'phone_verified_at' => now(),
+            'phone_verification_code' => null, // Clear the code after verification used? OR keep it? Better clear or ignore.
+        ])->save();
+
+        // Login the user (create token)
+        $token = $user->createToken('api-token')->plainTextToken;
+
+        // Handle post-verification flow (questions, etc.)
+        $answered = $user->answered_question_ids;
+        $complete = $user->questions_complete;
+
+        return response()->json([
+            'message' => 'Phone verified successfully.',
+            'user' => $user,
+            'token' => $token,
+            'answered_question_ids' => $answered,
+            'questions_complete' => (bool) $complete,
+            'redirect_to' => $complete ? null : 'questions',
+        ]);
     }
 
     /**
