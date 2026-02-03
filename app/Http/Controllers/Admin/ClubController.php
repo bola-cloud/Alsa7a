@@ -123,7 +123,9 @@ class ClubController extends Controller
         // Fetch roster grouped by category (consistent with API keys)
         $members = User::where('club_id', $club->id)->with('category')->get();
         $roster = $members->groupBy(function ($user) {
-            return $user->category ? ($user->category->name_en ?: $user->category->name) : 'Other';
+            return $user->category ? ($user->category->name_en ?: $user->category->name) : 'Uncategorized';
+        })->sortBy(function ($members, $key) {
+            return $key === 'Uncategorized' ? 1 : 0; // Put Uncategorized last
         });
 
         return view('admin.clubs.show', compact('club', 'roster'));

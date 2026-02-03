@@ -26,7 +26,7 @@
             <div class="card shadow-sm border-0">
                 <div class="card-body text-center">
                     @if($team->image)
-                        <img src="{{ asset('storage/' . $team->image) }}" class="rounded-circle mb-3"
+                        <img src="{{ $team->image }}" class="rounded-circle mb-3"
                             style="width: 120px; height: 120px; object-fit: cover; border: 3px solid #f8f9fa;">
                     @else
                         <div class="avatar avatar-xl bg-secondary mx-auto mb-3">
@@ -71,6 +71,9 @@
                 <div class="card-header bg-white border-bottom-0 d-flex justify-content-between align-items-center">
                     <h4 class="card-title mb-0">Team Members <small
                             class="text-muted">({{ $team->members->count() }})</small></h4>
+                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addMemberModal">
+                        <i class="la la-plus"></i> Add Member
+                    </button>
                 </div>
                 <div class="card-body p-0">
                     <div class="table-responsive">
@@ -115,10 +118,17 @@
                                                 class="btn btn-sm btn-icon btn-white text-info" title="View User">
                                                 <i class="la la-eye"></i>
                                             </a>
-                                            <a href="{{ route('admin.users.edit', $member->id) }}"
-                                                class="btn btn-sm btn-icon btn-white text-primary" title="Edit User">
-                                                <i class="la la-edit"></i>
-                                            </a>
+                                            <form
+                                                action="{{ route('admin.clubs.teams.remove_member', [$club->id, $team->id, $member->id]) }}"
+                                                method="POST" style="display:inline-block;"
+                                                onsubmit="return confirm('Are you sure you want to remove this member from the team?');">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="btn btn-sm btn-icon btn-white text-danger"
+                                                    title="Remove Member">
+                                                    <i class="la la-trash"></i>
+                                                </button>
+                                            </form>
                                         </td>
                                     </tr>
                                 @empty
@@ -132,6 +142,42 @@
                         </table>
                     </div>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Member Modal -->
+    <div class="modal fade" id="addMemberModal" tabindex="-1" role="dialog" aria-labelledby="addMemberModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addMemberModalLabel">Add Team Member</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <form action="{{ route('admin.clubs.teams.add_member', [$club->id, $team->id]) }}" method="POST">
+                    @csrf
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label for="user_id">Select Member</label>
+                            <select name="user_id" id="user_id" class="form-control select2" required style="width: 100%">
+                                <option value="">Select a member...</option>
+                                @foreach($candidates as $candidate)
+                                    <option value="{{ $candidate->id }}">
+                                        {{ $candidate->name }} ({{ $candidate->email }}) -
+                                        {{ $candidate->category->name ?? 'Uncategorized' }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary">Add Member</button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>

@@ -3,9 +3,10 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\Club;
 use App\Models\Team;
+use App\Models\Club;
 use App\Models\Sport;
+use App\Models\User;
 use App\Services\ImageService;
 use Illuminate\Http\Request;
 
@@ -56,7 +57,50 @@ class TeamController extends Controller
     public function show(Club $club, Team $team)
     {
         $team->load(['sport', 'members.category']);
-        return view('admin.teams.show', compact('club', 'team'));
+
+        // Fetch candidates: Users in the same club who are NOT in this team
+        $candidates = User::where('club_id', $club->id)
+            ->where(function ($query) use ($team) {
+                $query->where('team_id', '!=', $team->id)
+                    ->orWhereNull('team_id');
+            })
+            ->with('category')
+            ->orderBy('name')
+            ->get();
+
+        return view('admin.teams.show', compact('club', 'team', 'candidates'));
+    }
+
+    public function addMember(Request $request, Club $club, Team $team)
+    {
+        $request->validate([
+            'user_id' => 'required|exists:users,id',
+        ]);
+
+        $user = User::where('club_id', $club->id)->find($request->user_id);
+
+        if (!$user) {
+            return back()->with('error', 'User not found in this club.');
+        }
+
+        $user->team_id = $team->id;
+        $user->save();
+
+        $this->flashSuccess(__('Member added successfully'));
+        return back();
+    }
+
+    public function removeMember(Club $club, Team $team, User $user)
+    {
+        if ($user->team_id === $team->id) {
+            $user->team_id = null;
+            $user->save();
+            $this->flashSuccess(__('Member removed successfully'));
+        } else {
+            return back()->with('error', 'User is not in this team.');
+        }
+
+        return back();
     }
 
     public function edit(Club $club, Team $team)

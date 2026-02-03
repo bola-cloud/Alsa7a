@@ -44,6 +44,8 @@ Route::group([
         // Club Management
         Route::resource('clubs', \App\Http\Controllers\Admin\ClubController::class);
         Route::resource('clubs.teams', \App\Http\Controllers\Admin\TeamController::class);
+        Route::post('clubs/{club}/teams/{team}/add-member', [\App\Http\Controllers\Admin\TeamController::class, 'addMember'])->name('clubs.teams.add_member');
+        Route::delete('clubs/{club}/teams/{team}/remove-member/{user}', [\App\Http\Controllers\Admin\TeamController::class, 'removeMember'])->name('clubs.teams.remove_member');
 
         // User Verification & Management
         Route::post('users/{user}/approve', [\App\Http\Controllers\Admin\UserController::class, 'approve'])->name('users.approve');

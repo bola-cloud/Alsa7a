@@ -163,59 +163,74 @@
                         {{ __('admin.clubs.roster') }}</h4>
                 </div>
                 <div class="card-body">
-                    @forelse($roster as $category => $members)
-                        <div class="mb-5">
-                            <h5 class="font-weight-bold mb-3 border-left-primary border-left-4 pl-2">{{ $category }} <span
-                                    class="badge badge-pill badge-secondary small ml-1">{{ $members->count() }}</span></h5>
-                            <div class="table-responsive">
-                                <table class="table table-hover">
-                                    <thead>
-                                        <tr>
-                                            <th>{{ __('admin.users.name') }}</th>
-                                            <th>{{ __('admin.users.email') }}</th>
-                                            <th>{{ __('admin.users.phone') }}</th>
-                                            <th>{{ __('admin.clubs.position') }}</th>
-                                            <th class="text-right">{{ __('admin.buttons.actions') }}</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @foreach($members as $member)
-                                            <tr>
-                                                <td class="align-middle">
-                                                    <div class="d-flex align-items-center">
-                                                        <img src="{{ $member->profile_photo_url }}" class="rounded-circle mr-2"
-                                                            width="35" height="35">
-                                                        <span class="font-weight-bold text-dark">{{ $member->name }}</span>
-                                                    </div>
-                                                </td>
-                                                <td class="align-middle small">{{ $member->email }}</td>
-                                                <td class="align-middle small">{{ $member->phone }}</td>
-                                                <td class="align-middle">
-                                                    @if($member->position)
-                                                        <span class="badge badge-primary">{{ $member->position }}</span>
-                                                    @endif
-                                                    @if($member->number)
-                                                        <span class="badge badge-secondary">#{{ $member->number }}</span>
-                                                    @endif
-                                                </td>
-                                                <td class="align-middle text-right">
-                                                    <a href="{{ route('admin.users.show', $member->id) }}"
-                                                        class="btn btn-sm btn-outline-info round"
-                                                        title="{{ __('admin.buttons.view') }}">
-                                                        <i class="la la-eye"></i>
-                                                    </a>
-                                                </td>
-                                            </tr>
-                                        @endforeach
-                                    </tbody>
-                                </table>
+                    <div class="accordion" id="rosterAccordion">
+                        @forelse($roster as $category => $members)
+                            <div class="card collapse-icon accordion-icon-rotate border-bottom mb-0 shadow-none">
+                                <div class="card-header" id="heading{{ Str::slug($category) }}" data-toggle="collapse"
+                                    data-target="#collapse{{ Str::slug($category) }}" aria-expanded="true"
+                                    aria-controls="collapse{{ Str::slug($category) }}" style="cursor: pointer;">
+                                    <h5 class="mb-0">
+                                        <span class="font-weight-bold text-primary">{{ $category }}</span>
+                                        <span class="badge badge-pill badge-light-primary float-right">{{ $members->count() }}</span>
+                                    </h5>
+                                </div>
+
+                                <div id="collapse{{ Str::slug($category) }}" class="collapse {{ $loop->first ? 'show' : '' }}"
+                                    aria-labelledby="heading{{ Str::slug($category) }}" data-parent="#rosterAccordion">
+                                    <div class="card-body pl-0 pr-0">
+                                        <div class="table-responsive">
+                                            <table class="table table-hover mb-0">
+                                                <thead>
+                                                    <tr>
+                                                        <th>{{ __('admin.users.name') }}</th>
+                                                        <th>{{ __('admin.users.email') }}</th>
+                                                        <th>{{ __('admin.clubs.position') }}</th>
+                                                        <th class="text-right">{{ __('admin.buttons.actions') }}</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @foreach($members as $member)
+                                                        <tr>
+                                                            <td class="align-middle">
+                                                                <div class="d-flex align-items-center">
+                                                                    @if($member->profile_photo_url)
+                                                                        <img src="{{ $member->profile_photo_url }}" class="rounded-circle mr-2"
+                                                                            width="35" height="35" style="object-fit: cover;">
+                                                                    @else
+                                                                        <span class="avatar avatar-sm bg-light text-primary mr-2">
+                                                                            <span class="avatar-content">{{ Str::substr($member->name, 0, 1) }}</span>
+                                                                        </span>
+                                                                    @endif
+                                                                    <span class="font-weight-bold text-dark">{{ $member->name }}</span>
+                                                                </div>
+                                                            </td>
+                                                            <td class="align-middle small">{{ $member->email }}</td>
+                                                            <td class="align-middle">
+                                                                @if($member->position)
+                                                                    <span class="badge badge-primary">{{ $member->position }}</span>
+                                                                @endif
+                                                            </td>
+                                                            <td class="align-middle text-right">
+                                                                <a href="{{ route('admin.users.show', $member->id) }}"
+                                                                    class="btn btn-sm btn-icon btn-white text-info"
+                                                                    title="{{ __('admin.buttons.view') }}">
+                                                                    <i class="la la-eye"></i>
+                                                                </a>
+                                                            </td>
+                                                        </tr>
+                                                    @endforeach
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
-                        </div>
-                    @empty
-                        <div class="text-center py-4 text-muted">
-                            {{ __('admin.categories.no_records') }}
-                        </div>
-                    @endforelse
+                        @empty
+                            <div class="text-center py-4 text-muted">
+                                {{ __('admin.categories.no_records') }}
+                            </div>
+                        @endforelse
+                    </div>
                 </div>
             </div>
         </div>
