@@ -74,7 +74,7 @@
                     <div class="col-md-4">
                         <div class="bg-light p-3 rounded">
                             <h6 class="font-weight-bold mb-3 border-bottom pb-2">
-                                {{ __('admin.clubs.details') ?? 'Club Details' }}
+                                {{ __('admin.clubs.details') }}
                             </h6>
                             <p class="mb-2"><strong>{{ __('admin.clubs.founded_year') }}:</strong> <span
                                     class="float-right">{{ $club->founded_year }}</span></p>

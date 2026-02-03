@@ -16,7 +16,7 @@
                     </ol>
                 </div>
             </div>
-            <h3 class="content-header-title mb-0">{{ $team->name }} - {{ __('Details') }}</h3>
+            <h3 class="content-header-title mb-0">{{ $team->name }} - {{ __('admin.clubs.details') }}</h3>
         </div>
     </div>
 
@@ -38,19 +38,19 @@
 
                     <ul class="list-group list-group-flush text-left border-top mt-2">
                         <li class="list-group-item d-flex justify-content-between align-items-center px-0">
-                            <span class="text-muted">Club</span>
+                            <span class="text-muted">{{ __('admin.clubs.name') }}</span>
                             <span class="font-weight-bold">{{ $club->name }}</span>
                         </li>
                         <li class="list-group-item d-flex justify-content-between align-items-center px-0">
-                            <span class="text-muted">Age Group</span>
+                            <span class="text-muted">{{ __('admin.teams.age_group') }}</span>
                             <span class="font-weight-bold">{{ $team->age_group ?: 'N/A' }}</span>
                         </li>
                         <li class="list-group-item d-flex justify-content-between align-items-center px-0">
-                            <span class="text-muted">Coach</span>
+                            <span class="text-muted">{{ __('admin.teams.coach') }}</span>
                             <span class="font-weight-bold">{{ $team->coach ?: 'N/A' }}</span>
                         </li>
                         <li class="list-group-item d-flex justify-content-between align-items-center px-0">
-                            <span class="text-muted">Jersey color</span>
+                            <span class="text-muted">{{ __('admin.teams.jersey_color') }}</span>
                             <span class="font-weight-bold">{{ $team->jersey_color ?: 'N/A' }}</span>
                         </li>
                     </ul>
@@ -58,7 +58,7 @@
                     <div class="mt-4">
                         <a href="{{ route('admin.clubs.teams.edit', [$club->id, $team->id]) }}"
                             class="btn btn-outline-primary btn-block">
-                            <i class="la la-edit"></i> Edit Team
+                            <i class="la la-edit"></i> {{ __('admin.buttons.edit') }}
                         </a>
                     </div>
                 </div>
@@ -69,10 +69,10 @@
         <div class="col-md-8">
             <div class="card shadow-sm border-0">
                 <div class="card-header bg-white border-bottom-0 d-flex justify-content-between align-items-center">
-                    <h4 class="card-title mb-0">Team Members <small
+                    <h4 class="card-title mb-0">{{ __('admin.clubs.members') }} <small
                             class="text-muted">({{ $team->members->count() }})</small></h4>
                     <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addMemberModal">
-                        <i class="la la-plus"></i> Add Member
+                        <i class="la la-plus"></i> {{ __('admin.teams.add_member') }}
                     </button>
                 </div>
                 <div class="card-body p-0">
@@ -80,10 +80,10 @@
                         <table class="table table-hover mb-0">
                             <thead class="bg-light">
                                 <tr>
-                                    <th class="border-top-0">Member</th>
-                                    <th class="border-top-0">Category</th>
-                                    <th class="border-top-0">Joined At</th>
-                                    <th class="border-top-0 text-right">Actions</th>
+                                    <th class="border-top-0">{{ __('admin.teams.member') }}</th>
+                                    <th class="border-top-0">{{ __('admin.categories.index') }}</th>
+                                    <th class="border-top-0">{{ __('admin.teams.joined_at') }}</th>
+                                    <th class="border-top-0 text-right">{{ __('admin.buttons.actions') }}</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -134,7 +134,7 @@
                                 @empty
                                     <tr>
                                         <td colspan="4" class="text-center py-4 text-muted">
-                                            No members assigned to this team yet.
+                                            {{ __('admin.teams.no_members') }}
                                         </td>
                                     </tr>
                                 @endforelse
@@ -152,7 +152,7 @@
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="addMemberModalLabel">Add Team Member</h5>
+                    <h5 class="modal-title" id="addMemberModalLabel">{{ __('admin.teams.add_member') }}</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
@@ -161,9 +161,9 @@
                     @csrf
                     <div class="modal-body">
                         <div class="form-group">
-                            <label for="user_id">Select Member</label>
+                            <label for="user_id">{{ __('admin.teams.select_member') }}</label>
                             <select name="user_id" id="user_id" class="form-control select2" required style="width: 100%">
-                                <option value="">Select a member...</option>
+                                <option value="">{{ __('admin.buttons.select') }}...</option>
                                 @foreach($candidates as $candidate)
                                     <option value="{{ $candidate->id }}">
                                         {{ $candidate->name }} ({{ $candidate->email }}) -
@@ -174,8 +174,9 @@
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                        <button type="submit" class="btn btn-primary">Add Member</button>
+                        <button type="button" class="btn btn-secondary"
+                            data-dismiss="modal">{{ __('admin.buttons.cancel') }}</button>
+                        <button type="submit" class="btn btn-primary">{{ __('admin.buttons.add_new') }}</button>
                     </div>
                 </form>
             </div>

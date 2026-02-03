@@ -351,5 +351,12 @@ return [
         'founded_year' => 'Founded Year',
         'image' => 'Team Image / Logo',
         'active' => 'Active Team',
+        'add_member' => 'Add Member',
+        'remove_member' => 'Remove Member',
+        'select_member' => 'Select Member',
+        'member' => 'Member',
+        'joined_at' => 'Joined At',
+        'confirm_remove_member' => 'Are you sure you want to remove this member from the team?',
+        'no_members' => 'No members assigned to this team yet.',
     ],
 ];
