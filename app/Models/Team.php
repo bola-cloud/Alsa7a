@@ -57,9 +57,20 @@ class Team extends Model
         if (!$value) {
             return null;
         }
+        // If it's already a full URL, return as-is
         if (preg_match('#^https?://#i', $value)) {
             return $value;
         }
+        // The ImageService stores paths as 'storage/teams/xyz.png'
+        // We need to convert this to a full URL using asset()
         return asset($value);
+    }
+
+    /**
+     * Mutator: store the path as-is from ImageService
+     */
+    public function setImageAttribute($value)
+    {
+        $this->attributes['image'] = $value;
     }
 }
