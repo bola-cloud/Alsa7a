@@ -32,28 +32,12 @@ class ClubController extends Controller
      */
     public function show($id)
     {
-        $club = Club::with(['sports', 'media'])->find($id);
+        $club = Club::with(['sports', 'media', 'teams.sport'])->find($id);
 
         if (!$club) {
             return response()->json(['status' => false, 'message' => 'Club not found'], 404);
         }
 
-        // Fetch Roster (Players) - Users with this club_id AND category='Player' (Category ID logic needed)
-        // Since we store 'category_id' on User, we need to know which ID corresponds to 'Player'.
-        // For robustness, we might rely on the 'Category' model name, or assume the user passes a filter, 
-        // OR simply group users by category.
-
-        // Let's group all users belonging to this club
-        $members = $club->players() // wait, Club has hasMany(Player::class) but we decided to use User.
-            // Let's check Club.php again. It has `public function players() { return $this->hasMany(Player::class); }`
-            // BUT the user said "players can belongs to specific club as these are users".
-            // So we should look for Users with this club_id.
-
-            // Let's override/ignore the existing `players` relation if it points to `Player` model and instead query User.
-            // actually, let's use a query on User model.
-            ->get(); // This is wrong if we want Users.
-
-        // Correct approach: Query Users
         // Fetch Users belonging to this club
         $members = \App\Models\User::where('club_id', $id)
             ->with(['category', 'media']) // Load category and media

@@ -108,6 +108,13 @@ Route::prefix('v1')->middleware('set.api.locale')->group(function () {
         Route::get('clubs/{id}', [App\Http\Controllers\Api\V1\ClubController::class, 'show']);
         Route::post('clubs/{id}/leagues', [App\Http\Controllers\Api\V1\ClubController::class, 'updateLeagues']);
 
+        // Team Management
+        Route::get('clubs/{club_id}/teams', [App\Http\Controllers\Api\V1\TeamController::class, 'index']);
+        Route::post('clubs/{club_id}/teams', [App\Http\Controllers\Api\V1\TeamController::class, 'store']);
+        Route::get('teams/{id}', [App\Http\Controllers\Api\V1\TeamController::class, 'show']);
+        Route::post('teams/{id}', [App\Http\Controllers\Api\V1\TeamController::class, 'update']); // Use POST for update to support images
+        Route::delete('teams/{id}', [App\Http\Controllers\Api\V1\TeamController::class, 'destroy']);
+
         // --- Club Requests (Join/Invite) ---
         Route::get('club-requests', [App\Http\Controllers\Api\V1\ClubRequestController::class, 'index']);
         Route::post('club-requests', [App\Http\Controllers\Api\V1\ClubRequestController::class, 'store']); // Create request

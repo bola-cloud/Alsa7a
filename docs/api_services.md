@@ -76,7 +76,18 @@ Protected routes require a Bearer Token in the header.
 {
     "status": true,
     "data": {
-        "club": { "id": 1, "name": "Al Ahli", ... },
+        "club": { 
+            "id": 1, 
+            "name": "Al Ahli", 
+            "teams": [
+                {
+                    "id": 5,
+                    "name": "First Team",
+                    "sport": { "id": 1, "name": "Football" }
+                }
+            ],
+            ... 
+        },
         "roster": {
             "Player": [ { "id": 10, "name": "Player 1", ... } ],
             "Staff": [ { "id": 11, "name": "Coach 1", ... } ],
@@ -235,34 +246,20 @@ Protected routes require a Bearer Token in the header.
                 "id": 5, 
                 "name": "Coach Ahmed", 
                 "category_id": 3,
-                "category_data": {
-                    "id": 3,
-                    "name": "Football Coach",
-                    "is_service_provider": true,
-                    "parent_category_id": 1,
-                    "parent_category": {
-                        "id": 1,
-                        "name": "Sports",
-                        "image": "..."
-                    }
-                },
-                "questions_data": [
-                    {
-                        "question_id": 55,
-                        "question": "What is your gender?",
-                        "question_en": "What is your gender?",
-                        "question_ar": "ما هو جنسك؟",
-                        "choices": ["Male", "Female"],
-                        "choices_en": ["Male", "Female"],
-                        "choices_ar": ["ذكر", "أنثى"],
-                        "type": "multiple_choice",
-                        "answer": "Male"
-                    }
-                ]
+                ...
             }
         ],
         "total": 5
     },
+    "clubs": [
+        {
+            "id": 1,
+            "name": "Al Ahli Club",
+            "city": "Amman",
+            "logo_url": "http://...",
+            "sports": [...]
+        }
+    ],
     "filterable_questions": [
         {
             "id": 10,
@@ -523,6 +520,77 @@ This endpoint is dynamic and detects your context (Club Owner or individual).
 Allows the creator of a pending request to cancel it.
 
 ---
+
+## 3b. Team Management (Protected)
+Manage teams within a club. Access is restricted to the Club Owner.
+
+### List Teams
+**GET** `/clubs/{club_id}/teams`
+Lists all teams belonging to a specific club.
+
+**Response:**
+```json
+{
+    "status": true,
+    "data": [
+        {
+            "id": 1,
+            "club_id": 10,
+            "sport_id": 1,
+            "name": "Under 17s",
+            "short_name": "U17",
+            "age_group": "2007-2009",
+            "image": "http://...",
+            "sport": { "id": 1, "name": "Football" }
+        }
+    ],
+    "message": "Teams retrieved successfully"
+}
+```
+
+### Create Team
+**POST** `/clubs/{club_id}/teams`
+**Body:**
+- `name`: string (Required)
+- `sport_id`: int (Required, exists in sports table)
+- `age_group`: string (Optional)
+- `short_name`: string (Optional)
+- `jersey_color`: string (Optional)
+- `coach`: string (Optional)
+- `founded_year`: int (Optional)
+- `image`: file (Optional)
+- `active`: boolean (Optional, default true)
+
+**Response (201):**
+```json
+{
+    "status": true,
+    "data": { "id": 1, "name": "New Team", ... },
+    "message": "Team created successfully"
+}
+```
+
+### Get Team Details
+**GET** `/teams/{id}`
+**Response:** Full team object including `club` and `sport` relationships.
+
+### Update Team
+**POST** `/teams/{id}`
+Uses POST to support image replacement.
+**Body:** Same as Create (except `club_id` which is fixed).
+
+### Delete Team
+**DELETE** `/teams/{id}`
+**Response:**
+```json
+{
+    "status": true,
+    "message": "Team deleted successfully"
+}
+```
+
+---
+
 
 ## 4. Provider Endpoints (Protected)
 

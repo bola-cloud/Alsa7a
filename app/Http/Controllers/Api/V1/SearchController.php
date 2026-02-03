@@ -170,8 +170,30 @@ class SearchController extends Controller
                 ->get();
         }
 
+        // 5. Club Search (NEW)
+        $clubs = collect();
+        if ($request->has('search') && $request->search != null) {
+            $search = $request->search;
+            $clubs = \App\Models\Club::where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                    ->orWhere('name_en', 'like', "%{$search}%")
+                    ->orWhere('name_ar', 'like', "%{$search}%")
+                    ->orWhere('city', 'like', "%{$search}%")
+                    ->orWhere('country', 'like', "%{$search}%");
+            })
+                ->with('sports')
+                ->latest()
+                ->get()
+                ->map(function ($club) {
+                    // Ensure full URLs for logo and banner if they are relative paths
+                    // The model has accessors, but explicitly ensuring here for search context if needed.
+                    return $club;
+                });
+        }
+
         return response()->json([
             'users' => $users,
+            'clubs' => $clubs,
             'filterable_questions' => $filterableQuestions,
         ]);
     }
