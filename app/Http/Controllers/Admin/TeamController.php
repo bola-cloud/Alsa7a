@@ -53,6 +53,12 @@ class TeamController extends Controller
         return redirect()->route('admin.clubs.teams.index', $club->id);
     }
 
+    public function show(Club $club, Team $team)
+    {
+        $team->load(['sport', 'members.category']);
+        return view('admin.teams.show', compact('club', 'team'));
+    }
+
     public function edit(Club $club, Team $team)
     {
         $sports = Sport::all();

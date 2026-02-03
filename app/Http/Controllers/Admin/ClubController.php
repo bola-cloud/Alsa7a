@@ -25,7 +25,7 @@ class ClubController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Club::with('sports')->orderBy('id', 'desc');
+        $query = Club::with(['sports', 'owner'])->orderBy('id', 'desc');
 
         if ($request->filled('search')) {
             $search = $request->search;

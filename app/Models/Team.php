@@ -48,4 +48,18 @@ class Team extends Model
     {
         return $this->morphMany(Media::class, 'mediaable');
     }
+
+    /**
+     * Return `image` as full URL.
+     */
+    public function getImageAttribute($value)
+    {
+        if (!$value) {
+            return null;
+        }
+        if (preg_match('#^https?://#i', $value)) {
+            return $value;
+        }
+        return asset($value);
+    }
 }

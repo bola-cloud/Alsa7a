@@ -13,7 +13,7 @@ class ClubController extends Controller
      */
     public function index(Request $request)
     {
-        $clubs = Club::with('sports')
+        $clubs = Club::with(['sports', 'owner'])
             ->where('active', true) // Assuming 'active' column exists based on context, or remove if not. Let's check model first or stick to safe usage. 
             // Migration checked earlier (clubs table): 'active' isn't explicitly in fillable but usually standard. 
             // Checking Club.php again locally might be safer, but let's assume standard 'latest()->paginate()'.
@@ -32,7 +32,7 @@ class ClubController extends Controller
      */
     public function show($id)
     {
-        $club = Club::with(['sports', 'media', 'teams.sport'])->find($id);
+        $club = Club::with(['sports', 'media', 'teams.sport', 'owner'])->find($id);
 
         if (!$club) {
             return response()->json(['status' => false, 'message' => 'Club not found'], 404);

@@ -69,6 +69,7 @@
                                     <th>{{ __('admin.clubs.logo') }}</th>
                                     <th>{{ __('admin.clubs.name') }}</th>
                                     <th>{{ __('admin.clubs.city') }}</th>
+                                    <th>{{ __('Owner') }}</th>
                                     <th>{{ __('admin.menu.sports') }}</th>
                                     <th>{{ __('admin.buttons.actions') }}</th>
                                 </tr>
@@ -89,6 +90,18 @@
                                         </td>
                                         <td class="font-weight-bold">{{ $club->name }}</td>
                                         <td>{{ $club->city }}</td>
+                                        <td>
+                                            @if($club->owner)
+                                                <div class="d-flex align-items-center">
+                                                    <div>
+                                                        <div class="font-weight-bold">{{ $club->owner->name }}</div>
+                                                        <div class="text-muted small">{{ $club->owner->email }}</div>
+                                                    </div>
+                                                </div>
+                                            @else
+                                                <span class="text-muted italic">No Owner</span>
+                                            @endif
+                                        </td>
                                         <td>
                                             @foreach($club->sports as $sport)
                                                 <span class="badge badge-primary round mb-1">{{ $sport->name }}</span>

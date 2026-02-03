@@ -49,7 +49,7 @@
                                         <td>{{ $team->id }}</td>
                                         <td>
                                             @if($team->image)
-                                                <img src="{{ asset('storage/' . $team->image) }}" class="rounded-circle"
+                                                <img src="{{ $team->image }}" class="rounded-circle"
                                                     style="width: 40px; height: 40px; object-fit: cover;">
                                             @else
                                                 <span class="avatar avatar-sm bg-secondary"><span
@@ -65,6 +65,10 @@
                                             </span>
                                         </td>
                                         <td>
+                                            <a href="{{ route('admin.clubs.teams.show', [$club->id, $team->id]) }}"
+                                                class="btn btn-sm btn-icon btn-white text-info mr-1">
+                                                <i class="la la-eye"></i>
+                                            </a>
                                             <a href="{{ route('admin.clubs.teams.edit', [$club->id, $team->id]) }}"
                                                 class="btn btn-sm btn-icon btn-white text-primary mr-1"><i
                                                     class="la la-edit"></i></a>
