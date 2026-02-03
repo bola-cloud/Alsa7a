@@ -114,6 +114,8 @@ Route::prefix('v1')->middleware('set.api.locale')->group(function () {
         Route::get('teams/{id}', [App\Http\Controllers\Api\V1\TeamController::class, 'show']);
         Route::post('teams/{id}', [App\Http\Controllers\Api\V1\TeamController::class, 'update']); // Use POST for update to support images
         Route::delete('teams/{id}', [App\Http\Controllers\Api\V1\TeamController::class, 'destroy']);
+        Route::post('teams/{id}/add-member', [App\Http\Controllers\Api\V1\TeamController::class, 'addMember']);
+        Route::post('teams/{id}/remove-member', [App\Http\Controllers\Api\V1\TeamController::class, 'removeMember']);
 
         // --- Club Requests (Join/Invite) ---
         Route::get('club-requests', [App\Http\Controllers\Api\V1\ClubRequestController::class, 'index']);

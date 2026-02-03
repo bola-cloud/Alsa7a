@@ -589,6 +589,37 @@ Uses POST to support image replacement.
 }
 ```
 
+### Add Member to Team (Protected)
+**POST** `/teams/{id}/add-member`
+Assigns a user to a specific team. User must already be a member of the club.
+
+**Body:**
+- `user_id`: int (Required)
+
+**Response:**
+```json
+{
+    "status": true,
+    "message": "User added to team successfully",
+    "data": { "user_id": 5, "team_id": 1 }
+}
+```
+
+### Remove Member from Team (Protected)
+**POST** `/teams/{id}/remove-member`
+Removes a user from their current team. User must be currently assigned to the specified team.
+
+**Body:**
+- `user_id`: int (Required)
+
+**Response:**
+```json
+{
+    "status": true,
+    "message": "User removed from team successfully"
+}
+```
+
 ---
 
 
@@ -1089,8 +1120,9 @@ This scenario describes how a user books a service, pays for it, and communicate
 This scenario details the structure of Club Rosters and Player Profiles.
 
 1.  **Club Profile**:
-    - `GET /clubs/{id}` returns the club's details (Logo, City, etc.).
-    - **Roster**:The API automatically groups all users belonging to this club by their `Category`.
+    - `GET /clubs/{id}` returns the club's details (Logo, City, Teams, etc.).
+    - **Teams**: The API returns a list of teams belonging to the club, including their age group and sport.
+    - **Roster**: The API automatically groups all users belonging to this club by their `Category`.
     - **Example Response**:
       ```json
       "roster": {

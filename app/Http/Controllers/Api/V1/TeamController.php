@@ -178,4 +178,88 @@ class TeamController extends Controller
             'message' => 'Team deleted successfully'
         ]);
     }
+
+    /**
+     * Add a member to a team.
+     */
+    public function addMember(Request $request, $id)
+    {
+        $team = Team::find($id);
+        if (!$team) {
+            return response()->json(['status' => false, 'message' => 'Team not found'], 404);
+        }
+
+        $club = $team->club;
+        // Authorization: Only club owner can manage team members
+        if (!$club || $club->user_id !== $request->user()->id) {
+            return response()->json(['status' => false, 'message' => 'Unauthorized.'], 403);
+        }
+
+        $validator = Validator::make($request->all(), [
+            'user_id' => 'required|exists:users,id',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['status' => false, 'errors' => $validator->errors()], 422);
+        }
+
+        $user = \App\Models\User::find($request->user_id);
+
+        // Validation: User must belong to the same club
+        if ($user->club_id !== $club->id) {
+            return response()->json(['status' => false, 'message' => 'User is not a member of this club.'], 422);
+        }
+
+        $user->team_id = $team->id;
+        $user->save();
+
+        return response()->json([
+            'status' => true,
+            'message' => 'User added to team successfully',
+            'data' => [
+                'user_id' => $user->id,
+                'team_id' => $team->id
+            ]
+        ]);
+    }
+
+    /**
+     * Remove a member from a team.
+     */
+    public function removeMember(Request $request, $id)
+    {
+        $team = Team::find($id);
+        if (!$team) {
+            return response()->json(['status' => false, 'message' => 'Team not found'], 404);
+        }
+
+        $club = $team->club;
+        // Authorization: Only club owner can manage team members
+        if (!$club || $club->user_id !== $request->user()->id) {
+            return response()->json(['status' => false, 'message' => 'Unauthorized.'], 403);
+        }
+
+        $validator = Validator::make($request->all(), [
+            'user_id' => 'required|exists:users,id',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['status' => false, 'errors' => $validator->errors()], 422);
+        }
+
+        $user = \App\Models\User::find($request->user_id);
+
+        // Validation: Verify if user is actually in this team
+        if ($user->team_id !== $team->id) {
+            return response()->json(['status' => false, 'message' => 'User is not a member of this team.'], 422);
+        }
+
+        $user->team_id = null;
+        $user->save();
+
+        return response()->json([
+            'status' => true,
+            'message' => 'User removed from team successfully'
+        ]);
+    }
 }
