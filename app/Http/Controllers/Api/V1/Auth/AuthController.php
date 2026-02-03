@@ -58,7 +58,14 @@ class AuthController extends Controller
             'password' => Hash::make($data['password']),
             'is_approved' => $autoApprove,
             'onesignal_subscription' => $subscription,
-            'phone_verification_code' => $otp,
+            // 'phone_verification_code' => $otp, // Moved to otp_codes table
+        ]);
+
+        // Save OTP to otp_codes table
+        \App\Models\OtpCode::create([
+            'user_id' => $user->id,
+            'phone' => $user->phone,
+            'otp' => $otp
         ]);
 
         // Send OTP
@@ -88,6 +95,14 @@ class AuthController extends Controller
         $user = User::where('phone', $credentials['phone'])->first();
         if (!$user || !Hash::check($credentials['password'], $user->password)) {
             return response()->json(['message' => 'Invalid credentials'], 401);
+        }
+
+        if (empty($user->phone_verified_at)) {
+            return response()->json([
+                'message' => 'Phone number not verified.',
+                'requires_verification' => true,
+                'user' => $user // sending user so client can get phone/id to request new OTP if needed
+            ], 403);
         }
 
         if (!$user->is_approved) {
@@ -146,16 +161,23 @@ class AuthController extends Controller
 
         $user = User::where('phone', $request->phone)->first();
 
-        if ($user->phone_verification_code !== $request->otp) {
+        // Check OTP table
+        $otpRecord = \App\Models\OtpCode::where('user_id', $user->id)
+            ->where('otp', $request->otp)
+            ->first();
+
+        if (!$otpRecord) {
             return response()->json([
                 'message' => 'Invalid OTP code.',
             ], 400);
         }
 
-        // OTP Valid
+        // OTP Valid - Delete Record
+        $otpRecord->delete();
+
         $user->forceFill([
             'phone_verified_at' => now(),
-            'phone_verification_code' => null, // Clear the code after verification used? OR keep it? Better clear or ignore.
+            // 'phone_verification_code' => null, // No longer used
         ])->save();
 
         // Login the user (create token)
@@ -201,6 +223,75 @@ class AuthController extends Controller
             'status' => true,
             'message' => 'Subscription updated successfully',
             'data' => $user->onesignal_subscription
+        ]);
+    }
+
+    public function forgotPassword(Request $request, \App\Services\OtpService $otpService)
+    {
+        $validator = Validator::make($request->all(), [
+            'phone' => 'required|string|exists:users,phone',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 422);
+        }
+
+        $user = User::where('phone', $request->phone)->first();
+
+        // Generate OTP
+        $otp = (string) rand(100000, 999999);
+
+        // Save OTP to OtpCode table
+        \App\Models\OtpCode::updateOrCreate(
+            ['user_id' => $user->id],
+            ['otp' => $otp, 'phone' => $user->phone]
+        );
+
+        // Send OTP
+        $otpService->sendOtp($user->phone, $otp);
+
+        return response()->json([
+            'message' => 'OTP sent to your phone number.',
+        ]);
+    }
+
+    public function resetPassword(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'phone' => 'required|string|exists:users,phone',
+            'otp' => 'required|string|size:6',
+            'password' => 'required|string|min:6|confirmed',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 422);
+        }
+
+        $user = User::where('phone', $request->phone)->first();
+
+        // Check OTP table
+        $otpRecord = \App\Models\OtpCode::where('user_id', $user->id)
+            ->where('otp', $request->otp)
+            ->first();
+
+        if (!$otpRecord) {
+            return response()->json([
+                'message' => 'Invalid OTP code.',
+            ], 400);
+        }
+
+        // OTP Valid - Delete Record
+        $otpRecord->delete();
+
+        // Update Password
+        $user->forceFill([
+            'password' => Hash::make($request->password),
+            // 'phone_verification_code' => null, // No longer used
+            'phone_verified_at' => $user->phone_verified_at ?? now(),
+        ])->save();
+
+        return response()->json([
+            'message' => 'Password reset successfully. You can now login.',
         ]);
     }
 }

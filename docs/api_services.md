@@ -30,10 +30,21 @@ Protected routes require a Bearer Token in the header.
 **POST** `/auth/register`
 **Body:**
 - `name`: string
-- `email`: string
+- `email`: string (Optional)
+- `phone`: string (Required, Unique)
 - `password`: string
 - `password_confirmation`: string
 - `onesignal_subscription`: string/object (Optional, Player ID string or subscription object)
+
+**Response:**
+```json
+{
+    "message": "Registration successful. OTP sent to phone.",
+    "user": { ... },
+    "requires_verification": true,
+    "requires_approval": false
+}
+```
 
 ### Get Available Clubs
 **GET** `/auth/clubs-available`
@@ -51,10 +62,42 @@ Protected routes require a Bearer Token in the header.
 ### Login
 **POST** `/auth/login`
 **Body:**
-- `email`: string
-- `password`: string
+- `phone`: string (Required)
+- `password`: string (Required)
 - `onesignal_subscription`: string/object (Optional)
 **Response:** Returns token.
+
+### Verify OTP (New)
+**POST** `/auth/verify-otp`
+**Body:**
+- `phone`: string (Required)
+- `otp`: string (Required, 6 digits)
+**Response:** Login response (Token + User).
+
+### Forgot Password (New)
+**POST** `/auth/forgot-password`
+**Body:**
+- `phone`: string (Required)
+**Response:**
+```json
+{
+    "message": "OTP sent to your phone number."
+}
+```
+
+### Reset Password (New)
+**POST** `/auth/reset-password`
+**Body:**
+- `phone`: string (Required)
+- `otp`: string (Required, 6 digits)
+- `password`: string (Required, min 6 chars)
+- `password_confirmation`: string (Required)
+**Response:**
+```json
+{
+    "message": "Password reset successfully. You can now login."
+}
+```
 
 ### Logout (Protected)
 **POST** `/auth/logout`

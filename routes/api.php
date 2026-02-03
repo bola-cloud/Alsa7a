@@ -25,6 +25,8 @@ Route::prefix('v1')->middleware('set.api.locale')->group(function () {
         Route::post('register', [AuthController::class, 'register']);
         Route::post('login', [AuthController::class, 'login']);
         Route::post('verify-otp', [AuthController::class, 'verifyOtp']);
+        Route::post('forgot-password', [AuthController::class, 'forgotPassword']);
+        Route::post('reset-password', [AuthController::class, 'resetPassword']);
         Route::get('clubs-available', [AuthController::class, 'clubsAvailable']); // New
     });
 
