@@ -23,6 +23,47 @@ class AuthController extends Controller
         return response()->json(['data' => $clubs]);
     }
 
+    /**
+     * Helper to generate and send OTP
+     */
+    private function generateAndSendOtp(User $user, \App\Services\OtpService $otpService)
+    {
+        // Generate OTP
+        $otp = (string) rand(100000, 999999);
+
+        // Update or Create OTP record
+        \App\Models\OtpCode::updateOrCreate(
+            ['user_id' => $user->id],
+            ['otp' => $otp, 'phone' => $user->phone]
+        );
+
+        // Send OTP
+        $otpService->sendOtp($user->phone, $otp);
+    }
+
+    /**
+     * Send OTP API (Re-send or New Request)
+     */
+    public function sendOtp(Request $request, \App\Services\OtpService $otpService)
+    {
+        $validator = Validator::make($request->all(), [
+            'phone' => 'required|string|exists:users,phone',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 422);
+        }
+
+        $user = User::where('phone', $request->phone)->first();
+
+        // Use helper to generate and send
+        $this->generateAndSendOtp($user, $otpService);
+
+        return response()->json([
+            'message' => 'OTP sent to your phone number.',
+        ]);
+    }
+
     public function register(Request $request, \App\Services\OtpService $otpService)
     {
         $data = $request->only(['name', 'email', 'phone', 'password', 'onesignal_subscription']);
@@ -48,9 +89,6 @@ class AuthController extends Controller
             $subscription = ['id' => $subscription];
         }
 
-        // Generate OTP
-        $otp = (string) rand(100000, 999999);
-
         $user = User::create([
             'name' => $data['name'],
             'email' => $data['email'] ?? null,
@@ -58,18 +96,10 @@ class AuthController extends Controller
             'password' => Hash::make($data['password']),
             'is_approved' => $autoApprove,
             'onesignal_subscription' => $subscription,
-            // 'phone_verification_code' => $otp, // Moved to otp_codes table
         ]);
 
-        // Save OTP to otp_codes table
-        \App\Models\OtpCode::create([
-            'user_id' => $user->id,
-            'phone' => $user->phone,
-            'otp' => $otp
-        ]);
-
-        // Send OTP
-        $otpService->sendOtp($user->phone, $otp);
+        // Use helper to generate and send
+        $this->generateAndSendOtp($user, $otpService);
 
         return response()->json([
             'message' => 'Registration successful. OTP sent to phone.',
@@ -238,17 +268,8 @@ class AuthController extends Controller
 
         $user = User::where('phone', $request->phone)->first();
 
-        // Generate OTP
-        $otp = (string) rand(100000, 999999);
-
-        // Save OTP to OtpCode table
-        \App\Models\OtpCode::updateOrCreate(
-            ['user_id' => $user->id],
-            ['otp' => $otp, 'phone' => $user->phone]
-        );
-
-        // Send OTP
-        $otpService->sendOtp($user->phone, $otp);
+        // Use helper to generate and send
+        $this->generateAndSendOtp($user, $otpService);
 
         return response()->json([
             'message' => 'OTP sent to your phone number.',

@@ -74,6 +74,17 @@ Protected routes require a Bearer Token in the header.
 - `otp`: string (Required, 6 digits)
 **Response:** Login response (Token + User).
 
+### Send OTP (New)
+**POST** `/auth/send-otp`
+**Body:**
+- `phone`: string (Required)
+**Response:**
+```json
+{
+    "message": "OTP sent to your phone number."
+}
+```
+
 ### Forgot Password (New)
 **POST** `/auth/forgot-password`
 **Body:**
