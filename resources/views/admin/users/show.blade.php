@@ -152,7 +152,8 @@
                                                 }
                                             @endphp
                                             <tr>
-                                                <td>{{ $question->question }}</td>
+                                                <td>{{ $question->question[app()->getLocale()] ?? $question->question['en'] ?? json_encode($question->question) }}
+                                                </td>
                                                 <td><span
                                                         class="badge badge-info">{{ __('admin.questions.types.' . $question->type) }}</span>
                                                 </td>

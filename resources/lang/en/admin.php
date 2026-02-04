@@ -371,5 +371,6 @@ return [
         'sent_at' => 'Sent At',
         'no_pending_codes' => 'No pending verification codes.',
         'verified_successfully' => 'User phone verified successfully.',
+        'force_verification' => 'Force Verification',
     ],
 ];

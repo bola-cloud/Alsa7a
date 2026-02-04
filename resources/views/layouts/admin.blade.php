@@ -274,6 +274,12 @@
                                 <span class="menu-title">{{ __('admin.otps.title') }}</span>
                             </a>
                         </li>
+                        <li class="nav-item {{ request()->routeIs('admin.verification.manual') ? 'active' : '' }}">
+                            <a href="{{ route('admin.verification.manual') }}">
+                                <i class="la la-shield"></i>
+                                <span class="menu-title">{{ __('admin.otps.force_verification') }}</span>
+                            </a>
+                        </li>
                         <li class="nav-item {{ Route::is('admin.categories.*') ? 'active' : '' }}">
                             <a href="{{ route('admin.categories.index') }}">
                                 <i class="la la-list"></i>

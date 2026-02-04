@@ -190,4 +190,35 @@ class UserController extends Controller
 
         return redirect()->back()->with('swal_success', __('admin.otps.verified_successfully'));
     }
+
+    /**
+     * Manual Verification Page
+     */
+    public function manualVerificationIndex()
+    {
+        return view('admin.users.manual_verification');
+    }
+
+    /**
+     * Search Users for Select2
+     */
+    public function searchUsers(Request $request)
+    {
+        $term = $request->term;
+        $users = User::where('name', 'like', '%' . $term . '%')
+            ->orWhere('email', 'like', '%' . $term . '%')
+            ->orWhere('phone', 'like', '%' . $term . '%')
+            ->limit(10)
+            ->get();
+
+        $formatted = $users->map(function ($user) {
+            return [
+                'id' => $user->id,
+                'text' => $user->name . ' (' . $user->phone . ')',
+                'user' => $user->toArray() + ['profile_photo_url' => $user->profile_photo_url],
+            ];
+        });
+
+        return response()->json($formatted);
+    }
 }
