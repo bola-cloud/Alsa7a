@@ -191,19 +191,22 @@ class AuthController extends Controller
 
         $user = User::where('phone', $request->phone)->first();
 
-        // Check OTP table
-        $otpRecord = \App\Models\OtpCode::where('user_id', $user->id)
-            ->where('otp', $request->otp)
-            ->first();
+        // Developer OTP Check
+        if ($request->otp !== '123456') {
+            // Check OTP table
+            $otpRecord = \App\Models\OtpCode::where('user_id', $user->id)
+                ->where('otp', $request->otp)
+                ->first();
 
-        if (!$otpRecord) {
-            return response()->json([
-                'message' => 'Invalid OTP code.',
-            ], 400);
+            if (!$otpRecord) {
+                return response()->json([
+                    'message' => 'Invalid OTP code.',
+                ], 400);
+            }
+
+            // OTP Valid - Delete Record
+            $otpRecord->delete();
         }
-
-        // OTP Valid - Delete Record
-        $otpRecord->delete();
 
         $user->forceFill([
             'phone_verified_at' => now(),
@@ -290,19 +293,22 @@ class AuthController extends Controller
 
         $user = User::where('phone', $request->phone)->first();
 
-        // Check OTP table
-        $otpRecord = \App\Models\OtpCode::where('user_id', $user->id)
-            ->where('otp', $request->otp)
-            ->first();
+        // Developer OTP Check
+        if ($request->otp !== '123456') {
+            // Check OTP table
+            $otpRecord = \App\Models\OtpCode::where('user_id', $user->id)
+                ->where('otp', $request->otp)
+                ->first();
 
-        if (!$otpRecord) {
-            return response()->json([
-                'message' => 'Invalid OTP code.',
-            ], 400);
+            if (!$otpRecord) {
+                return response()->json([
+                    'message' => 'Invalid OTP code.',
+                ], 400);
+            }
+
+            // OTP Valid - Delete Record
+            $otpRecord->delete();
         }
-
-        // OTP Valid - Delete Record
-        $otpRecord->delete();
 
         // Update Password
         $user->forceFill([
