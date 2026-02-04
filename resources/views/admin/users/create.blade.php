@@ -112,3 +112,29 @@
         </div>
     </div>
 @endsection
+
+@push('js')
+    <script>
+        $(document).ready(function () {
+            $('#club_id').on('change', function () {
+                var clubId = $(this).val();
+                var teamSelect = $('#team_id');
+                teamSelect.html('<option value="">Loading...</option>');
+
+                if (clubId) {
+                    var url = "{{ route('admin.clubs.teams_json', ':id') }}";
+                    url = url.replace(':id', clubId);
+
+                    $.get(url, function (data) {
+                        teamSelect.html('<option value="">{{ __("admin.buttons.select") }}</option>');
+                        $.each(data, function (key, team) {
+                            teamSelect.append('<option value="' + team.id + '">' + team.name + '</option>');
+                        });
+                    });
+                } else {
+                    teamSelect.html('<option value="">{{ __("admin.buttons.select") }}</option>');
+                }
+            });
+        });
+    </script>
+@endpush

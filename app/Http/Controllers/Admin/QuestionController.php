@@ -51,7 +51,7 @@ class QuestionController extends Controller
         $request->validate([
             'question_en' => 'required|string|max:65000',
             'question_ar' => 'required|string|max:65000',
-            'type' => 'required|in:text,number,boolean,rating,multiple_choice',
+            'type' => 'required|in:text,number,boolean,rating,multiple_choice,multi_select',
             'category_id' => 'required|exists:categories,id',
             'choices' => 'nullable|string',
         ]);

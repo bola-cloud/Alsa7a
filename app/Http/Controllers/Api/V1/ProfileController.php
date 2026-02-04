@@ -94,7 +94,8 @@ class ProfileController extends Controller
                 'club' => $user->club ? [
                     'id' => $user->club->id,
                     'name' => $user->club->name,
-                    'logo' => $user->club->logo_url
+                    'logo' => $user->club->logo_url,
+                    'user_id' => $user->club->user_id, // Club Owner User ID
                 ] : null,
                 'team_id' => $user->team_id,
                 'position' => $user->position,
@@ -163,6 +164,31 @@ class ProfileController extends Controller
                 if ($user->ownedClub || ($user->club && $user->club->user_id === $user->id))
                     return 'admin';
                 return 'member';
+            })(),
+            'club_relationship' => (function () use ($user, $currentUser) {
+                // If viewer is not logged in or doesn't own a club, return null
+                if (!$currentUser || !$currentUser->ownedClub) {
+                    return null;
+                }
+
+                $myClubId = $currentUser->ownedClub->id;
+
+                // 1. Check if user is already a member
+                if ($user->club_id == $myClubId) {
+                    return 'member';
+                }
+
+                // 2. Check for pending requests
+                $pendingRequest = \App\Models\ClubRequest::where('club_id', $myClubId)
+                    ->where('user_id', $user->id)
+                    ->where('status', 'pending')
+                    ->first();
+
+                if ($pendingRequest) {
+                    return $pendingRequest->type === 'invite' ? 'invite_pending' : 'join_pending';
+                }
+
+                return 'none';
             })(),
         ];
 

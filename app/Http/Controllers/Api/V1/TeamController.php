@@ -89,11 +89,23 @@ class TeamController extends Controller
      */
     public function show($id)
     {
-        $team = Team::with(['club', 'sport'])->find($id);
+        $team = Team::with([
+            'club',
+            'sport',
+            'members' => function ($q) {
+                $q->select('users.id', 'users.name', 'users.profile_photo_path', 'users.position', 'users.number', 'users.team_id');
+            }
+        ])->find($id);
 
         if (!$team) {
             return response()->json(['status' => false, 'message' => 'Team not found'], 404);
         }
+
+        // Transform members to include full profile photo URL
+        $team->members->transform(function ($member) {
+            $member->image = $member->profile_photo_url;
+            return $member;
+        });
 
         return response()->json([
             'status' => true,

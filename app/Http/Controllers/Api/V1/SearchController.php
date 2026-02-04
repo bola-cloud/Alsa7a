@@ -67,11 +67,12 @@ class SearchController extends Controller
             }
         }
 
-        // Only active/approved users usually
-        $query->where('is_approved', true);
+        // Only active/approved users usually, and EXCLUDE ADMINS
+        $query->where('is_approved', true)
+            ->where('is_admin', '!=', true);
 
         // Eager load relationships needed for the response
-        $query->with(['answers.question', 'category']);
+        $query->with(['answers.question', 'category', 'ownedClub', 'club']);
 
         // Execute Query
         $users = $query->paginate(20);
@@ -157,6 +158,33 @@ class SearchController extends Controller
                     'image' => $user->category->parentCategory->image ? url('storage/' . $user->category->parentCategory->image) : null,
                 ] : null,
             ] : null;
+
+            // 5. Professional & Club Data (Consistency with Profile API)
+            $user->professional = [
+                'club' => $user->club ? [
+                    'id' => $user->club->id,
+                    'name' => $user->club->name,
+                    'logo' => $user->club->logo_url,
+                    'user_id' => $user->club->user_id, // Club Owner User ID
+                ] : null,
+                'team_id' => $user->team_id,
+                'position' => $user->position,
+                'number' => $user->number,
+                'nationality' => $user->nationality,
+                'stats' => $user->stats,
+            ];
+
+            $user->is_club_account = (bool) $user->ownedClub;
+
+            if ($user->is_club_account && $user->ownedClub) {
+                $club = $user->ownedClub;
+                $user->club_details = [
+                    'id' => $club->id,
+                    'name' => $club->name,
+                    'logo' => $club->logo_url,
+                    'banner' => $club->banner_url,
+                ];
+            }
 
             return $user;
         });

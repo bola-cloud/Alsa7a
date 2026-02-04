@@ -48,25 +48,29 @@
                         </p>
 
                         <div class="card-actions">
-                            <a href="{{ route('admin.categories.edit', $category->id) }}" class="btn btn-sm btn-outline-primary"
-                                title="{{ __('admin.buttons.edit') }}">
-                                <i class="la la-edit"></i>
-                            </a>
+                            @if(!$category->isProtected())
+                                <a href="{{ route('admin.categories.edit', $category->id) }}" class="btn btn-sm btn-outline-primary"
+                                    title="{{ __('admin.buttons.edit') }}">
+                                    <i class="la la-edit"></i>
+                                </a>
+                            @endif
 
                             <a href="{{ route('admin.questions.index', ['category_id' => $category->id]) }}"
                                 class="btn btn-sm btn-outline-info" title="{{ __('admin.menu.questions') }}">
                                 <i class="la la-question-circle"></i>
                             </a>
 
-                            <form action="{{ route('admin.categories.destroy', $category->id) }}" method="POST"
-                                onsubmit="return confirm('{{ __('admin.buttons.confirm_delete') }}');">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="btn btn-sm btn-outline-danger"
-                                    title="{{ __('admin.buttons.delete') }}">
-                                    <i class="la la-trash"></i>
-                                </button>
-                            </form>
+                            @if(!$category->isProtected())
+                                <form action="{{ route('admin.categories.destroy', $category->id) }}" method="POST"
+                                    onsubmit="return confirm('{{ __('admin.buttons.confirm_delete') }}');">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="btn btn-sm btn-outline-danger"
+                                        title="{{ __('admin.buttons.delete') }}">
+                                        <i class="la la-trash"></i>
+                                    </button>
+                                </form>
+                            @endif
                         </div>
                     </div>
                 </div>

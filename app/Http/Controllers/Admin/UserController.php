@@ -227,4 +227,13 @@ class UserController extends Controller
 
         return response()->json($formatted);
     }
+
+    /**
+     * Get Teams for a Club (JSON for Select2/Ajax)
+     */
+    public function getClubTeams(\App\Models\Club $club)
+    {
+        $teams = $club->teams()->select('id', 'name')->get();
+        return response()->json($teams);
+    }
 }

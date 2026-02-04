@@ -164,7 +164,7 @@
     </div>
 @endsection
 
-@push('scripts')
+@push('js')
     <script>
         $(document).ready(function () {
             $('#club_id').on('change', function () {
@@ -173,13 +173,12 @@
                 teamSelect.html('<option value="">Loading...</option>');
 
                 if (clubId) {
-                    // We'll use a simple fetch to get teams for this club
-                    // Using a generic API endpoint if exists, or adding a quick route
-                    $.get('/api/v1/clubs/' + clubId + '/teams', function (data) {
+                    var url = "{{ route('admin.clubs.teams_json', ':id') }}";
+                    url = url.replace(':id', clubId);
+
+                    $.get(url, function (data) {
                         teamSelect.html('<option value="">{{ __("admin.buttons.select") }}</option>');
-                        // Data might be under data.data depending on API structure
-                        var teams = data.data || data;
-                        $.each(teams, function (key, team) {
+                        $.each(data, function (key, team) {
                             teamSelect.append('<option value="' + team.id + '">' + team.name + '</option>');
                         });
                     });

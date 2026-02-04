@@ -89,4 +89,14 @@ class Category extends Model
     {
         return $this->hasMany(User::class);
     }
+
+    /**
+     * Check if the category is protected from edit/delete
+     */
+    public function isProtected()
+    {
+        // Protected categories by name (English or Arabic)
+        $protectedNames = ['Club', 'نادي'];
+        return in_array($this->name_en, $protectedNames) || in_array($this->name_ar, $protectedNames);
+    }
 }
