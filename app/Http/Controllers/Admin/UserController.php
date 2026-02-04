@@ -215,7 +215,13 @@ class UserController extends Controller
             return [
                 'id' => $user->id,
                 'text' => $user->name . ' (' . $user->phone . ')',
-                'user' => $user->toArray() + ['profile_photo_url' => $user->profile_photo_url],
+                'user' => [
+                    'id' => $user->id,
+                    'name' => $user->name,
+                    'phone' => $user->phone,
+                    'profile_photo_url' => $user->profile_photo_url,
+                    'phone_verified_at' => $user->phone_verified_at,
+                ],
             ];
         });
 

@@ -584,9 +584,7 @@
             });
         });
     </script>
-
-    @livewireScripts
-    @stack('js')
+@stack('js')
 
 </body>
 
