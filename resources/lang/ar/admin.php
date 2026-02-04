@@ -367,5 +367,6 @@ return [
         'otp_code' => 'رمز التحقق',
         'sent_at' => 'أرسل في',
         'no_pending_codes' => 'لا توجد رموز تحقق معلقة.',
+        'verified_successfully' => 'تم تأكيد رقم هاتف المستخدم بنجاح.',
     ],
 ];

@@ -14,6 +14,7 @@
                             <th>{{ __('admin.otps.phone') }}</th>
                             <th>{{ __('admin.otps.otp_code') }}</th>
                             <th>{{ __('admin.otps.sent_at') }}</th>
+                            <th>{{ __('admin.buttons.actions') }}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -31,6 +32,16 @@
                                 <td>{{ $code->phone }}</td>
                                 <td>{{ $code->otp }}</td>
                                 <td>{{ $code->created_at->format('Y-m-d H:i') }}</td>
+                                <td>
+                                    <form action="{{ route('admin.users.verify_phone', $code->user_id) }}" method="POST"
+                                        class="d-inline-block">
+                                        @csrf
+                                        <button type="submit" class="btn btn-sm btn-danger"
+                                            onclick="return confirm('{{ __('admin.users.confirm_verify_phone') }}')">
+                                            {{ __('admin.users.verify') }}
+                                        </button>
+                                    </form>
+                                </td>
                             </tr>
                         @empty
                             <tr>

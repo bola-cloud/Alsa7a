@@ -48,7 +48,22 @@
                             </li>
                             <li class="list-group-item d-flex justify-content-between align-items-center">
                                 {{ __('admin.users.phone') }}
-                                <span>{{ $user->phone }}</span>
+                                <div>
+                                    <span>{{ $user->phone }}</span>
+                                    @if($user->phone_verified_at)
+                                        <i class="la la-check-circle text-success" title="{{ __('admin.users.verified') }}"></i>
+                                    @else
+                                        <form action="{{ route('admin.users.verify_phone', $user->id) }}" method="POST"
+                                            class="d-inline-block ml-1">
+                                            @csrf
+                                            <button type="submit" class="btn btn-sm btn-danger py-0 px-1"
+                                                title="{{ __('admin.users.force_verify') }}"
+                                                onclick="return confirm('{{ __('admin.users.confirm_verify_phone') }}')">
+                                                {{ __('admin.users.verify') }}
+                                            </button>
+                                        </form>
+                                    @endif
+                                </div>
                             </li>
                             <li class="list-group-item d-flex justify-content-between align-items-center">
                                 {{ __('admin.users.role_category') }}

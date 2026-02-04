@@ -175,4 +175,19 @@ class UserController extends Controller
 
         return redirect()->back()->with('swal_success', 'Verification status updated');
     }
+
+    /**
+     * Manually Verify Phone Number
+     */
+    public function verifyPhone(User $user)
+    {
+        $user->forceFill([
+            'phone_verified_at' => now(),
+        ])->save();
+
+        // Delete any pending OTPs
+        \App\Models\OtpCode::where('user_id', $user->id)->delete();
+
+        return redirect()->back()->with('swal_success', __('admin.otps.verified_successfully'));
+    }
 }
