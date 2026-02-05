@@ -48,16 +48,18 @@ class SearchController extends Controller
                         $q->where('question_id', $questionId);
 
                         // Data is stored as {"value": "..."} or {"value": ["...", "..."]}
-                        // We use whereJsonContains to check if the 'value' part of the JSON contains the searched value
-                        if (is_array($answerValue)) {
-                            $q->where(function ($subQ) use ($answerValue) {
+                        // To be robust, we check both exact match (for strings) and JSON containment (for arrays)
+                        $q->where(function ($subQ) use ($answerValue) {
+                            if (is_array($answerValue)) {
                                 foreach ($answerValue as $val) {
-                                    $subQ->orWhereJsonContains('answer->value', $val);
+                                    $subQ->orWhere('answer->value', $val)
+                                        ->orWhereJsonContains('answer->value', $val);
                                 }
-                            });
-                        } else {
-                            $q->whereJsonContains('answer->value', $answerValue);
-                        }
+                            } else {
+                                $subQ->where('answer->value', $answerValue)
+                                    ->orWhereJsonContains('answer->value', $answerValue);
+                            }
+                        });
                     });
                 }
             }
