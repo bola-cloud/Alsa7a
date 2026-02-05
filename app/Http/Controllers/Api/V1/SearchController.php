@@ -194,8 +194,34 @@ class SearchController extends Controller
         if ($request->has('category_id') && $request->category_id != null) {
             $filterableQuestions = Question::where('category_id', $request->category_id)
                 ->where('type', '!=', 'text') // Exclude text questions as requested
-                ->select('id', 'question', 'type', 'choices')
-                ->get();
+                ->get()
+                ->map(function ($q) {
+                    $qData = $q->question;
+                    $questionEn = is_array($qData) ? ($qData['en'] ?? null) : $qData;
+                    $questionAr = is_array($qData) ? ($qData['ar'] ?? null) : $qData;
+
+                    $choicesData = $q->choices;
+                    $choices = [];
+                    $choicesEn = [];
+                    $choicesAr = [];
+
+                    if (is_array($choicesData) && !empty($choicesData)) {
+                        $choices = array_values($choicesData);
+                        $choicesEn = array_keys($choicesData);
+                        $choicesAr = array_values($choicesData);
+                    }
+
+                    return [
+                        'id' => $q->id,
+                        'question' => $questionEn ?: ($questionAr ?: ''),
+                        'question_en' => $questionEn,
+                        'question_ar' => $questionAr,
+                        'type' => $q->type,
+                        'choices' => $choices,
+                        'choices_en' => $choicesEn,
+                        'choices_ar' => $choicesAr,
+                    ];
+                });
         }
 
         // 5. Club Search (NEW)
