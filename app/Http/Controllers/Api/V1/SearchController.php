@@ -41,27 +41,23 @@ class SearchController extends Controller
         // Expecting 'filters' as an array: [ question_id => value, ... ]
         if ($request->has('filters') && is_array($request->filters)) {
             foreach ($request->filters as $questionId => $answerValue) {
-                if ($answerValue) {
+                if ($answerValue !== null && $answerValue !== '') {
                     // Filter users who have answered this question with the specific value
                     // We use whereHas to check the relation
                     $query->whereHas('answers', function ($q) use ($questionId, $answerValue) {
                         $q->where('question_id', $questionId);
 
-                        // Handle JSON 'answer' column. 
-                        // Assuming basic equality for simple types (text, number, boolean)
-                        // For multiple_choice, it might be stored as an array or string.
-                        // We'll use JSON_CONTAINS or simple LIKE depending on storage.
-                        // Ideally, if it's a single value stored in JSON: where('answer', $answerValue) or standard JSON querying.
-
-                        // If answer is stored as ["Value"], we might need whereJsonContains.
-                        // If it's just "Value", strictly matching might be tricky if it's cast to array in model.
-                        // Let's try basic JSON containment which works for ["Value"] or "Value" in recent MySQL/MariaDB/Postgres.
-
-                        // However, QuestionAnswer model casts 'answer' => 'array'.
-                        // So in DB it is JSON.
-                        // If the user sends "Yes", we search if JSON contains "Yes".
-
-                        $q->whereJsonContains('answer', $answerValue);
+                        // Data is stored as {"value": "..."} or {"value": ["...", "..."]}
+                        // We use whereJsonContains to check if the 'value' part of the JSON contains the searched value
+                        if (is_array($answerValue)) {
+                            $q->where(function ($subQ) use ($answerValue) {
+                                foreach ($answerValue as $val) {
+                                    $subQ->orWhereJsonContains('answer->value', $val);
+                                }
+                            });
+                        } else {
+                            $q->whereJsonContains('answer->value', $answerValue);
+                        }
                     });
                 }
             }

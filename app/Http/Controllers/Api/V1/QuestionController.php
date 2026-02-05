@@ -137,11 +137,15 @@ class QuestionController extends Controller
             // Always wrap in 'value' key to ensure consistency for Admin Panel
             $stored = ['value' => $answerValue];
 
-            $qa = QuestionAnswer::create([
-                'user_id' => $user ? $user->id : null,
-                'question_id' => $item['question_id'],
-                'answer' => $stored,
-            ]);
+            $qa = QuestionAnswer::updateOrCreate(
+                [
+                    'user_id' => $user ? $user->id : null,
+                    'question_id' => $item['question_id'],
+                ],
+                [
+                    'answer' => $stored,
+                ]
+            );
 
             $created[] = $qa;
         }
