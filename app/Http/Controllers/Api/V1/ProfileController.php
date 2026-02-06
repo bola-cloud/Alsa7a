@@ -399,18 +399,12 @@ class ProfileController extends Controller
         }
 
         $followers = $user->followers()
-            ->select('users.id', 'users.name', 'users.email', 'users.profile_photo_path', 'users.profile_title')
+            ->with(['ownedClub', 'club', 'category.parentCategory', 'answers.question'])
             ->paginate(15);
 
-        // Transform collection to ensure full image URL
-        $followers->getCollection()->transform(function ($follower) {
-            $follower->image = $follower->profile_photo_url;
-            if ($follower->profile_photo_path) {
-                $url = url('storage/' . $follower->profile_photo_path);
-                $follower->image = $url;
-                $follower->profile_photo_url = $url;
-            }
-            return $follower;
+        // Transform collection using the standard profile formatting
+        $followers->getCollection()->transform(function ($follower) use ($request) {
+            return $this->formatProfileResponse($follower, false, $request->user('sanctum'));
         });
 
         // Check if I am following them (for the button state)
@@ -441,18 +435,12 @@ class ProfileController extends Controller
         }
 
         $following = $user->following()
-            ->select('users.id', 'users.name', 'users.email', 'users.profile_photo_path', 'users.profile_title')
+            ->with(['ownedClub', 'club', 'category.parentCategory', 'answers.question'])
             ->paginate(15);
 
-        // Transform collection to ensure full image URL
-        $following->getCollection()->transform(function ($follow) {
-            $follow->image = $follow->profile_photo_url;
-            if ($follow->profile_photo_path) {
-                $url = url('storage/' . $follow->profile_photo_path);
-                $follow->image = $url;
-                $follow->profile_photo_url = $url;
-            }
-            return $follow;
+        // Transform collection using the standard profile formatting
+        $following->getCollection()->transform(function ($follow) use ($request) {
+            return $this->formatProfileResponse($follow, false, $request->user('sanctum'));
         });
 
         if ($currentUser = $request->user('sanctum')) {
