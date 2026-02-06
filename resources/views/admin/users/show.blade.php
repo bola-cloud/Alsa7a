@@ -149,6 +149,11 @@
                                                     } else {
                                                         $displayVal = $val;
                                                     }
+
+                                                    // Handle multi-select or other array values to prevent htmlspecialchars error
+                                                    if (is_array($displayVal)) {
+                                                        $displayVal = implode(', ', $displayVal);
+                                                    }
                                                 }
                                             @endphp
                                             <tr>
