@@ -78,7 +78,7 @@
                                 @endif
                             </li>
                             <li class="list-group-item d-flex justify-content-between align-items-center">
-                                Status
+                                {{ __('admin.users.status') }}
                                 <div>
                                     @if($user->is_approved)
                                         <span class="badge badge-success">{{ __('admin.users.approved') }}</span>
@@ -87,7 +87,7 @@
                                     @endif
 
                                     @if($user->is_blocked)
-                                        <span class="badge badge-danger">{{ __('admin.block') }}</span>
+                                        <span class="badge badge-danger">{{ __('admin.users.block') }}</span>
                                     @endif
                                 </div>
                             </li>
@@ -98,7 +98,7 @@
                                         <button type="submit"
                                             class="btn btn-sm btn-block {{ $user->is_blocked ? 'btn-success' : 'btn-warning' }}">
                                             <i class="la {{ $user->is_blocked ? 'la-unlock' : 'la-ban' }}"></i>
-                                            {{ $user->is_blocked ? __('admin.unblock') : __('admin.block') }}
+                                            {{ $user->is_blocked ? __('admin.users.unblock') : __('admin.users.block') }}
                                         </button>
                                     </form>
                                 </li>

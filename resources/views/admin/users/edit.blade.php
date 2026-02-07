@@ -101,7 +101,8 @@
                                     <div class="custom-control custom-checkbox">
                                         <input type="checkbox" class="custom-control-input" name="is_blocked" id="isBlocked"
                                             value="1" {{ old('is_blocked', $user->is_blocked) ? 'checked' : '' }}>
-                                        <label class="custom-control-label" for="isBlocked">{{ __('admin.block') }}</label>
+                                        <label class="custom-control-label"
+                                            for="isBlocked">{{ __('admin.users.is_blocked') }}</label>
                                     </div>
                                 </div>
 

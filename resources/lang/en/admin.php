@@ -59,8 +59,6 @@ return [
         'select' => 'Select',
         'manage' => 'Manage',
         'currency' => 'OMR',
-        'block' => 'Block',
-        'unblock' => 'Unblock',
     ],
     'community_posts' => [
         'title' => 'Community Posts',
@@ -240,6 +238,9 @@ return [
         'created_successfully' => 'Created successfully',
         'updated_successfully' => 'Updated successfully',
         'deleted_successfully' => 'Deleted successfully',
+        'blocked_successfully' => 'User blocked successfully',
+        'unblocked_successfully' => 'User unblocked successfully',
+        'approve_successfully' => 'User approved successfully',
         'confirm_delete' => 'Are you sure you want to delete this item?',
         'no_description' => 'No description available',
         'updated' => 'Updated successfully',
@@ -303,6 +304,9 @@ return [
         'reason' => 'Reason (if rejected)',
         'no_docs' => 'No documents uploaded.',
         'no_questions' => 'No questions found for this user\'s category.',
+        'block' => 'Block',
+        'unblock' => 'Unblock',
+        'is_blocked' => 'Is Blocked?',
     ],
     'status' => [
         'pending' => 'Pending',

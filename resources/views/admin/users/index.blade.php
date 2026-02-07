@@ -82,7 +82,7 @@
                                         @endif
 
                                         @if($user->is_blocked)
-                                            <span class="badge badge-danger">{{ __('admin.block') }}</span>
+                                            <span class="badge badge-danger">{{ __('admin.users.block') }}</span>
                                         @endif
                                     </td>
                                     <td>
@@ -105,7 +105,7 @@
                                                 style="display:inline-block;">
                                                 @csrf
                                                 <button type="submit" class="btn btn-sm {{ $user->is_blocked ? 'btn-success' : 'btn-warning' }}" 
-                                                    title="{{ $user->is_blocked ? __('admin.unblock') : __('admin.block') }}">
+                                                    title="{{ $user->is_blocked ? __('admin.users.unblock') : __('admin.users.block') }}">
                                                     <i class="la {{ $user->is_blocked ? 'la-unlock' : 'la-ban' }}"></i>
                                                 </button>
                                             </form>

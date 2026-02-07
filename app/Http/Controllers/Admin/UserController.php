@@ -155,8 +155,8 @@ class UserController extends Controller
         $user->is_blocked = !$user->is_blocked;
         $user->save();
 
-        $status = $user->is_blocked ? 'blocked' : 'unblocked';
-        return redirect()->back()->with('swal_success', "User {$status} successfully");
+        $statusKey = $user->is_blocked ? 'blocked_successfully' : 'unblocked_successfully';
+        return redirect()->back()->with('swal_success', __("admin.messages.{$statusKey}"));
     }
 
     /**
@@ -166,7 +166,7 @@ class UserController extends Controller
     {
         $user->is_approved = true;
         $user->save();
-        return redirect()->back()->with('swal_success', 'User approved successfully');
+        return redirect()->back()->with('swal_success', __('admin.messages.approve_successfully'));
     }
 
     /**
