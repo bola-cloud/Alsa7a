@@ -66,7 +66,17 @@ class HomeController extends Controller
         $featuredClubs = $topClubs;
 
         // featured services
-        $featuredServices = Service::with(['provider', 'sport', 'club'])->where('is_featured', true)->where('is_active', true)->take(10)->get();
+        $featuredServices = Service::with(['provider', 'sport', 'club', 'media'])->where('is_featured', true)->where('is_active', true)->take(10)->get();
+
+        // Transform featured services to include a primary image URL
+        $featuredServices->transform(function ($service) {
+            $service->image = null;
+            if ($service->media->count() > 0) {
+                $service->image = $service->media->first()->full_url;
+            }
+            return $service;
+        });
+
 
         return response()->json([
             'status' => true,
