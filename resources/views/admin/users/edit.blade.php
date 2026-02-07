@@ -97,6 +97,14 @@
                                     </div>
                                 </div>
 
+                                <div class="form-group">
+                                    <div class="custom-control custom-checkbox">
+                                        <input type="checkbox" class="custom-control-input" name="is_blocked" id="isBlocked"
+                                            value="1" {{ old('is_blocked', $user->is_blocked) ? 'checked' : '' }}>
+                                        <label class="custom-control-label" for="isBlocked">{{ __('admin.block') }}</label>
+                                    </div>
+                                </div>
+
                                 <div class="mt-4 mb-3">
                                     <h5 class="text-muted text-uppercase small font-weight-bold"><i class="la la-users"></i>
                                         {{ __('admin.clubs.roster_details') }}</h5>

@@ -58,6 +58,9 @@ return [
         'active' => 'نشط',
         'select' => 'اختر',
         'manage' => 'إدارة',
+        'currency' => 'ريال عماني',
+        'block' => 'حظر',
+        'unblock' => 'إلغاء الحظر',
     ],
     'community_posts' => [
         'title' => 'منشورات المجتمع',

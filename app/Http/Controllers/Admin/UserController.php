@@ -78,7 +78,8 @@ class UserController extends Controller
 
         $data = $request->except(['password', 'password_confirmation']);
         $data['password'] = bcrypt($request->password);
-        $data['is_approved'] = $request->input('is_approved', false); // Default false if not checked? Form handle it.
+        $data['is_approved'] = $request->input('is_approved', false);
+        $data['is_blocked'] = $request->input('is_blocked', false);
 
         User::create($data);
 
@@ -127,6 +128,7 @@ class UserController extends Controller
         // Handle checkboxes for boolean
         $data['is_admin'] = $request->has('is_admin');
         $data['is_approved'] = $request->has('is_approved');
+        $data['is_blocked'] = $request->has('is_blocked');
 
         $user->update($data);
 
@@ -140,6 +142,21 @@ class UserController extends Controller
         }
         $user->delete();
         return redirect()->back()->with('swal_success', __('admin.messages.deleted_successfully'));
+    }
+
+    /**
+     * Toggle Block Status
+     */
+    public function toggleBlock(User $user)
+    {
+        if ($user->email === 'admin@alsa7a.com') {
+            return redirect()->back()->with('swal_error', 'Super Admin cannot be blocked.');
+        }
+        $user->is_blocked = !$user->is_blocked;
+        $user->save();
+
+        $status = $user->is_blocked ? 'blocked' : 'unblocked';
+        return redirect()->back()->with('swal_success', "User {$status} successfully");
     }
 
     /**

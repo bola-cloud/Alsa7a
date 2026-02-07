@@ -58,6 +58,9 @@ return [
         'active' => 'Active',
         'select' => 'Select',
         'manage' => 'Manage',
+        'currency' => 'OMR',
+        'block' => 'Block',
+        'unblock' => 'Unblock',
     ],
     'community_posts' => [
         'title' => 'Community Posts',

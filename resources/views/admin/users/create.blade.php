@@ -95,6 +95,14 @@
                                     </div>
                                 </div>
 
+                                <div class="form-group">
+                                    <div class="custom-control custom-checkbox">
+                                        <input type="checkbox" class="custom-control-input" name="is_blocked" id="isBlocked"
+                                            value="1" {{ old('is_blocked') ? 'checked' : '' }}>
+                                        <label class="custom-control-label" for="isBlocked">{{ __('admin.block') }}</label>
+                                    </div>
+                                </div>
+
                             </div>
 
                             <div class="form-actions right">

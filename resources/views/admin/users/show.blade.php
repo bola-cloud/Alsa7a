@@ -77,6 +77,32 @@
                                     <span class="badge badge-warning">{{ ucfirst($user->verification_status) }}</span>
                                 @endif
                             </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                Status
+                                <div>
+                                    @if($user->is_approved)
+                                        <span class="badge badge-success">{{ __('admin.users.approved') }}</span>
+                                    @else
+                                        <span class="badge badge-warning">{{ __('admin.users.pending') }}</span>
+                                    @endif
+
+                                    @if($user->is_blocked)
+                                        <span class="badge badge-danger">{{ __('admin.block') }}</span>
+                                    @endif
+                                </div>
+                            </li>
+                            @if($user->email !== 'admin@alsa7a.com')
+                                <li class="list-group-item">
+                                    <form action="{{ route('admin.users.toggle_block', $user->id) }}" method="POST">
+                                        @csrf
+                                        <button type="submit"
+                                            class="btn btn-sm btn-block {{ $user->is_blocked ? 'btn-success' : 'btn-warning' }}">
+                                            <i class="la {{ $user->is_blocked ? 'la-unlock' : 'la-ban' }}"></i>
+                                            {{ $user->is_blocked ? __('admin.unblock') : __('admin.block') }}
+                                        </button>
+                                    </form>
+                                </li>
+                            @endif
                         </ul>
 
                         @if($user->verification_status == 'pending')

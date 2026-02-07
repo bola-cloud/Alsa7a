@@ -115,7 +115,7 @@ class ServiceController extends Controller
             'location' => $request->location,
             'days_available' => $request->days_available,
             'price' => $request->price,
-            'currency' => 'JOD', // Default or from settings
+            'currency' => 'OMR', // Standardized to OMR
             'is_active' => true,
         ]);
 

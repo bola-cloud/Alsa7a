@@ -55,6 +55,7 @@ class User extends Authenticatable
         'cover_photo_path',
         // Verification & Approval
         'is_approved',
+        'is_blocked',
         'verification_status',
         'verification_documents',
         'rejection_reason',
@@ -196,6 +197,7 @@ class User extends Authenticatable
         'availability' => 'array',
         'is_featured' => 'boolean',
         'is_approved' => 'boolean',
+        'is_blocked' => 'boolean',
         'is_admin' => 'boolean',
         'verification_documents' => 'array',
         'onesignal_subscription' => 'array',

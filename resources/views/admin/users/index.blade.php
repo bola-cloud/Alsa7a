@@ -80,6 +80,10 @@
                                         @else
                                             <span class="badge badge-warning">{{ __('admin.users.pending') }}</span>
                                         @endif
+
+                                        @if($user->is_blocked)
+                                            <span class="badge badge-danger">{{ __('admin.block') }}</span>
+                                        @endif
                                     </td>
                                     <td>
                                         @if($user->verification_status === 'approved')
@@ -97,6 +101,15 @@
                                         @if($user->email !== 'admin@alsa7a.com')
                                             <a href="{{ route('admin.users.edit', $user->id) }}" class="btn btn-sm btn-primary" title="{{ __('admin.buttons.edit') }}"><i class="la la-edit"></i></a>
                                             
+                                            <form action="{{ route('admin.users.toggle_block', $user->id) }}" method="POST"
+                                                style="display:inline-block;">
+                                                @csrf
+                                                <button type="submit" class="btn btn-sm {{ $user->is_blocked ? 'btn-success' : 'btn-warning' }}" 
+                                                    title="{{ $user->is_blocked ? __('admin.unblock') : __('admin.block') }}">
+                                                    <i class="la {{ $user->is_blocked ? 'la-unlock' : 'la-ban' }}"></i>
+                                                </button>
+                                            </form>
+
                                             <form action="{{ route('admin.users.destroy', $user->id) }}" method="POST"
                                                 style="display:inline-block;" onsubmit="return confirm('{{ __('admin.messages.confirm_delete') }}');">
                                                 @csrf

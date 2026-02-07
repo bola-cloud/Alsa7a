@@ -135,7 +135,13 @@ class AuthController extends Controller
             ], 403);
         }
 
-        if (!$user->is_approved) {
+        if ($user->is_blocked) {
+            return response()->json([
+                'message' => 'Your account has been blocked by the administrator.',
+            ], 403);
+        }
+
+        if (setting('manual_user_approval') && !$user->is_approved) {
             return response()->json([
                 'message' => 'Your account is currently pending approval.',
                 'verification_status' => $user->verification_status

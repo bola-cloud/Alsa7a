@@ -21,7 +21,7 @@ class SettingController extends Controller
             'site_logo' => $siteLogo ? $siteLogo->image_url : asset('app-assets/images/logo.jpeg'),
             'site_icon' => $siteIcon ? $siteIcon->image_url : asset('app-assets/images/ico/apple-icon-120.png'),
             'service_commission' => $settings['service_commission'] ?? 10,
-            'currency' => 'EGP', // Hardcoded or from settings if added later
+            'currency' => 'OMR', // Fixed to OMR for all project
         ];
 
         return response()->json([

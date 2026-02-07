@@ -79,7 +79,7 @@
                         </div>
                         <hr>
                         <div class="mb-2">
-                            <label class="font-weight-bold">Price:</label> {{ $request->price }}
+                            <label class="font-weight-bold">Price:</label> {{ $request->price }} {{ __('admin.currency') }}
                         </div>
                         <div class="mb-2">
                             <label class="font-weight-bold">Payment Status:</label>
