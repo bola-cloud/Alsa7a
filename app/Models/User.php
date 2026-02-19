@@ -60,6 +60,7 @@ class User extends Authenticatable
         'verification_documents',
         'rejection_reason',
         'onesignal_subscription',
+        'show_answers',
     ];
 
     public function projects(): HasMany
@@ -145,6 +146,11 @@ class User extends Authenticatable
         return $this->hasMany(Post::class);
     }
 
+    public function ratingsReceived()
+    {
+        return $this->hasMany(UserRating::class, 'rated_id');
+    }
+
     /**
      * Users satisfying (Followers)
      */
@@ -201,6 +207,7 @@ class User extends Authenticatable
         'is_admin' => 'boolean',
         'verification_documents' => 'array',
         'onesignal_subscription' => 'array',
+        'show_answers' => 'boolean',
     ];
 
     /**

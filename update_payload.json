@@ -1,0 +1,10 @@
+{
+    "bio": "Updated Bio",
+    "show_answers": 0,
+    "answers": [
+        {
+            "question_id": 1,
+            "answer": "New Answer"
+        }
+    ]
+}

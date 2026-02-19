@@ -136,6 +136,8 @@ Route::prefix('v1')->middleware('set.api.locale')->group(function () {
         Route::post('users/{id}/follow', [App\Http\Controllers\Api\V1\ProfileController::class, 'follow']);
         Route::get('users/{id}/followers', [App\Http\Controllers\Api\V1\ProfileController::class, 'followers']);
         Route::get('users/{id}/following', [App\Http\Controllers\Api\V1\ProfileController::class, 'following']);
+        Route::post('users/{id}/rate', [App\Http\Controllers\Api\V1\ProfileController::class, 'rate']);
+        Route::get('users/{id}/ratings', [App\Http\Controllers\Api\V1\ProfileController::class, 'ratings']);
 
         // --- Post/Community Actions ---
         Route::post('posts', [App\Http\Controllers\Api\V1\PostController::class, 'store']); // Profile Posts (Instagram)

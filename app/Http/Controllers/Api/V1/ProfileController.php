@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Models\UserRating;
+use App\Models\QuestionAnswer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Storage;
@@ -66,6 +68,9 @@ class ProfileController extends Controller
         // Check if viewing own profile
         $isMe = $currentUser && $currentUser->id === $user->id;
 
+        // Determine if questions should be shown
+        $shouldShowAnswers = $isMe || $user->show_answers;
+
         $data = [
             'id' => $user->id,
             'name' => $user->name,
@@ -102,10 +107,11 @@ class ProfileController extends Controller
                 'number' => $user->number,
                 'nationality' => $user->nationality,
                 'stats' => $user->stats,
+                'show_answers' => $user->show_answers,
             ],
 
             // Questions & Answers (Detailed List)
-            'questions_data' => $user->answers->map(function ($answer) {
+            'questions_data' => $shouldShowAnswers ? $user->answers->map(function ($answer) {
                 $q = $answer->question;
 
                 // Logic to extract en/ar question text
@@ -149,7 +155,12 @@ class ProfileController extends Controller
                     'choices_ar' => $choicesAr,
                     'answer' => $answer->answer,
                 ];
-            }),
+            }) : [],
+
+            'rating_data' => [
+                'average_rating' => (float) $user->ratingsReceived()->avg('rating'),
+                'total_ratings' => $user->ratingsReceived()->count(),
+            ],
 
             'stats' => [ // Social Stats
                 'posts' => $user->posts_count,
@@ -274,10 +285,15 @@ class ProfileController extends Controller
             'country' => 'nullable|string|max:100',
             'bio' => 'nullable|string|max:1000',
             'profile_title' => 'nullable|string|max:255',
+            'category_id' => 'nullable|exists:categories,id', // Added
+            'show_answers' => 'nullable|boolean', // Added
             'image' => 'nullable|image|max:4096', // Profile Photo
             'cover_photo' => 'nullable|image|max:4096', // Cover Photo
             'gallery_images.*' => 'nullable|image|max:4096', // For adding to gallery
             'gallery_videos.*' => 'nullable|mimetypes:video/avi,video/mpeg,video/quicktime,video/mp4|max:20480', // Gallery videos
+            'answers' => 'nullable|array', // Added
+            'answers.*.question_id' => 'required_with:answers|exists:questions,id',
+            'answers.*.answer' => 'required_with:answers',
         ]);
 
         if ($validator->fails()) {
@@ -305,6 +321,10 @@ class ProfileController extends Controller
             $user->bio = $request->bio;
         if ($request->has('profile_title'))
             $user->profile_title = $request->profile_title;
+        if ($request->has('category_id'))
+            $user->category_id = $request->category_id; // Added
+        if ($request->has('show_answers'))
+            $user->show_answers = $request->show_answers; // Added
 
         // Profile Photo
         if ($request->hasFile('image')) {
@@ -347,9 +367,104 @@ class ProfileController extends Controller
             }
         }
 
+        // Handle Registration Answers Update
+        if ($request->has('answers')) {
+            foreach ($request->answers as $answerData) {
+                QuestionAnswer::updateOrCreate(
+                    [
+                        'user_id' => $user->id,
+                        'question_id' => $answerData['question_id']
+                    ],
+                    [
+                        'answer' => $answerData['answer']
+                    ]
+                );
+            }
+        }
+
         $user->save();
 
-        return $this->formatProfileResponse($user, true);
+        return $this->formatProfileResponse($user, true, $user);
+    }
+
+    /**
+     * Rate a user profile.
+     */
+    public function rate(Request $request, $id)
+    {
+        $targetUser = User::find($id);
+        $currentUser = $request->user();
+
+        if (!$targetUser) {
+            return response()->json(['status' => false, 'message' => 'User not found'], 404);
+        }
+
+        if ($targetUser->id === $currentUser->id) {
+            return response()->json(['status' => false, 'message' => 'Cannot rate yourself'], 400);
+        }
+
+        $validator = Validator::make($request->all(), [
+            'rating' => 'required|integer|min:1|max:5',
+            'comment' => 'nullable|string|max:500',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Validation error',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        UserRating::updateOrCreate(
+            [
+                'reviewer_id' => $currentUser->id,
+                'rated_id' => $targetUser->id,
+            ],
+            [
+                'rating' => $request->rating,
+                'comment' => $request->comment,
+            ]
+        );
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Rating submitted successfully'
+        ]);
+    }
+
+    /**
+     * Get user profile ratings.
+     */
+    public function ratings(Request $request, $id)
+    {
+        $user = User::find($id);
+        if (!$user) {
+            return response()->json(['status' => false, 'message' => 'User not found'], 404);
+        }
+
+        $ratings = UserRating::where('rated_id', $user->id)
+            ->with('reviewer:id,name,profile_photo_path')
+            ->latest()
+            ->paginate(15);
+
+        $ratings->getCollection()->transform(function ($rating) {
+            return [
+                'id' => $rating->id,
+                'reviewer_id' => $rating->reviewer_id,
+                'reviewer_name' => $rating->reviewer->name,
+                'reviewer_image' => $rating->reviewer->profile_photo_url,
+                'rating' => $rating->rating,
+                'comment' => $rating->comment,
+                'created_at' => $rating->created_at,
+            ];
+        });
+
+        return response()->json([
+            'status' => true,
+            'data' => $ratings,
+            'message' => 'Ratings retrieved successfully'
+        ]);
     }
 
     /**
