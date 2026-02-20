@@ -65,6 +65,18 @@ class ProfileController extends Controller
      */
     protected function formatProfileResponse($user, $isFollowing, $currentUser = null)
     {
+        return response()->json([
+            'status' => true,
+            'data' => $this->getProfileData($user, $isFollowing, $currentUser),
+            'message' => 'Profile retrieved successfully'
+        ]);
+    }
+
+    /**
+     * Internal helper to get raw profile data array.
+     */
+    protected function getProfileData($user, $isFollowing, $currentUser = null)
+    {
         // Check if viewing own profile
         $isMe = $currentUser && $currentUser->id === $user->id;
 
@@ -154,8 +166,13 @@ class ProfileController extends Controller
                     'choices_en' => $choicesEn,
                     'choices_ar' => $choicesAr,
                     'answer' => $answer->answer,
+                    'is_visible' => (bool) $answer->is_visible,
                 ];
-            }) : [],
+            })->filter(function ($item) use ($isMe) {
+                // If it's my profile, I see everything.
+                // Otherwise, only show if the individual answer is visible.
+                return $isMe || $item['is_visible'];
+            })->values() : [],
 
             'rating_data' => [
                 'average_rating' => (float) $user->ratingsReceived()->avg('rating'),
@@ -262,11 +279,7 @@ class ProfileController extends Controller
             }
         }
 
-        return response()->json([
-            'status' => true,
-            'data' => $data,
-            'message' => 'Profile retrieved successfully'
-        ]);
+        return $data;
     }
 
     /**
@@ -294,6 +307,7 @@ class ProfileController extends Controller
             'answers' => 'nullable|array', // Added
             'answers.*.question_id' => 'required_with:answers|exists:questions,id',
             'answers.*.answer' => 'required_with:answers',
+            'answers.*.is_visible' => 'nullable|boolean',
         ]);
 
         if ($validator->fails()) {
@@ -370,14 +384,18 @@ class ProfileController extends Controller
         // Handle Registration Answers Update
         if ($request->has('answers')) {
             foreach ($request->answers as $answerData) {
+                $dataToUpdate = [
+                    'answer' => $answerData['answer']
+                ];
+                if (isset($answerData['is_visible'])) {
+                    $dataToUpdate['is_visible'] = $answerData['is_visible'];
+                }
                 QuestionAnswer::updateOrCreate(
                     [
                         'user_id' => $user->id,
                         'question_id' => $answerData['question_id']
                     ],
-                    [
-                        'answer' => $answerData['answer']
-                    ]
+                    $dataToUpdate
                 );
             }
         }
@@ -517,9 +535,9 @@ class ProfileController extends Controller
             ->with(['ownedClub', 'club', 'category.parentCategory', 'answers.question'])
             ->paginate(15);
 
-        // Transform collection using the standard profile formatting
+        // Transform collection using the standard profile formatting (ARRAY ONLY to avoid nesting)
         $followers->getCollection()->transform(function ($follower) use ($request) {
-            return $this->formatProfileResponse($follower, false, $request->user('sanctum'));
+            return $this->getProfileData($follower, false, $request->user('sanctum'));
         });
 
         // Check if I am following them (for the button state)
@@ -553,9 +571,9 @@ class ProfileController extends Controller
             ->with(['ownedClub', 'club', 'category.parentCategory', 'answers.question'])
             ->paginate(15);
 
-        // Transform collection using the standard profile formatting
+        // Transform collection using the standard profile formatting (ARRAY ONLY to avoid nesting)
         $following->getCollection()->transform(function ($follow) use ($request) {
-            return $this->formatProfileResponse($follow, false, $request->user('sanctum'));
+            return $this->getProfileData($follow, false, $request->user('sanctum'));
         });
 
         if ($currentUser = $request->user('sanctum')) {
