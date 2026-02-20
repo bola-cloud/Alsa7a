@@ -80,9 +80,6 @@ class ProfileController extends Controller
         // Check if viewing own profile
         $isMe = $currentUser && $currentUser->id === $user->id;
 
-        // Determine if questions should be shown
-        $shouldShowAnswers = $isMe || $user->show_answers;
-
         $data = [
             'id' => $user->id,
             'name' => $user->name,
@@ -119,11 +116,10 @@ class ProfileController extends Controller
                 'number' => $user->number,
                 'nationality' => $user->nationality,
                 'stats' => $user->stats,
-                'show_answers' => $user->show_answers,
             ],
 
             // Questions & Answers (Detailed List)
-            'questions_data' => $shouldShowAnswers ? $user->answers->map(function ($answer) {
+            'questions_data' => $user->answers->map(function ($answer) {
                 $q = $answer->question;
 
                 // Logic to extract en/ar question text
@@ -172,7 +168,7 @@ class ProfileController extends Controller
                 // If it's my profile, I see everything.
                 // Otherwise, only show if the individual answer is visible.
                 return $isMe || $item['is_visible'];
-            })->values() : [],
+            })->values(),
 
             'rating_data' => [
                 'average_rating' => (float) $user->ratingsReceived()->avg('rating'),
@@ -299,7 +295,6 @@ class ProfileController extends Controller
             'bio' => 'nullable|string|max:1000',
             'profile_title' => 'nullable|string|max:255',
             'category_id' => 'nullable|exists:categories,id', // Added
-            'show_answers' => 'nullable|boolean', // Added
             'image' => 'nullable|image|max:4096', // Profile Photo
             'cover_photo' => 'nullable|image|max:4096', // Cover Photo
             'gallery_images.*' => 'nullable|image|max:4096', // For adding to gallery
@@ -337,8 +332,6 @@ class ProfileController extends Controller
             $user->profile_title = $request->profile_title;
         if ($request->has('category_id'))
             $user->category_id = $request->category_id; // Added
-        if ($request->has('show_answers'))
-            $user->show_answers = $request->show_answers; // Added
 
         // Profile Photo
         if ($request->hasFile('image')) {
