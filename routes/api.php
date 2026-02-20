@@ -145,7 +145,7 @@ Route::prefix('v1')->middleware('set.api.locale')->group(function () {
         Route::delete('posts/{id}', [App\Http\Controllers\Api\V1\PostController::class, 'destroy']);
         Route::post('posts/{id}/like', [App\Http\Controllers\Api\V1\PostController::class, 'like']);
         Route::get('posts/{id}/likes', [App\Http\Controllers\Api\V1\PostController::class, 'likes']); // Get list of likers
-        // Route::post('posts/{id}/comment', [App\Http\Controllers\Api\V1\PostController::class, 'comment']); // Deprecated singular
+        Route::post('posts/{id}/comment', [App\Http\Controllers\Api\V1\CommentController::class, 'store']); // Support singular for backward compatibility
 
         // Comments System
         Route::get('posts/{id}/comments', [App\Http\Controllers\Api\V1\CommentController::class, 'index']);
