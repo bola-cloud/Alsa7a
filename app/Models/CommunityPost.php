@@ -9,7 +9,7 @@ class CommunityPost extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['user_id', 'community_category_id', 'content', 'image', 'is_hidden'];
+    protected $fillable = ['user_id', 'community_category_id', 'content', 'image', 'video_thumbnail', 'is_hidden'];
 
     protected $casts = [
         'is_hidden' => 'boolean',
@@ -33,5 +33,23 @@ class CommunityPost extends Model
     public function comments()
     {
         return $this->morphMany(Comment::class, 'commentable');
+    }
+
+    public function getImageAttribute($value)
+    {
+        if (!$value)
+            return null;
+        if (preg_match('#^https?://#i', $value))
+            return $value;
+        return asset('storage/' . $value);
+    }
+
+    public function getVideoThumbnailAttribute($value)
+    {
+        if (!$value)
+            return null;
+        if (preg_match('#^https?://#i', $value))
+            return $value;
+        return asset($value); // Thumbnails already include 'storage/' prefix in DB
     }
 }

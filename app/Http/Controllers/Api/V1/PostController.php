@@ -80,6 +80,7 @@ class PostController extends Controller
             'content' => 'nullable|string|max:1000',
             'image' => 'nullable|image|max:10240', // 10MB
             'video' => 'nullable|mimetypes:video/avi,video/mpeg,video/quicktime,video/mp4|max:51200', // 50MB
+            'video_thumbnail' => 'nullable|image|max:5120',
         ]);
 
         if ($validator->fails()) {
@@ -99,12 +100,17 @@ class PostController extends Controller
         } elseif ($request->hasFile('video')) {
             $type = 'video';
             $path = $request->file('video')->store('posts/videos', 'public');
+
+            if ($request->hasFile('video_thumbnail')) {
+                $thumbnailPath = 'storage/' . $request->file('video_thumbnail')->store('posts/thumbnails', 'public');
+            }
         }
 
         $post = Post::create([
             'user_id' => $request->user()->id,
             'content' => $request->input('content', ''),
             'image' => $path, // Used for both image and video path
+            'video_thumbnail' => $thumbnailPath ?? null,
             'type' => $type,
             'is_hidden' => false,
         ]);
@@ -131,6 +137,7 @@ class PostController extends Controller
             'content' => 'nullable|string|max:1000',
             'image' => 'nullable|image|max:10240',
             'video' => 'nullable|mimetypes:video/avi,video/mpeg,video/quicktime,video/mp4|max:51200',
+            'video_thumbnail' => 'nullable|image|max:5120',
         ]);
 
         if ($validator->fails()) {
@@ -149,8 +156,17 @@ class PostController extends Controller
             if ($post->image) {
                 \Illuminate\Support\Facades\Storage::disk('public')->delete($post->image);
             }
+            if ($post->video_thumbnail) {
+                $thumbPath = str_replace('storage/', '', $post->video_thumbnail);
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($thumbPath);
+            }
+
             $post->image = $request->file('video')->store('posts/videos', 'public');
             $post->type = 'video';
+
+            if ($request->hasFile('video_thumbnail')) {
+                $post->video_thumbnail = 'storage/' . $request->file('video_thumbnail')->store('posts/thumbnails', 'public');
+            }
         }
 
         if ($request->has('content')) {

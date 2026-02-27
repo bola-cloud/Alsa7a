@@ -176,6 +176,12 @@ class User extends Authenticatable
         return $this->hasMany(QuestionAnswer::class);
     }
 
+    public function viewedPosts()
+    {
+        return $this->belongsToMany(Post::class, 'post_views', 'user_id', 'post_id')
+            ->withTimestamps();
+    }
+
     /**
      * The attributes that should be hidden for serialization.
      *

@@ -21,7 +21,7 @@ class CommunityController extends Controller
         // but for API we might want to append it or just let the trait magic work accessing $cat->name
 
         $categories->transform(function ($cat) {
-            $cat->name = $cat->name; // Trigger accessor
+            $cat->name = $cat->name_en; // Trigger accessor or use name_en
             return $cat;
         });
 
@@ -56,12 +56,6 @@ class CommunityController extends Controller
 
         $posts->getCollection()->transform(function ($post) use ($user) {
             $post->is_liked = $user ? $post->likes()->where('user_id', $user->id)->exists() : false;
-            if ($post->image) {
-                // Ensure full URL
-                if (!preg_match('#^https?://#i', $post->image)) {
-                    $post->image = asset('storage/' . $post->image);
-                }
-            }
 
             // Fix Author Image
             if ($post->user) {
@@ -94,6 +88,8 @@ class CommunityController extends Controller
             'community_category_id' => 'required|exists:community_categories,id',
             'content' => 'required|string',
             'image' => 'nullable|image|max:10240',
+            'video' => 'nullable|mimetypes:video/avi,video/mpeg,video/quicktime,video/mp4|max:51200',
+            'video_thumbnail' => 'nullable|image|max:5120',
         ]);
 
         if ($validator->fails()) {
@@ -101,8 +97,15 @@ class CommunityController extends Controller
         }
 
         $path = null;
+        $thumbnailPath = null;
         if ($request->hasFile('image')) {
             $path = $request->file('image')->store('community', 'public');
+        } elseif ($request->hasFile('video')) {
+            $path = $request->file('video')->store('community/videos', 'public');
+
+            if ($request->hasFile('video_thumbnail')) {
+                $thumbnailPath = 'storage/' . $request->file('video_thumbnail')->store('community/thumbnails', 'public');
+            }
         }
 
         $post = CommunityPost::create([
@@ -110,6 +113,7 @@ class CommunityController extends Controller
             'community_category_id' => $request->input('community_category_id'),
             'content' => $request->input('content'),
             'image' => $path,
+            'video_thumbnail' => $thumbnailPath,
             'is_hidden' => false,
         ]);
 
@@ -136,9 +140,6 @@ class CommunityController extends Controller
             return response()->json(['status' => false, 'message' => 'Post not found'], 404);
 
         $post->is_liked = $user ? $post->likes()->where('user_id', $user->id)->exists() : false;
-        if ($post->image && !preg_match('#^https?://#i', $post->image)) {
-            $post->image = asset('storage/' . $post->image);
-        }
 
         return response()->json(['status' => true, 'data' => $post]);
     }
@@ -175,6 +176,8 @@ class CommunityController extends Controller
             'community_category_id' => 'nullable|exists:community_categories,id',
             'content' => 'nullable|string',
             'image' => 'nullable|image|max:10240',
+            'video' => 'nullable|mimetypes:video/avi,video/mpeg,video/quicktime,video/mp4|max:51200',
+            'video_thumbnail' => 'nullable|image|max:5120',
         ]);
 
         if ($validator->fails())
@@ -188,7 +191,29 @@ class CommunityController extends Controller
         if ($request->hasFile('image')) {
             if ($post->image)
                 Storage::disk('public')->delete($post->image);
+
+            // Delete old thumbnail if switching from video to image
+            if ($post->video_thumbnail) {
+                $thumbPath = str_replace('storage/', '', $post->video_thumbnail);
+                Storage::disk('public')->delete($thumbPath);
+                $post->video_thumbnail = null;
+            }
+
             $post->image = $request->file('image')->store('community', 'public');
+        } elseif ($request->hasFile('video')) {
+            if ($post->image)
+                Storage::disk('public')->delete($post->image);
+
+            if ($post->video_thumbnail) {
+                $thumbPath = str_replace('storage/', '', $post->video_thumbnail);
+                Storage::disk('public')->delete($thumbPath);
+            }
+
+            $post->image = $request->file('video')->store('community/videos', 'public');
+
+            if ($request->hasFile('video_thumbnail')) {
+                $post->video_thumbnail = 'storage/' . $request->file('video_thumbnail')->store('community/thumbnails', 'public');
+            }
         }
 
         $post->save();

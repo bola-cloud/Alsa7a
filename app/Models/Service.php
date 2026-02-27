@@ -21,6 +21,7 @@ class Service extends Model
         'slug',
         'description',
         'location',
+        'address',
         'days_available',
         'price',
         'duration_minutes',

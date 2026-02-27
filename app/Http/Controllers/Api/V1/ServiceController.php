@@ -97,6 +97,7 @@ class ServiceController extends Controller
             'days_available' => 'required|array', // ['MON', 'TUE']
             'days_available.*' => 'string|in:SUN,MON,TUE,WED,THU,FRI,SAT',
             'location' => 'nullable|string|max:255',
+            'address' => 'nullable|string|max:255',
             'gallery' => 'nullable|array',
             'gallery.*' => 'image|max:10240', // Limit 10MB per image
         ]);
@@ -113,6 +114,7 @@ class ServiceController extends Controller
             'slug' => \Illuminate\Support\Str::slug($request->title . '-' . uniqid()),
             'description' => $request->description,
             'location' => $request->location,
+            'address' => $request->address,
             'days_available' => $request->days_available,
             'price' => $request->price,
             'currency' => 'OMR', // Standardized to OMR
@@ -162,6 +164,7 @@ class ServiceController extends Controller
             'days_available' => 'sometimes|array',
             'days_available.*' => 'string|in:SUN,MON,TUE,WED,THU,FRI,SAT',
             'location' => 'nullable|string|max:255',
+            'address' => 'nullable|string|max:255',
             'gallery' => 'nullable|array',
             'gallery.*' => 'image|max:10240',
         ]);
@@ -183,6 +186,8 @@ class ServiceController extends Controller
             $service->days_available = $request->days_available;
         if ($request->has('location'))
             $service->location = $request->location;
+        if ($request->has('address'))
+            $service->address = $request->address;
 
         $service->save();
 
