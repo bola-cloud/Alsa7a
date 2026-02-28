@@ -42,17 +42,29 @@ class FeedService
         // For simple algorithm, we merge them but keep order
         $results = $followedUnseen->get()->merge($suggestedUnseen->get());
 
-        // 3. Fallback: If results are few, add some seen posts back (shuffle for freshness)
+        // 3. Fallback: If results are few, add seen posts back with priority
         if ($results->count() < $perPage) {
-            $seenPosts = Post::with(['user', 'comments'])
+            // Seen posts from followed users (Latest)
+            $seenFollowed = Post::with(['user', 'comments'])
                 ->withCount(['likes', 'comments'])
+                ->whereIn('user_id', $followingIds)
                 ->whereIn('id', $viewedPostIds)
                 ->where('is_hidden', false)
-                ->inRandomOrder()
+                ->latest()
                 ->limit($perPage)
                 ->get();
 
-            $results = $results->merge($seenPosts)->unique('id');
+            // Seen posts from others (Suggestions)
+            $seenSuggested = Post::with(['user', 'comments'])
+                ->withCount(['likes', 'comments'])
+                ->whereNotIn('user_id', array_merge($followingIds, [$user->id]))
+                ->whereIn('id', $viewedPostIds)
+                ->where('is_hidden', false)
+                ->latest()
+                ->limit($perPage)
+                ->get();
+
+            $results = $results->merge($seenFollowed)->merge($seenSuggested)->unique('id');
         }
 
         // Manual Pagination
