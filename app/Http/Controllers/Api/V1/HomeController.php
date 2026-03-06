@@ -29,7 +29,8 @@ class HomeController extends Controller
         $topClubs = Club::where('is_featured', true)->with('media')->take(8)->get();
 
         // Only return users belonging to the 'Player' category (category_id = 1)
-        $topPlayers = User::where('category_id', 1)
+        $topPlayers = User::with('subscription')
+            ->where('category_id', 1)
             ->where('is_featured', true)
             ->select('id', 'name', 'profile_title', 'bio', 'city', 'profile_photo_path')
             ->take(8)
@@ -43,6 +44,14 @@ class HomeController extends Controller
                 $player->image = $url;
                 $player->profile_photo_url = $url;
             }
+
+            $player->subscription = [
+                'is_subscribed' => $player->isSubscribed(),
+                'type' => $player->subscription ? $player->subscription->type : null,
+                'end_date' => $player->subscription ? $player->subscription->end_date : null,
+                'status' => $player->subscription ? $player->subscription->status : null,
+            ];
+
             return $player;
         });
 

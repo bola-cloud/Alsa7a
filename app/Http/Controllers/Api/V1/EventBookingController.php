@@ -8,15 +8,17 @@ use App\Models\Booking;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
+use App\Traits\FormatsProfileData;
 
 class EventBookingController extends Controller
 {
+    use FormatsProfileData;
     /**
      * Book Event Ticket (Protected).
      */
     public function store(Request $request, $id)
     {
-        $event = Event::find($id);
+        $event = Event::with(['club.owner.subscription', 'club.owner.category'])->find($id);
 
         if (!$event) {
             return response()->json(['status' => false, 'message' => 'Event not found'], 404);
@@ -84,6 +86,15 @@ class EventBookingController extends Controller
 
             DB::commit();
 
+            $booking->load(['event.club.owner.subscription', 'event.club.owner.category', 'event.sport']);
+
+            $currentUser = $request->user();
+            if ($booking->event && $booking->event->club && $booking->event->club->owner) {
+                $booking->event->club_profile = $this->getProfileData($booking->event->club->owner, false, $currentUser);
+            }
+            // Add requester profile as well
+            $booking->user_profile = $this->getProfileData($currentUser, false, $currentUser);
+
             return response()->json([
                 'status' => true,
                 'message' => 'Booking successful',
@@ -102,13 +113,20 @@ class EventBookingController extends Controller
     public function index(Request $request)
     {
         $bookings = Booking::where('user_id', $request->user()->id)
-            ->with(['event'])
+            ->with(['event.club.owner.subscription', 'event.club.owner.category', 'event.sport', 'user.subscription', 'user.category', 'user.club'])
             ->latest()
             ->paginate(10);
 
+        $currentUser = $request->user();
         // Transform to include explicit payment status if needed
-        $bookings->getCollection()->transform(function ($booking) {
+        $bookings->getCollection()->transform(function ($booking) use ($currentUser) {
             $booking->payment_status = $booking->status === 'confirmed' ? 'paid' : 'pending';
+            if ($booking->event && $booking->event->club && $booking->event->club->owner) {
+                $booking->event->club_profile = $this->getProfileData($booking->event->club->owner, false, $currentUser);
+            }
+            if ($booking->user) {
+                $booking->user_profile = $this->getProfileData($booking->user, false, $currentUser);
+            }
             return $booking;
         });
 

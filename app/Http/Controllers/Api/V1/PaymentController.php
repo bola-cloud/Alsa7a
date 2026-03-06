@@ -5,7 +5,9 @@ namespace App\Http\Controllers\Api\V1;
 use App\Http\Controllers\Controller;
 use App\Models\ServiceRequest;
 use App\Models\Transaction;
+use App\Models\Subscription;
 use App\Services\ThawaniService;
+use App\Services\SubscriptionService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
@@ -407,6 +409,15 @@ class PaymentController extends Controller
                             'payment_meta' => json_encode(['method' => 'thawani', 'paid_at' => now()])
                         ]);
                         Log::info("Booking {$booking->id} confirmed.");
+                    }
+                }
+
+                // 4. Update Related Subscription
+                if ($txn->subscription_id) {
+                    $sub = Subscription::find($txn->subscription_id);
+                    if ($sub) {
+                        app(SubscriptionService::class)->activateSubscription($sub);
+                        Log::info("Subscription {$sub->id} activated.");
                     }
                 }
 

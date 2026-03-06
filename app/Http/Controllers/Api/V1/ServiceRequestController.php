@@ -9,9 +9,11 @@ use App\Models\ServiceRequest;
 use Illuminate\Support\Facades\Validator;
 
 use App\Services\OneSignalService;
+use App\Traits\FormatsProfileData;
 
 class ServiceRequestController extends Controller
 {
+    use FormatsProfileData;
     protected $oneSignal;
 
     public function __construct(OneSignalService $oneSignal)
@@ -25,7 +27,7 @@ class ServiceRequestController extends Controller
      */
     public function store(Request $request, $id)
     {
-        $service = Service::find($id);
+        $service = Service::with(['provider.subscription', 'provider.category', 'provider.club'])->find($id);
 
         if (!$service) {
             return response()->json(['status' => false, 'message' => 'Service not found'], 404);
@@ -111,6 +113,19 @@ class ServiceRequestController extends Controller
         } catch (\Exception $e) {
         }
 
+        // Load relations for response
+        $serviceRequest->load(['service.media', 'provider.subscription', 'provider.category', 'provider.club', 'requester.subscription', 'requester.category', 'requester.club']);
+
+        $currentUser = $request->user();
+        if ($serviceRequest->provider) {
+            $serviceRequest->provider_profile = $this->getProfileData($serviceRequest->provider, false, $currentUser);
+            // Legacy support
+            $serviceRequest->provider->image = $serviceRequest->provider->profile_photo_url;
+        }
+        if ($serviceRequest->requester) {
+            $serviceRequest->requester_profile = $this->getProfileData($serviceRequest->requester, false, $currentUser);
+        }
+
         return response()->json([
             'status' => true,
             'message' => 'Service requested successfully',
@@ -125,12 +140,13 @@ class ServiceRequestController extends Controller
     public function index(Request $request)
     {
         $requests = ServiceRequest::where('requester_id', $request->user()->id)
-            ->with(['service.media', 'provider'])
+            ->with(['service.media', 'provider.subscription', 'provider.category', 'provider.club', 'requester.subscription', 'requester.category', 'requester.club'])
             ->latest()
             ->paginate(10);
 
+        $currentUser = $request->user();
         // Transform to include full image URL
-        $requests->getCollection()->transform(function ($req) {
+        $requests->getCollection()->transform(function ($req) use ($currentUser) {
             if ($req->service && $req->service->media->isNotEmpty()) {
                 $firstMedia = $req->service->media->first();
                 $image = $firstMedia->file_path ?? $firstMedia->image;
@@ -144,6 +160,11 @@ class ServiceRequestController extends Controller
             // Fix Provider Image if loaded
             if ($req->provider) {
                 $req->provider->image = $req->provider->profile_photo_url;
+                $req->provider_profile = $this->getProfileData($req->provider, false, $currentUser);
+            }
+
+            if ($req->requester) {
+                $req->requester_profile = $this->getProfileData($req->requester, false, $currentUser);
             }
 
             return $req;

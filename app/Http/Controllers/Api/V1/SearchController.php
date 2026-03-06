@@ -7,9 +7,11 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\Question;
 use App\Models\QuestionAnswer;
+use App\Traits\FormatsProfileData;
 
 class SearchController extends Controller
 {
+    use FormatsProfileData;
     public function index(Request $request)
     {
         $query = User::query();
@@ -70,13 +72,14 @@ class SearchController extends Controller
             ->where('is_admin', '!=', true);
 
         // Eager load relationships needed for the response
-        $query->with(['answers.question', 'category', 'ownedClub', 'club']);
+        $query->with(['answers.question', 'category', 'ownedClub', 'club', 'subscription']);
 
         // Execute Query
         $users = $query->paginate(20);
 
         // Transform collection to add helper fields
-        $users->getCollection()->transform(function ($user) {
+        $currentUser = $request->user('sanctum');
+        $users->getCollection()->transform(function ($user) use ($currentUser) {
             // 1. Format Image URL
             $user->image = $user->profile_photo_url; // Default fallback
 
@@ -183,6 +186,16 @@ class SearchController extends Controller
                     'banner' => $club->banner_url,
                 ];
             }
+
+            $user->subscription = [
+                'is_subscribed' => $user->isSubscribed(),
+                'type' => $user->subscription ? $user->subscription->type : null,
+                'end_date' => $user->subscription ? $user->subscription->end_date : null,
+                'status' => $user->subscription ? $user->subscription->status : null,
+            ];
+
+            // Add standardized profile for consistency across all APIs
+            $user->profile = $this->getProfileData($user, false, $currentUser);
 
             return $user;
         });

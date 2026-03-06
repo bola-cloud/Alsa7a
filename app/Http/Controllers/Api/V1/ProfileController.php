@@ -10,8 +10,11 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Storage;
 
+use App\Traits\FormatsProfileData;
+
 class ProfileController extends Controller
 {
+    use FormatsProfileData;
     /**
      * Get Current Authenticated User Profile (Protected).
      */
@@ -24,7 +27,8 @@ class ProfileController extends Controller
         $user->load([
             'club',
             'category',
-            'answers.question' // Load answers with their questions
+            'answers.question', // Load answers with their questions
+            'subscription'
         ]);
 
         return $this->formatProfileResponse($user, true, $user);
@@ -39,7 +43,8 @@ class ProfileController extends Controller
             ->with([
                 'club',
                 'category',
-                'answers.question' // Added answers
+                'answers.question', // Added answers
+                'subscription'
             ])
             ->find($id);
 
@@ -72,211 +77,6 @@ class ProfileController extends Controller
         ]);
     }
 
-    /**
-     * Internal helper to get raw profile data array.
-     */
-    protected function getProfileData($user, $isFollowing, $currentUser = null)
-    {
-        // Check if viewing own profile
-        $isMe = $currentUser && $currentUser->id === $user->id;
-
-        $data = [
-            'id' => $user->id,
-            'name' => $user->name,
-            'username' => $user->email,
-            'email' => $user->email, // Added explicit email usually good
-            'phone' => $user->phone, // Added phone number
-            'birth_date' => $user->birth_date, // Added birth_date
-            'profile_title' => $user->profile_title,
-            'bio' => $user->bio,
-            'image' => $user->profile_photo_path ? url('storage/' . $user->profile_photo_path) : $user->profile_photo_url,
-            'cover_photo' => $user->cover_photo_path ? url('storage/' . $user->cover_photo_path) : null,
-            'category' => $user->category ? [
-                'id' => $user->category->id,
-                'name' => $user->category->name,
-                'is_service_provider' => $user->category->is_service_provider,
-                'parent_category_id' => $user->category->parent_category_id,
-                'parent_category' => $user->category->parentCategory ? [
-                    'id' => $user->category->parentCategory->id,
-                    'name' => $user->category->parentCategory->name,
-                    'image' => $user->category->parentCategory->image ? url('storage/' . $user->category->parentCategory->image) : null,
-                ] : null,
-            ] : null,
-
-            // Professional Details
-            'professional' => [
-                'club' => $user->club ? [
-                    'id' => $user->club->id,
-                    'name' => $user->club->name,
-                    'logo' => $user->club->logo_url,
-                    'user_id' => $user->club->user_id, // Club Owner User ID
-                ] : null,
-                'team_id' => $user->team_id,
-                'position' => $user->position,
-                'number' => $user->number,
-                'nationality' => $user->nationality,
-                'stats' => $user->stats,
-            ],
-
-            // Questions & Answers (Detailed List)
-            'questions_data' => $user->answers->map(function ($answer) {
-                $q = $answer->question;
-
-                // Logic to extract en/ar question text
-                $qRaw = $q->getAttributes()['question'] ?? '';
-                $qData = $q->question;
-
-                $questionEn = null;
-                $questionAr = null;
-                $mainQuestion = '';
-
-                if (is_array($qData)) {
-                    $questionEn = $qData['en'] ?? null;
-                    $questionAr = $qData['ar'] ?? null;
-                    $mainQuestion = !empty($questionEn) ? $questionEn : ($questionAr ?? '');
-                } else {
-                    $mainQuestion = (string) $qRaw;
-                    $questionEn = $mainQuestion;
-                    $questionAr = $mainQuestion;
-                }
-
-                // Logic to extract choices
-                $choicesData = $q->choices;
-                $choices = [];
-                $choicesEn = [];
-                $choicesAr = [];
-
-                if (is_array($choicesData) && !empty($choicesData)) {
-                    $choices = array_values($choicesData);
-                    $choicesEn = array_keys($choicesData);
-                    $choicesAr = array_values($choicesData);
-                }
-
-                return [
-                    'question_id' => $answer->question_id,
-                    'question' => $mainQuestion,
-                    'question_en' => $questionEn,
-                    'question_ar' => $questionAr,
-                    'type' => $q->type ?? null,
-                    'choices' => $choices,
-                    'choices_en' => $choicesEn,
-                    'choices_ar' => $choicesAr,
-                    'answer' => $answer->answer,
-                    'is_visible' => (bool) $answer->is_visible,
-                ];
-            })->filter(function ($item) use ($isMe) {
-                // If it's my profile, I see everything.
-                // Otherwise, only show if the individual answer is visible.
-                return $isMe || $item['is_visible'];
-            })->values(),
-
-            'rating_data' => [
-                'average_rating' => (float) $user->ratingsReceived()->avg('rating'),
-                'total_ratings' => $user->ratingsReceived()->count(),
-            ],
-
-            'stats' => [ // Social Stats
-                'posts' => $user->posts_count,
-                'followers' => $user->followers_count,
-                'following' => $user->following_count,
-            ],
-            'is_following' => $isFollowing,
-            'is_club_account' => $user->club ? ($user->club->user_id === $user->id) : false,
-            'role_in_club' => (function () use ($user) {
-                if (!$user->club_id && !$user->ownedClub)
-                    return null;
-                if ($user->ownedClub || ($user->club && $user->club->user_id === $user->id))
-                    return 'admin';
-                return 'member';
-            })(),
-            'club_relationship' => (function () use ($user, $currentUser) {
-                // If viewer is not logged in or doesn't own a club, return null
-                if (!$currentUser || !$currentUser->ownedClub) {
-                    return null;
-                }
-
-                $myClubId = $currentUser->ownedClub->id;
-
-                // 1. Check if user is already a member
-                if ($user->club_id == $myClubId) {
-                    return 'member';
-                }
-
-                // 2. Check for pending requests
-                $pendingRequest = \App\Models\ClubRequest::where('club_id', $myClubId)
-                    ->where('user_id', $user->id)
-                    ->where('status', 'pending')
-                    ->first();
-
-                if ($pendingRequest) {
-                    return $pendingRequest->type === 'invite' ? 'invite_pending' : 'join_pending';
-                }
-
-                return 'none';
-            })(),
-        ];
-
-        // Specialized Club Account View
-        if ($data['is_club_account']) {
-            $club = $user->club;
-            $data['club_details'] = [
-                'id' => $club->id,
-                'name' => $club->name,
-                'logo' => $club->logo_url,
-                'banner' => $club->banner_url,
-                'teams' => $club->teams()->with('members:id,name,email,profile_photo_path,position,number,team_id')->get()->map(function ($team) {
-                    return [
-                        'id' => $team->id,
-                        'name' => $team->name,
-                        'age_group' => $team->age_group,
-                        'image' => $team->image ? url('storage/' . $team->image) : null,
-                        'members' => $team->members->map(function ($member) {
-                            return [
-                                'id' => $member->id,
-                                'name' => $member->name,
-                                'image' => $member->profile_photo_url,
-                                'position' => $member->position,
-                                'number' => $member->number,
-                            ];
-                        })
-                    ];
-                }),
-            ];
-        }
-
-        // Add private/progress info if it's my profile
-        if ($isMe) {
-            $data['answered_question_ids'] = $user->answered_question_ids;
-            $data['questions_complete'] = (bool) $user->questions_complete;
-
-            // Verification Status
-            $data['verification_status'] = $user->verification_status; // 'pending', 'approved', 'rejected', null
-            $data['is_verified'] = ($user->verification_status === 'approved');
-
-            // Club Requests (Pending)
-            // If Club Admin: Show people wanting to join
-            if ($data['is_club_account']) {
-                $data['pending_join_requests'] = \App\Models\ClubRequest::where('club_id', $user->club->id)
-                    ->where('type', 'join')
-                    ->where('status', 'pending')
-                    ->with('user:id,name,email,profile_photo_path') // minimal user info
-                    ->get()
-                    ->transform(function ($req) {
-                        $req->user->image = $req->user->profile_photo_url;
-                        return $req;
-                    });
-            } else {
-                // If Regular User: Show clubs inviting me
-                $data['pending_club_invites'] = \App\Models\ClubRequest::where('user_id', $user->id)
-                    ->where('type', 'invite')
-                    ->where('status', 'pending')
-                    ->with('club:id,name,logo_url')
-                    ->get();
-            }
-        }
-
-        return $data;
-    }
 
     /**
      * Update Profile (Protected).
@@ -525,7 +325,7 @@ class ProfileController extends Controller
         }
 
         $followers = $user->followers()
-            ->with(['ownedClub', 'club', 'category.parentCategory', 'answers.question'])
+            ->with(['ownedClub', 'club', 'category.parentCategory', 'answers.question', 'subscription'])
             ->paginate(15);
 
         // Transform collection using the standard profile formatting (ARRAY ONLY to avoid nesting)
@@ -561,7 +361,7 @@ class ProfileController extends Controller
         }
 
         $following = $user->following()
-            ->with(['ownedClub', 'club', 'category.parentCategory', 'answers.question'])
+            ->with(['ownedClub', 'club', 'category.parentCategory', 'answers.question', 'subscription'])
             ->paginate(15);
 
         // Transform collection using the standard profile formatting (ARRAY ONLY to avoid nesting)

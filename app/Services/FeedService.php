@@ -69,7 +69,7 @@ class FeedService
 
         // Manual Pagination
         $currentPage = LengthAwarePaginator::resolveCurrentPage();
-        $currentItems = $results->slice(($currentPage - 1) * $perPage, $perPage)->all();
+        $currentItems = $results->slice(($currentPage - 1) * $perPage, $perPage)->values()->all();
 
         $paginated = new LengthAwarePaginator(
             $currentItems,

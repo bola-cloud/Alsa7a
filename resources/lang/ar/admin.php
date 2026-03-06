@@ -233,6 +233,9 @@ return [
         'service_commission' => 'عمولة الخدمة (%)',
         'commission' => 'إعدادات العمولة',
         'choose_file' => 'اختر ملف',
+        'subscription' => 'إعدادات الاشتراك',
+        'subscription_monthly_price' => 'سعر الاشتراك الشهري',
+        'subscription_annual_price' => 'سعر الاشتراك السنوي',
     ],
     'messages' => [
         'created_successfully' => 'تم الإنشاء بنجاح',

@@ -233,6 +233,9 @@ return [
         'service_commission' => 'Service Commission (%)',
         'commission' => 'Commission Settings',
         'choose_file' => 'Choose file',
+        'subscription' => 'Subscription Settings',
+        'subscription_monthly_price' => 'Monthly Subscription Price',
+        'subscription_annual_price' => 'Annual Subscription Price',
     ],
     'messages' => [
         'created_successfully' => 'Created successfully',

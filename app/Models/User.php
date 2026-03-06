@@ -12,7 +12,6 @@ use Laravel\Sanctum\HasApiTokens;
 use App\Models\Question;
 use App\Models\QuestionAnswer;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use App\Models\Project;
 
 class User extends Authenticatable
 {
@@ -62,10 +61,6 @@ class User extends Authenticatable
         'onesignal_subscription',
     ];
 
-    public function projects(): HasMany
-    {
-        return $this->hasMany(Project::class);
-    }
 
     public function services()
     {
@@ -143,6 +138,24 @@ class User extends Authenticatable
     public function posts()
     {
         return $this->hasMany(Post::class);
+    }
+
+    /**
+     * Posts (Gallery)
+     */
+    public function views()
+    {
+        return $this->hasMany(PostView::class);
+    }
+
+    public function subscription()
+    {
+        return $this->hasOne(Subscription::class)->latestOfMany();
+    }
+
+    public function isSubscribed()
+    {
+        return $this->subscription && $this->subscription->isActive();
     }
 
     public function ratingsReceived()

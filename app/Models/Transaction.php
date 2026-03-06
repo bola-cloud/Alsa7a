@@ -14,6 +14,7 @@ class Transaction extends Model
         'service_request_id',
         'booking_id', // Event Booking
         'amount',
+        'subscription_id',
         'commission_amount',
         'provider_amount',
         'status', // pending, completed, failed, refunded
@@ -39,5 +40,10 @@ class Transaction extends Model
     public function booking()
     {
         return $this->belongsTo(Booking::class);
+    }
+
+    public function subscription()
+    {
+        return $this->belongsTo(Subscription::class);
     }
 }

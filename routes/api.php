@@ -167,7 +167,12 @@ Route::prefix('v1')->middleware('set.api.locale')->group(function () {
 
         // --- Event Booking ---
         Route::post('events/{id}/book', [App\Http\Controllers\Api\V1\EventBookingController::class, 'store']);
-        Route::get('my-bookings', [App\Http\Controllers\Api\V1\EventBookingController::class, 'index']); // New Endpoint
+        Route::get('my-bookings', [App\Http\Controllers\Api\V1\EventBookingController::class, 'index']);
+
+        // --- Subscriptions ---
+        Route::get('subscriptions/plans', [App\Http\Controllers\Api\V1\SubscriptionController::class, 'plans'])->withoutMiddleware('auth:sanctum');
+        Route::post('subscriptions/checkout', [App\Http\Controllers\Api\V1\SubscriptionController::class, 'checkout']);
+        Route::get('subscriptions/status', [App\Http\Controllers\Api\V1\SubscriptionController::class, 'status']);
 
         // --- Notifications ---
         Route::get('notifications', [App\Http\Controllers\Api\V1\NotificationController::class, 'index']);

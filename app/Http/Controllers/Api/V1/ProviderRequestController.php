@@ -9,9 +9,11 @@ use Illuminate\Support\Facades\Validator;
 use App\Notifications\RequestStatusUpdated;
 
 use App\Services\OneSignalService;
+use App\Traits\FormatsProfileData;
 
 class ProviderRequestController extends Controller
 {
+    use FormatsProfileData;
     protected $oneSignal;
 
     public function __construct(OneSignalService $oneSignal)
@@ -25,14 +27,14 @@ class ProviderRequestController extends Controller
     public function index(Request $request)
     {
         // Get requests where the authenticated user is the provider
-        $requests = ServiceRequest::with(['service.media', 'requester'])
+        $requests = ServiceRequest::with(['service.media', 'requester.subscription', 'requester.category', 'requester.club', 'provider.subscription', 'provider.category', 'provider.club'])
             ->where('provider_id', $request->user()->id)
             ->latest()
             ->paginate(10);
 
+        $currentUser = $request->user();
         // Transform to include full image URL
-        // Transform to include full image URL
-        $requests->getCollection()->transform(function ($req) {
+        $requests->getCollection()->transform(function ($req) use ($currentUser) {
             if ($req->service && $req->service->media->isNotEmpty()) {
                 $firstMedia = $req->service->media->first();
                 $image = $firstMedia->file_path ?? $firstMedia->image; // Handle different column names
@@ -45,8 +47,14 @@ class ProviderRequestController extends Controller
 
             // Fix Requester Image
             if ($req->requester) {
-                // Now handled by accessors mostly, but explicitly ensuring full URL
                 $req->requester->image = $req->requester->profile_photo_url;
+                $req->requester_profile = $this->getProfileData($req->requester, false, $currentUser);
+            }
+
+            // Fix Provider Image (Logged in user)
+            if ($req->provider) {
+                $req->provider->image = $req->provider->profile_photo_url;
+                $req->provider_profile = $this->getProfileData($req->provider, false, $currentUser);
             }
 
             return $req;
