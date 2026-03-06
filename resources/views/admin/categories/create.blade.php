@@ -132,12 +132,12 @@
 
                                     <div class="row mt-2">
                                         <div class="col-md-12">
-                                            <h5>{{ __('admin.categories.verification_fields') ?? 'Specific Verification Fields' }}
+                                            <h5>{{ __('admin.categories.verification_fields') }}
                                             </h5>
                                             <div id="dynamic_fields_container">
                                             </div>
                                             <button type="button" class="btn btn-info btn-sm mt-1" onclick="addField()"><i
-                                                    class="ft-plus"></i> Add Field/File</button>
+                                                    class="ft-plus"></i> {{ __('admin.categories.add_field') }}</button>
                                         </div>
                                     </div>
                                 </div>
@@ -149,26 +149,26 @@
                                         const row = document.createElement('div');
                                         row.className = 'row field-row mb-1';
                                         row.innerHTML = `
-                                                <div class="col-md-3">
-                                                    <input type="text" name="verification_fields[${fieldIndex}][id]" class="form-control" placeholder="Field ID (e.g. id_card)">
-                                                </div>
-                                                <div class="col-md-2">
-                                                    <select name="verification_fields[${fieldIndex}][type]" class="form-control">
-                                                        <option value="file">File</option>
-                                                        <option value="text">Text</option>
-                                                        <option value="number">Number</option>
-                                                    </select>
-                                                </div>
-                                                <div class="col-md-3">
-                                                    <input type="text" name="verification_fields[${fieldIndex}][label_en]" class="form-control" placeholder="Label (EN)">
-                                                </div>
-                                                <div class="col-md-3">
-                                                    <input type="text" name="verification_fields[${fieldIndex}][label_ar]" class="form-control" placeholder="Label (AR)">
-                                                </div>
-                                                <div class="col-md-1">
-                                                    <button type="button" class="btn btn-danger btn-sm" onclick="removeField(this)"><i class="ft-trash"></i></button>
-                                                </div>
-                                            `;
+                                                    <div class="col-md-3">
+                                                        <input type="text" name="verification_fields[${fieldIndex}][id]" class="form-control" placeholder="{{ __('admin.categories.field_id') }}">
+                                                    </div>
+                                                    <div class="col-md-2">
+                                                        <select name="verification_fields[${fieldIndex}][type]" class="form-control">
+                                                            <option value="file">File</option>
+                                                            <option value="text">Text</option>
+                                                            <option value="number">Number</option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="col-md-3">
+                                                        <input type="text" name="verification_fields[${fieldIndex}][label_en]" class="form-control" placeholder="{{ __('admin.categories.field_label') }} (EN)">
+                                                    </div>
+                                                    <div class="col-md-3">
+                                                        <input type="text" name="verification_fields[${fieldIndex}][label_ar]" class="form-control" placeholder="{{ __('admin.categories.field_label') }} (AR)">
+                                                    </div>
+                                                    <div class="col-md-1">
+                                                        <button type="button" class="btn btn-danger btn-sm" onclick="removeField(this)"><i class="ft-trash"></i></button>
+                                                    </div>
+                                                `;
                                         container.appendChild(row);
                                         fieldIndex++;
                                     }

@@ -135,13 +135,13 @@
 
                                     <div class="row mt-2">
                                         <div class="col-md-12">
-                                            <h5>{{ __('admin.categories.verification_fields') ?? 'Specific Verification Fields' }}</h5>
+                                            <h5>{{ __('admin.categories.verification_fields') }}</h5>
                                             <div id="dynamic_fields_container">
                                                 @if($category->verification_fields)
                                                     @foreach($category->verification_fields as $index => $field)
                                                         <div class="row field-row mb-1">
                                                             <div class="col-md-3">
-                                                                <input type="text" name="verification_fields[{{$index}}][id]" class="form-control" placeholder="Field ID (e.g. id_card)" value="{{ $field['id'] ?? '' }}">
+                                                                <input type="text" name="verification_fields[{{$index}}][id]" class="form-control" placeholder="{{ __('admin.categories.field_id') }}" value="{{ $field['id'] ?? '' }}">
                                                             </div>
                                                             <div class="col-md-2">
                                                                 <select name="verification_fields[{{$index}}][type]" class="form-control">
@@ -151,10 +151,10 @@
                                                                 </select>
                                                             </div>
                                                             <div class="col-md-3">
-                                                                <input type="text" name="verification_fields[{{$index}}][label_en]" class="form-control" placeholder="Label (EN)" value="{{ $field['label_en'] ?? '' }}">
+                                                                <input type="text" name="verification_fields[{{$index}}][label_en]" class="form-control" placeholder="{{ __('admin.categories.field_label') }} (EN)" value="{{ $field['label_en'] ?? '' }}">
                                                             </div>
                                                             <div class="col-md-3">
-                                                                <input type="text" name="verification_fields[{{$index}}][label_ar]" class="form-control" placeholder="Label (AR)" value="{{ $field['label_ar'] ?? '' }}">
+                                                                <input type="text" name="verification_fields[{{$index}}][label_ar]" class="form-control" placeholder="{{ __('admin.categories.field_label') }} (AR)" value="{{ $field['label_ar'] ?? '' }}">
                                                             </div>
                                                             <div class="col-md-1">
                                                                 <button type="button" class="btn btn-danger btn-sm" onclick="removeField(this)"><i class="ft-trash"></i></button>
@@ -163,7 +163,7 @@
                                                     @endforeach
                                                 @endif
                                             </div>
-                                            <button type="button" class="btn btn-info btn-sm mt-1" onclick="addField()"><i class="ft-plus"></i> Add Field/File</button>
+                                            <button type="button" class="btn btn-info btn-sm mt-1" onclick="addField()"><i class="ft-plus"></i> {{ __('admin.categories.add_field') }}</button>
                                         </div>
                                     </div>
                                 </div>
@@ -176,7 +176,7 @@
                                         row.className = 'row field-row mb-1';
                                         row.innerHTML = `
                                             <div class="col-md-3">
-                                                <input type="text" name="verification_fields[${fieldIndex}][id]" class="form-control" placeholder="Field ID (e.g. id_card)">
+                                                <input type="text" name="verification_fields[${fieldIndex}][id]" class="form-control" placeholder="{{ __('admin.categories.field_id') }}">
                                             </div>
                                             <div class="col-md-2">
                                                 <select name="verification_fields[${fieldIndex}][type]" class="form-control">
@@ -186,10 +186,10 @@
                                                 </select>
                                             </div>
                                             <div class="col-md-3">
-                                                <input type="text" name="verification_fields[${fieldIndex}][label_en]" class="form-control" placeholder="Label (EN)">
+                                                <input type="text" name="verification_fields[${fieldIndex}][label_en]" class="form-control" placeholder="{{ __('admin.categories.field_label') }} (EN)">
                                             </div>
                                             <div class="col-md-3">
-                                                <input type="text" name="verification_fields[${fieldIndex}][label_ar]" class="form-control" placeholder="Label (AR)">
+                                                <input type="text" name="verification_fields[${fieldIndex}][label_ar]" class="form-control" placeholder="{{ __('admin.categories.field_label') }} (AR)">
                                             </div>
                                             <div class="col-md-1">
                                                 <button type="button" class="btn btn-danger btn-sm" onclick="removeField(this)"><i class="ft-trash"></i></button>

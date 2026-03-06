@@ -31,6 +31,10 @@ trait FormatsProfileData
                 'id' => $user->category->id,
                 'name' => $user->category->name,
                 'is_service_provider' => $user->category->is_service_provider,
+                'requires_verification' => (bool) $user->category->requires_verification,
+                'verification_requirements_en' => $user->category->verification_requirements_en,
+                'verification_requirements_ar' => $user->category->verification_requirements_ar,
+                'verification_fields' => $user->category->verification_fields,
                 'parent_category_id' => $user->category->parent_category_id,
                 'parent_category' => $user->category->parentCategory ? [
                     'id' => $user->category->parentCategory->id,

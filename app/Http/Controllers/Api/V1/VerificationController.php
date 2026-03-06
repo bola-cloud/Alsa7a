@@ -96,6 +96,20 @@ class VerificationController extends Controller
                 'verification_status' => $user->verification_status,
                 'is_approved' => $user->is_approved,
                 'rejection_reason' => $user->rejection_reason,
+                'verification_documents' => (function () use ($user) {
+                    $docs = $user->verification_documents;
+                    if (!$docs)
+                        return null;
+                    if (!is_array($docs))
+                        return $docs;
+
+                    return collect($docs)->map(function ($value, $key) {
+                        if (is_string($value) && (str_contains($value, '.') || str_contains($value, '/'))) {
+                            return url('storage/' . $value);
+                        }
+                        return $value;
+                    });
+                })(),
             ]
         ]);
     }

@@ -98,6 +98,11 @@ return [
         'search' => 'Search',
         'requires_verification' => 'Requires Verification',
         'verification_requirements' => 'Verification Requirements',
+        'verification_fields' => 'Specific Verification Fields',
+        'field_id' => 'Field ID (e.g. id_card)',
+        'field_type' => 'Field Type',
+        'field_label' => 'Label',
+        'add_field' => 'Add Field/File',
     ],
     'sports' => [
         'index' => 'Sports',
