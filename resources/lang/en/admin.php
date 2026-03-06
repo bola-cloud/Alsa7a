@@ -96,6 +96,8 @@ return [
         'add_new' => 'Add New',
         'all' => 'All',
         'search' => 'Search',
+        'requires_verification' => 'Requires Verification',
+        'verification_requirements' => 'Verification Requirements',
     ],
     'sports' => [
         'index' => 'Sports',

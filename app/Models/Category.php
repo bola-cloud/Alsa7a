@@ -21,6 +21,8 @@ class Category extends Model
         'description_ar',
         'is_service_provider',
         'requires_verification',
+        'verification_requirements_en',
+        'verification_requirements_ar',
     ];
 
     protected $casts = [

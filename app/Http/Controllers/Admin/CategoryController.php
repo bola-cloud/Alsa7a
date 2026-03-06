@@ -53,6 +53,10 @@ class CategoryController extends Controller
             'description.en' => 'nullable|string',
             'description.ar' => 'nullable|string',
             'parent_category_id' => 'required|exists:parent_categories,id',
+            'requires_verification' => 'nullable|boolean',
+            'verification_requirements' => 'nullable|array',
+            'verification_requirements.en' => 'nullable|string',
+            'verification_requirements.ar' => 'nullable|string',
         ]);
 
         $categoryData = [
@@ -64,6 +68,9 @@ class CategoryController extends Controller
             'description_en' => $data['description']['en'] ?? null,
             'description_ar' => $data['description']['ar'] ?? null,
             'is_service_provider' => $request->has('is_service_provider') ? 1 : 0,
+            'requires_verification' => $request->has('requires_verification') ? 1 : 0,
+            'verification_requirements_en' => $data['verification_requirements']['en'] ?? null,
+            'verification_requirements_ar' => $data['verification_requirements']['ar'] ?? null,
         ];
 
         if ($request->hasFile('image')) {
@@ -105,6 +112,10 @@ class CategoryController extends Controller
             'description.en' => 'nullable|string',
             'description.ar' => 'nullable|string',
             'parent_category_id' => 'required|exists:parent_categories,id',
+            'requires_verification' => 'nullable|boolean',
+            'verification_requirements' => 'nullable|array',
+            'verification_requirements.en' => 'nullable|string',
+            'verification_requirements.ar' => 'nullable|string',
         ]);
 
         $categoryData = [
@@ -116,6 +127,9 @@ class CategoryController extends Controller
             'description_en' => $data['description']['en'] ?? null,
             'description_ar' => $data['description']['ar'] ?? null,
             'is_service_provider' => $request->has('is_service_provider') ? 1 : 0,
+            'requires_verification' => $request->has('requires_verification') ? 1 : 0,
+            'verification_requirements_en' => $data['verification_requirements']['en'] ?? null,
+            'verification_requirements_ar' => $data['verification_requirements']['ar'] ?? null,
         ];
 
         if ($request->hasFile('image')) {

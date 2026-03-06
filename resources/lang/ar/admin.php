@@ -96,6 +96,8 @@ return [
         'add_new' => 'إضافة جديد',
         'all' => 'الكل',
         'search' => 'بحث',
+        'requires_verification' => 'يتطلب توثيق',
+        'verification_requirements' => 'متطلبات التوثيق',
     ],
     'sports' => [
         'index' => 'الرياضات',

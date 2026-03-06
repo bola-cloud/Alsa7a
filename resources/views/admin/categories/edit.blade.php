@@ -97,6 +97,48 @@
                                         </div>
                                     </div>
                                 </div>
+
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <div class="form-group">
+                                            <fieldset>
+                                                <div class="custom-control custom-checkbox">
+                                                    <input type="checkbox" class="custom-control-input"
+                                                        name="requires_verification" id="requires_verification" value="1"
+                                                        {{ $category->requires_verification ? 'checked' : '' }}
+                                                        onchange="toggleVerificationRequirements(this)">
+                                                    <label class="custom-control-label"
+                                                        for="requires_verification">{{ __('admin.categories.requires_verification') }}</label>
+                                                </div>
+                                            </fieldset>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div id="verification_requirements_container" style="{{ $category->requires_verification ? '' : 'display: none;' }}">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label for="verification_requirements_en">{{ __('admin.categories.verification_requirements') }} (EN)</label>
+                                                <textarea id="verification_requirements_en" class="form-control round" name="verification_requirements[en]"
+                                                    rows="3">{{ $category->verification_requirements_en }}</textarea>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label for="verification_requirements_ar">{{ __('admin.categories.verification_requirements') }} (AR)</label>
+                                                <textarea id="verification_requirements_ar" class="form-control round" name="verification_requirements[ar]"
+                                                    rows="3">{{ $category->verification_requirements_ar }}</textarea>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <script>
+                                    function toggleVerificationRequirements(checkbox) {
+                                        document.getElementById('verification_requirements_container').style.display = checkbox.checked ? 'block' : 'none';
+                                    }
+                                </script>
                             </div>
 
                             <div class="form-actions text-right">
