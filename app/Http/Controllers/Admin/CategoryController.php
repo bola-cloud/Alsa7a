@@ -57,6 +57,7 @@ class CategoryController extends Controller
             'verification_requirements' => 'nullable|array',
             'verification_requirements.en' => 'nullable|string',
             'verification_requirements.ar' => 'nullable|string',
+            'verification_fields' => 'nullable|array',
         ]);
 
         $categoryData = [
@@ -71,6 +72,7 @@ class CategoryController extends Controller
             'requires_verification' => $request->has('requires_verification') ? 1 : 0,
             'verification_requirements_en' => $data['verification_requirements']['en'] ?? null,
             'verification_requirements_ar' => $data['verification_requirements']['ar'] ?? null,
+            'verification_fields' => $data['verification_fields'] ?? null,
         ];
 
         if ($request->hasFile('image')) {
@@ -116,6 +118,7 @@ class CategoryController extends Controller
             'verification_requirements' => 'nullable|array',
             'verification_requirements.en' => 'nullable|string',
             'verification_requirements.ar' => 'nullable|string',
+            'verification_fields' => 'nullable|array',
         ]);
 
         $categoryData = [
@@ -130,6 +133,7 @@ class CategoryController extends Controller
             'requires_verification' => $request->has('requires_verification') ? 1 : 0,
             'verification_requirements_en' => $data['verification_requirements']['en'] ?? null,
             'verification_requirements_ar' => $data['verification_requirements']['ar'] ?? null,
+            'verification_fields' => $data['verification_fields'] ?? null,
         ];
 
         if ($request->hasFile('image')) {

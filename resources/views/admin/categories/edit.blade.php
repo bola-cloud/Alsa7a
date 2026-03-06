@@ -132,9 +132,75 @@
                                             </div>
                                         </div>
                                     </div>
+
+                                    <div class="row mt-2">
+                                        <div class="col-md-12">
+                                            <h5>{{ __('admin.categories.verification_fields') ?? 'Specific Verification Fields' }}</h5>
+                                            <div id="dynamic_fields_container">
+                                                @if($category->verification_fields)
+                                                    @foreach($category->verification_fields as $index => $field)
+                                                        <div class="row field-row mb-1">
+                                                            <div class="col-md-3">
+                                                                <input type="text" name="verification_fields[{{$index}}][id]" class="form-control" placeholder="Field ID (e.g. id_card)" value="{{ $field['id'] ?? '' }}">
+                                                            </div>
+                                                            <div class="col-md-2">
+                                                                <select name="verification_fields[{{$index}}][type]" class="form-control">
+                                                                    <option value="file" {{ ($field['type'] ?? '') == 'file' ? 'selected' : '' }}>File</option>
+                                                                    <option value="text" {{ ($field['type'] ?? '') == 'text' ? 'selected' : '' }}>Text</option>
+                                                                    <option value="number" {{ ($field['type'] ?? '') == 'number' ? 'selected' : '' }}>Number</option>
+                                                                </select>
+                                                            </div>
+                                                            <div class="col-md-3">
+                                                                <input type="text" name="verification_fields[{{$index}}][label_en]" class="form-control" placeholder="Label (EN)" value="{{ $field['label_en'] ?? '' }}">
+                                                            </div>
+                                                            <div class="col-md-3">
+                                                                <input type="text" name="verification_fields[{{$index}}][label_ar]" class="form-control" placeholder="Label (AR)" value="{{ $field['label_ar'] ?? '' }}">
+                                                            </div>
+                                                            <div class="col-md-1">
+                                                                <button type="button" class="btn btn-danger btn-sm" onclick="removeField(this)"><i class="ft-trash"></i></button>
+                                                            </div>
+                                                        </div>
+                                                    @endforeach
+                                                @endif
+                                            </div>
+                                            <button type="button" class="btn btn-info btn-sm mt-1" onclick="addField()"><i class="ft-plus"></i> Add Field/File</button>
+                                        </div>
+                                    </div>
                                 </div>
 
                                 <script>
+                                    let fieldIndex = {{ $category->verification_fields ? count($category->verification_fields) : 0 }};
+                                    function addField() {
+                                        const container = document.getElementById('dynamic_fields_container');
+                                        const row = document.createElement('div');
+                                        row.className = 'row field-row mb-1';
+                                        row.innerHTML = `
+                                            <div class="col-md-3">
+                                                <input type="text" name="verification_fields[${fieldIndex}][id]" class="form-control" placeholder="Field ID (e.g. id_card)">
+                                            </div>
+                                            <div class="col-md-2">
+                                                <select name="verification_fields[${fieldIndex}][type]" class="form-control">
+                                                    <option value="file">File</option>
+                                                    <option value="text">Text</option>
+                                                    <option value="number">Number</option>
+                                                </select>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <input type="text" name="verification_fields[${fieldIndex}][label_en]" class="form-control" placeholder="Label (EN)">
+                                            </div>
+                                            <div class="col-md-3">
+                                                <input type="text" name="verification_fields[${fieldIndex}][label_ar]" class="form-control" placeholder="Label (AR)">
+                                            </div>
+                                            <div class="col-md-1">
+                                                <button type="button" class="btn btn-danger btn-sm" onclick="removeField(this)"><i class="ft-trash"></i></button>
+                                            </div>
+                                        `;
+                                        container.appendChild(row);
+                                        fieldIndex++;
+                                    }
+                                    function removeField(btn) {
+                                        btn.closest('.field-row').remove();
+                                    }
                                     function toggleVerificationRequirements(checkbox) {
                                         document.getElementById('verification_requirements_container').style.display = checkbox.checked ? 'block' : 'none';
                                     }

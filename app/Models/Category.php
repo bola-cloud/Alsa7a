@@ -23,11 +23,13 @@ class Category extends Model
         'requires_verification',
         'verification_requirements_en',
         'verification_requirements_ar',
+        'verification_fields',
     ];
 
     protected $casts = [
         'is_service_provider' => 'boolean',
         'requires_verification' => 'boolean',
+        'verification_fields' => 'array',
     ];
 
     /**

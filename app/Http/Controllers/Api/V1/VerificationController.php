@@ -14,39 +14,72 @@ class VerificationController extends Controller
      */
     public function upload(Request $request)
     {
-        $user = $request->user();
+        $user = $request->user()->load('category');
 
         if ($user->verification_status === 'approved') {
             return response()->json(['status' => false, 'message' => 'Already approved'], 400);
         }
 
-        $validator = Validator::make($request->all(), [
-            'documents' => 'required|array|min:1',
-            'documents.*' => 'file|mimes:jpg,jpeg,png,pdf|max:5120', // 5MB max
-        ]);
+        $category = $user->category;
+        $fields = $category ? $category->verification_fields : null;
 
-        if ($validator->fails()) {
-            return response()->json(['status' => false, 'errors' => $validator->errors()], 422);
+        if ($fields && is_array($fields) && count($fields) > 0) {
+            $rules = [];
+            foreach ($fields as $field) {
+                $fieldId = $field['id'];
+                if ($field['type'] === 'file') {
+                    $rules[$fieldId] = 'required|file|mimes:jpg,jpeg,png,pdf|max:5120';
+                } else {
+                    $rules[$fieldId] = 'required|string|max:1000';
+                }
+            }
+
+            $validator = Validator::make($request->all(), $rules);
+
+            if ($validator->fails()) {
+                return response()->json(['status' => false, 'errors' => $validator->errors()], 422);
+            }
+
+            $verificationData = [];
+            foreach ($fields as $field) {
+                $fieldId = $field['id'];
+                if ($field['type'] === 'file' && $request->hasFile($fieldId)) {
+                    $path = $request->file($fieldId)->store('identifications', 'public');
+                    $verificationData[$fieldId] = $path;
+                } else {
+                    $verificationData[$fieldId] = $request->input($fieldId);
+                }
+            }
+            $user->verification_documents = $verificationData;
+        } else {
+            // Fallback to legacy documents[] array
+            $validator = Validator::make($request->all(), [
+                'documents' => 'required|array|min:1',
+                'documents.*' => 'file|mimes:jpg,jpeg,png,pdf|max:5120',
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json(['status' => false, 'errors' => $validator->errors()], 422);
+            }
+
+            $paths = [];
+            foreach ($request->file('documents') as $file) {
+                $path = $file->store('identifications', 'public');
+                $paths[] = $path;
+            }
+            $user->verification_documents = $paths;
         }
 
-        $paths = $user->verification_documents ?? [];
-
-        foreach ($request->file('documents') as $file) {
-            $path = $file->store('identifications', 'public'); // Store in 'identifications' folder
-            $paths[] = $path;
-        }
-
-        $user->verification_documents = $paths;
-        $user->verification_status = 'pending'; // Reset to pending if re-uploading
-        $user->is_approved = false; // Require admin re-approval
+        $user->verification_status = 'pending';
+        $user->is_approved = false;
         $user->save();
 
         return response()->json([
             'status' => true,
-            'message' => 'Documents uploaded. Please wait for admin approval.',
+            'message' => 'Verification details submitted. Please wait for admin approval.',
             'data' => [
                 'verification_status' => $user->verification_status,
-                'documents_count' => count($paths)
+                'documents_count' => is_array($user->verification_documents) ? count($user->verification_documents) : 0
             ]
         ]);
     }
