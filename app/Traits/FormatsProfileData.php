@@ -30,6 +30,8 @@ trait FormatsProfileData
             'category' => $user->category ? [
                 'id' => $user->category->id,
                 'name' => $user->category->name,
+                'name_en' => $user->category->name_en, // Restored
+                'name_ar' => $user->category->name_ar, // Restored
                 'is_service_provider' => $user->category->is_service_provider,
                 'requires_verification' => (bool) $user->category->requires_verification,
                 'verification_requirements_en' => $user->category->verification_requirements_en,
@@ -56,6 +58,7 @@ trait FormatsProfileData
                 'number' => $user->number,
                 'nationality' => $user->nationality,
                 'stats' => $user->stats,
+                'show_answers' => true, // Restored (Default to true for backward compatibility)
             ],
 
             // Questions & Answers
@@ -110,6 +113,18 @@ trait FormatsProfileData
                 return $isMe || $item['is_visible'];
             })->values() : [],
 
+            'answered_question_ids' => $user->answered_question_ids ?? [], // Restored
+            'questions_complete' => (bool)($user->questions_complete ?? false), // Restored
+            
+            'gallery' => $user->posts ? $user->posts->map(function ($post) { // Restored
+                return [
+                    'id' => $post->id,
+                    'image' => (strpos($post->image, 'http') === 0) ? $post->image : url('storage/' . $post->image),
+                    'video_thumbnail' => $post->video_thumbnail ? url('storage/' . $post->video_thumbnail) : null, // Added
+                    'content' => $post->content,
+                ];
+            }) : [],
+
             'rating_data' => [
                 'average_rating' => (float) ($user->relationLoaded('ratingsReceived') ? $user->ratingsReceived()->avg('rating') : 0),
                 'total_ratings' => $user->relationLoaded('ratingsReceived') ? $user->ratingsReceived()->count() : 0,
@@ -122,6 +137,15 @@ trait FormatsProfileData
             ],
             'is_following' => (bool) $isFollowing,
             'is_club_account' => $user->is_club_account ?? ($user->club ? ($user->club->user_id === $user->id) : false),
+            'verification_status' => $user->verification_status, // Restored
+            'is_verified' => $user->verification_status === 'approved', // Restored
+            'is_blocked' => (bool) $user->is_blocked, // Added
+            
+            'address' => $user->address, // Added
+            'city' => $user->city, // Added
+            'country' => $user->country, // Added
+            'currency' => $user->currency, // Added (if exists on user)
+
             'role_in_club' => (function () use ($user) {
                 if (!$user->club_id && !$user->ownedClub)
                     return null;
@@ -154,36 +178,35 @@ trait FormatsProfileData
             ],
         ];
 
-        // Specialized Club Account View
-        if ($data['is_club_account']) {
-            $club = $user->club ?? $user->ownedClub;
-            if ($club) {
-                $data['club_details'] = [
-                    'id' => $club->id,
-                    'name' => $club->name,
-                    'logo' => $club->logo_url,
-                    'banner' => $club->banner_url,
-                ];
+        // Club Details View (Always include if associated with a club, either as owner or member)
+        $club = $user->ownedClub ?: $user->club;
+        if ($club) {
+            $data['club_details'] = [
+                'id' => $club->id,
+                'name' => $club->name,
+                'logo' => $club->logo_url,
+                'banner' => $club->banner_url,
+                'user_id' => $club->user_id,
+            ];
 
-                if ($user->relationLoaded('club.teams')) {
-                    $data['club_details']['teams'] = $club->teams()->with('members:id,name,email,profile_photo_path,position,number,team_id')->get()->map(function ($team) {
-                        return [
-                            'id' => $team->id,
-                            'name' => $team->name,
-                            'age_group' => $team->age_group,
-                            'image' => $team->image ? url('storage/' . $team->image) : null,
-                            'members' => $team->members->map(function ($member) {
-                                return [
-                                    'id' => $member->id,
-                                    'name' => $member->name,
-                                    'image' => $member->profile_photo_url,
-                                    'position' => $member->position,
-                                    'number' => $member->number,
-                                ];
-                            })
-                        ];
-                    });
-                }
+            if ($user->relationLoaded('club.teams') || $user->relationLoaded('ownedClub.teams')) {
+                $data['club_details']['teams'] = $club->teams()->with('members:id,name,email,profile_photo_path,position,number,team_id')->get()->map(function ($team) {
+                    return [
+                        'id' => $team->id,
+                        'name' => $team->name,
+                        'age_group' => $team->age_group,
+                        'image' => $team->image ? url('storage/' . $team->image) : null,
+                        'members' => $team->members->map(function ($member) {
+                            return [
+                                'id' => $member->id,
+                                'name' => $member->name,
+                                'image' => $member->profile_photo_url,
+                                'position' => $member->position,
+                                'number' => $member->number,
+                            ];
+                        })
+                    ];
+                });
             }
         }
 

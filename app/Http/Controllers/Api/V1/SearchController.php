@@ -80,123 +80,15 @@ class SearchController extends Controller
         // Transform collection to add helper fields
         $currentUser = $request->user('sanctum');
         $users->getCollection()->transform(function ($user) use ($currentUser) {
-            // 1. Format Image URL
-            $user->image = $user->profile_photo_url; // Default fallback
-
-            if ($user->profile_photo_path) {
-                $url = url('storage/' . $user->profile_photo_path);
-                $user->image = $url;
-                $user->profile_photo_url = $url; // Overwrite accessor value with correct URL
+            // Standardize profile formatting and flatten it into the user object
+            $profileData = $this->getProfileData($user, false, $currentUser);
+            foreach ($profileData as $key => $value) {
+                $user->{$key} = $value;
             }
-
-            // 2. Format Answers (questions_data)
-            $user->questions_data = $user->answers->map(function ($answer) {
-                $q = $answer->question;
-                if (!$q)
-                    return null;
-
-                // Logic to extract en/ar question text
-                $qRaw = $q->getAttributes()['question'] ?? '';
-                $qData = $q->question;
-
-                $questionEn = null;
-                $questionAr = null;
-                $mainQuestion = '';
-
-                if (is_array($qData)) {
-                    $questionEn = $qData['en'] ?? null;
-                    $questionAr = $qData['ar'] ?? null;
-                    $mainQuestion = !empty($questionEn) ? $questionEn : ($questionAr ?? '');
-                } else {
-                    $mainQuestion = (string) $qRaw;
-                    $questionEn = $mainQuestion;
-                    $questionAr = $mainQuestion;
-                }
-
-                // Logic to extract choices
-                $choicesData = $q->choices;
-                $choices = [];
-                $choicesEn = [];
-                $choicesAr = [];
-
-                if (is_array($choicesData) && !empty($choicesData)) {
-                    $choices = array_values($choicesData);
-                    $choicesEn = array_keys($choicesData);
-                    $choicesAr = array_values($choicesData);
-                }
-
-                return [
-                    'question_id' => $answer->question_id,
-                    'question' => $mainQuestion,
-                    'question_en' => $questionEn,
-                    'question_ar' => $questionAr,
-                    'type' => $q->type ?? null,
-                    'choices' => $choices,
-                    'choices_en' => $choicesEn,
-                    'choices_ar' => $choicesAr,
-                    'answer' => $answer->answer,
-                ];
-            })->filter()->values();
-
-            // 3. Format Cover Photo
-            if ($user->cover_photo_path) {
-                $url = url('storage/' . $user->cover_photo_path);
-                $user->cover_photo = $url;
-                $user->cover_photo_path = $url; // Update path to be full URL as requested
-            } else {
-                $user->cover_photo = null;
-            }
-
-            // 4. Category Data (Optional but good)
-            $user->category_data = $user->category ? [
-                'id' => $user->category->id,
-                'name' => $user->category->name,
-                'is_service_provider' => $user->category->is_service_provider,
-                'parent_category_id' => $user->category->parent_category_id,
-                'parent_category' => $user->category->parentCategory ? [
-                    'id' => $user->category->parentCategory->id,
-                    'name' => $user->category->parentCategory->name,
-                    'image' => $user->category->parentCategory->image ? url('storage/' . $user->category->parentCategory->image) : null,
-                ] : null,
-            ] : null;
-
-            // 5. Professional & Club Data (Consistency with Profile API)
-            $user->professional = [
-                'club' => $user->club ? [
-                    'id' => $user->club->id,
-                    'name' => $user->club->name,
-                    'logo' => $user->club->logo_url,
-                    'user_id' => $user->club->user_id, // Club Owner User ID
-                ] : null,
-                'team_id' => $user->team_id,
-                'position' => $user->position,
-                'number' => $user->number,
-                'nationality' => $user->nationality,
-                'stats' => $user->stats,
-            ];
-
-            $user->is_club_account = (bool) $user->ownedClub;
-
-            if ($user->is_club_account && $user->ownedClub) {
-                $club = $user->ownedClub;
-                $user->club_details = [
-                    'id' => $club->id,
-                    'name' => $club->name,
-                    'logo' => $club->logo_url,
-                    'banner' => $club->banner_url,
-                ];
-            }
-
-            $user->subscription = [
-                'is_subscribed' => $user->isSubscribed(),
-                'type' => $user->subscription ? $user->subscription->type : null,
-                'end_date' => $user->subscription ? $user->subscription->end_date : null,
-                'status' => $user->subscription ? $user->subscription->status : null,
-            ];
-
-            // Add standardized profile for consistency across all APIs
-            $user->profile = $this->getProfileData($user, false, $currentUser);
-
+            
+            // Note: We avoid adding properties directly to $user that might shadow relationships (like subscription)
+            // as this was causing 500 errors in models like User::isSubscribed().
+            
             return $user;
         });
 
