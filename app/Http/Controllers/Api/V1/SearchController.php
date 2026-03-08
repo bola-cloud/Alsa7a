@@ -136,7 +136,7 @@ class SearchController extends Controller
                     'choices_ar' => $choicesAr,
                     'answer' => $answer->answer,
                 ];
-            })->filter();
+            })->filter()->values();
 
             // 3. Format Cover Photo
             if ($user->cover_photo_path) {
