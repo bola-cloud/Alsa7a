@@ -107,13 +107,52 @@
 
                         @if($user->verification_status == 'pending' || $user->verification_documents)
                             <hr>
-                            <h5 class="mt-2">{{ __('admin.users.doc_verification') }}</h5>
+                            <h5 class="mt-2 mb-2 text-bold-600"><i class="la la-certificate text-primary"></i> {{ __('admin.users.doc_verification') }}</h5>
                             @if($user->verification_documents)
                                 @php
                                     $categoryFields = $user->category->verification_fields ?? [];
                                     $fieldsMap = collect($categoryFields)->keyBy('id');
                                     $docs = (array) $user->verification_documents;
                                 @endphp
+                                
+                                <style>
+                                    .verif-card {
+                                        background: #ffffff;
+                                        border: 1px solid #e0e6ed;
+                                        border-radius: 12px;
+                                        padding: 15px;
+                                        margin-bottom: 12px;
+                                        transition: all 0.3s ease;
+                                        display: flex;
+                                        align-items: center;
+                                        justify-content: space-between;
+                                        box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+                                    }
+                                    .verif-card:hover {
+                                        border-color: #2e86de;
+                                        transform: translateY(-2px);
+                                        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+                                    }
+                                    .verif-label {
+                                        color: #4b4b4b;
+                                        font-size: 0.95rem;
+                                        font-weight: 600;
+                                    }
+                                    .verif-value {
+                                        color: #2e86de;
+                                        font-weight: 700;
+                                        font-size: 1rem;
+                                    }
+                                    .verif-img {
+                                        width: 60px;
+                                        height: 60px;
+                                        object-fit: cover;
+                                        border-radius: 8px;
+                                        border: 2px solid #fff;
+                                        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+                                    }
+                                </style>
+
                                 <div class="verification-docs-list">
                                     @foreach($docs as $key => $value)
                                         @php
@@ -126,20 +165,21 @@
                                                 $isImage = in_array(strtolower($extension), ['jpg', 'jpeg', 'png', 'gif', 'webp']);
                                             }
                                         @endphp
-                                        <div class="mb-2 p-1 border rounded bg-light">
-                                            <div class="d-flex align-items-center justify-content-between">
-                                                <span class="font-weight-bold">{{ $label }}:</span>
+                                        <div class="verif-card">
+                                            <div class="verif-label">
+                                                {{ $label }}
+                                            </div>
+                                            
+                                            <div class="d-flex align-items-center">
                                                 @if($type === 'file')
-                                                    <div class="d-flex align-items-center">
-                                                        @if($isImage)
-                                                            <img src="{{ asset('storage/' . $value) }}" class="img-thumbnail mr-1" style="width: 50px; height: 50px; object-fit: cover;">
-                                                        @endif
-                                                        <a href="{{ asset('storage/' . $value) }}" target="_blank" class="btn btn-sm btn-outline-info">
-                                                            <i class="la la-eye"></i> {{ __('admin.buttons.view') }}
-                                                        </a>
-                                                    </div>
+                                                    @if($isImage)
+                                                        <img src="{{ asset('storage/' . $value) }}" class="verif-img mx-1">
+                                                    @endif
+                                                    <a href="{{ asset('storage/' . $value) }}" target="_blank" class="btn btn-sm btn-primary rounded-pill px-2">
+                                                        <i class="la la-eye"></i> {{ __('admin.buttons.view') }}
+                                                    </a>
                                                 @else
-                                                    <span class="text-info font-weight-bold">{{ $value }}</span>
+                                                    <span class="verif-value">{{ $displayValValue = (is_array($value) ? implode(', ', $value) : $value) }}</span>
                                                 @endif
                                             </div>
                                         </div>
