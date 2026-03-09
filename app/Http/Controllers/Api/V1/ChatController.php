@@ -8,6 +8,7 @@ use App\Models\Message;
 use App\Events\MessageSent;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use App\Notifications\MessageNotification;
 
 class ChatController extends Controller
 {
@@ -149,6 +150,17 @@ class ChatController extends Controller
         ]);
 
         $conversation->touch(); // Update updated_at
+
+        // Notify Receiver
+        try {
+            $receiverId = ($conversation->user_one_id == $userId) ? $conversation->user_two_id : $conversation->user_one_id;
+            $receiver = \App\Models\User::find($receiverId);
+            if ($receiver) {
+                $receiver->notify(new MessageNotification($message->load('sender')));
+            }
+        } catch (\Exception $e) {
+            // Ignore
+        }
 
         // Broadcast Event
         broadcast(new MessageSent($message))->toOthers();

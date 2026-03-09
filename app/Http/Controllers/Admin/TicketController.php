@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Ticket;
 use Illuminate\Http\Request;
+use App\Notifications\TicketStatusNotification;
 
 class TicketController extends Controller
 {
@@ -27,6 +28,15 @@ class TicketController extends Controller
         ]);
 
         $ticket->update($data);
+
+        // Notify User
+        try {
+            if ($ticket->user) {
+                $ticket->user->notify(new TicketStatusNotification($ticket));
+            }
+        } catch (\Exception $e) {
+            // Ignore
+        }
 
         $this->flashSuccess(__('admin.messages.updated'));
         return redirect()->route('admin.tickets.show', $ticket);

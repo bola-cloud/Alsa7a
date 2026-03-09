@@ -8,6 +8,7 @@ use App\Models\Comment;
 use App\Models\Like;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use App\Notifications\PostInteractionNotification;
 
 class PostController extends Controller
 {
@@ -247,6 +248,21 @@ class PostController extends Controller
         } else {
             $post->likes()->create(['user_id' => $user->id]);
             $status = 'liked';
+
+            // Notify Post Owner
+            try {
+                if ($post->user_id !== $user->id) {
+                    $post->user->notify(new PostInteractionNotification($post, [
+                        'title' => 'New Like',
+                        'body' => "{$user->name} liked your post.",
+                        'interaction_type' => 'like',
+                        'push_title' => ['en' => 'New Like', 'ar' => 'إعجاب جديد'],
+                        'push_body' => ['en' => "{$user->name} liked your post.", 'ar' => "قام {$user->name} بالإعجاب بمنشورك."]
+                    ]));
+                }
+            } catch (\Exception $e) {
+                // Ignore
+            }
         }
 
         return response()->json([
@@ -305,6 +321,22 @@ class PostController extends Controller
             'user_id' => $request->user()->id,
             'body' => $request->body
         ]);
+
+        // Notify Post Owner
+        try {
+            $user = $request->user();
+            if ($post->user_id !== $user->id) {
+                $post->user->notify(new PostInteractionNotification($post, [
+                    'title' => 'New Comment',
+                    'body' => "{$user->name} commented on your post.",
+                    'interaction_type' => 'comment',
+                    'push_title' => ['en' => 'New Comment', 'ar' => 'تعليق جديد'],
+                    'push_body' => ['en' => "{$user->name} commented on your post.", 'ar' => "قام {$user->name} بالتعليق على منشورك."]
+                ]));
+            }
+        } catch (\Exception $e) {
+            // Ignore
+        }
 
         return response()->json([
             'status' => true,

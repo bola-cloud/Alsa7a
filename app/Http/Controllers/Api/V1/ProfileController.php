@@ -11,6 +11,8 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Storage;
 
 use App\Traits\FormatsProfileData;
+use App\Notifications\FollowNotification;
+use App\Notifications\RatingNotification;
 
 class ProfileController extends Controller
 {
@@ -227,7 +229,7 @@ class ProfileController extends Controller
             ], 422);
         }
 
-        UserRating::updateOrCreate(
+        $rating = UserRating::updateOrCreate(
             [
                 'reviewer_id' => $currentUser->id,
                 'rated_id' => $targetUser->id,
@@ -237,6 +239,13 @@ class ProfileController extends Controller
                 'comment' => $request->comment,
             ]
         );
+
+        // Notify Target User
+        try {
+            $targetUser->notify(new RatingNotification($rating->load('reviewer')));
+        } catch (\Exception $e) {
+            // Ignore
+        }
 
         return response()->json([
             'status' => true,
@@ -305,6 +314,13 @@ class ProfileController extends Controller
             $currentUser->following()->attach($targetUser->id);
             $message = 'Followed successfully';
             $status = 'followed';
+
+            // Notify Target User
+            try {
+                $targetUser->notify(new FollowNotification($currentUser));
+            } catch (\Exception $e) {
+                // Ignore
+            }
         }
 
         return response()->json([

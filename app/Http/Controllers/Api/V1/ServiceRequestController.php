@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Validator;
 
 use App\Services\OneSignalService;
 use App\Traits\FormatsProfileData;
+use App\Notifications\ServiceRequestNotification;
 
 class ServiceRequestController extends Controller
 {
@@ -62,55 +63,26 @@ class ServiceRequestController extends Controller
 
         \Illuminate\Support\Facades\Log::info("Service Request Created: ID {$serviceRequest->id} by User {$request->user()->id}");
 
-        // Notify Provider
-        $provider = $service->provider; // Assuming relation exists on Service model
-        if ($provider && !empty($provider->onesignal_subscription['id'])) {
-            $playerId = $provider->onesignal_subscription['id'];
+        $provider = $service->provider;
 
-            $titles = ['en' => 'New Service Request', 'ar' => 'طلب خدمة جديد'];
-            $messages = [
-                'en' => "{$request->user()->name} has requested your service: {$service->title}",
-                'ar' => "قام {$request->user()->name} بطلب خدمتك: {$service->title}"
-            ];
-
-            $this->oneSignal->sendToPlayers(
-                [$playerId],
-                $titles,
-                $messages,
-                ['request_id' => $serviceRequest->id, 'type' => 'new_request']
-            );
-            $this->oneSignal->sendToPlayers(
-                [$playerId],
-                $titles,
-                $messages,
-                ['request_id' => $serviceRequest->id, 'type' => 'new_request']
-            );
-        }
-
-        // Feature: Notification History (Database)
+        // Notify Provider using unified notification system
         try {
-            $provider->notify(new \App\Notifications\ServiceRequestNotification([
+            $provider->notify(new ServiceRequestNotification([
                 'title' => 'New Service Request',
                 'body' => "{$request->user()->name} has requested your service: {$service->title}",
                 'type' => 'new_request',
                 'request_id' => $serviceRequest->id,
                 'service_id' => $service->id,
-                'sender_id' => $request->user()->id
+                'sender_id' => $request->user()->id,
+                // Pass push notification data for OneSignalChannel
+                'push_title' => ['en' => 'New Service Request', 'ar' => 'طلب خدمة جديد'],
+                'push_body' => [
+                    'en' => "{$request->user()->name} has requested your service: {$service->title}",
+                    'ar' => "قام {$request->user()->name} بطلب خدمتك: {$service->title}"
+                ]
             ]));
         } catch (\Exception $e) {
-        }
-
-        // Feature: Notification History (Database)
-        try {
-            $provider->notify(new \App\Notifications\ServiceRequestNotification([
-                'title' => 'New Service Request',
-                'body' => "{$request->user()->name} has requested your service: {$service->title}",
-                'type' => 'new_request',
-                'request_id' => $serviceRequest->id,
-                'service_id' => $service->id,
-                'sender_id' => $request->user()->id
-            ]));
-        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error("Failed to notify provider: " . $e->getMessage());
         }
 
         // Load relations for response
@@ -195,32 +167,23 @@ class ServiceRequestController extends Controller
         $serviceRequest->status = 'canceled';
         $serviceRequest->save();
 
-        // Notify Provider
         $provider = $serviceRequest->provider;
-        if ($provider && !empty($provider->onesignal_subscription['id'])) {
-            $playerId = $provider->onesignal_subscription['id'];
-            $titles = ['en' => 'Request Canceled', 'ar' => 'تم إلغاء الطلب'];
-            $messages = [
-                'en' => "{$request->user()->name} canceled their request.",
-                'ar' => "قام {$request->user()->name} بإلغاء طلبه."
-            ];
-            $this->oneSignal->sendToPlayers(
-                [$playerId],
-                $titles,
-                $messages,
-                ['request_id' => $serviceRequest->id, 'type' => 'status_update']
-            );
-        }
 
-        // Feature: Notification History (Database)
+        // Notify Provider using unified notification system
         try {
-            $provider->notify(new \App\Notifications\ServiceRequestNotification([
+            $provider->notify(new ServiceRequestNotification([
                 'title' => 'Request Canceled',
                 'body' => "{$request->user()->name} canceled their request.",
                 'type' => 'status_update',
                 'request_id' => $serviceRequest->id,
                 'service_id' => $serviceRequest->service_id,
-                'sender_id' => $request->user()->id
+                'sender_id' => $request->user()->id,
+                // Pass push notification data for OneSignalChannel
+                'push_title' => ['en' => 'Request Canceled', 'ar' => 'تم إلغاء الطلب'],
+                'push_body' => [
+                    'en' => "{$request->user()->name} canceled their request.",
+                    'ar' => "قام {$request->user()->name} بإلغاء طلبه."
+                ]
             ]));
         } catch (\Exception $e) {
             // Ignore notification errors to not block the response

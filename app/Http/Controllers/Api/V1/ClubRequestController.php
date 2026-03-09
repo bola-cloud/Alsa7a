@@ -8,6 +8,7 @@ use App\Models\ClubRequest;
 use App\Models\User;
 use App\Models\Club;
 use Illuminate\Support\Facades\Validator;
+use App\Notifications\ClubRequestNotification;
 
 class ClubRequestController extends Controller
 {
@@ -114,6 +115,23 @@ class ClubRequestController extends Controller
             'status' => 'pending'
         ]);
 
+        // Notify Receiver
+        try {
+            $notifiable = ($type === 'invite') ? User::find($targetUserId) : Club::find($targetClubId)->owner;
+            if ($notifiable) {
+                $notifiable->notify(new ClubRequestNotification($req->load(['user', 'club']), [
+                    'title' => ($type === 'invite') ? 'Club Invitation' : 'New Join Request',
+                    'body' => ($type === 'invite') ? "You have been invited to join {$club->name}." : "{$user->name} requested to join your club.",
+                    'push_title' => ($type === 'invite') ? ['en' => 'Club Invitation', 'ar' => 'دعوة من نادي'] : ['en' => 'New Join Request', 'ar' => 'طلب انضمام جديد'],
+                    'push_body' => ($type === 'invite') 
+                        ? ['en' => "You have been invited to join {$club->name}.", 'ar' => "تمت دعوتك للانضمام إلى {$club->name}."] 
+                        : ['en' => "{$user->name} requested to join your club.", 'ar' => "طلب {$user->name} الانضمام إلى ناديك."]
+                ]));
+            }
+        } catch (\Exception $e) {
+            // Ignore
+        }
+
         return response()->json(['status' => true, 'message' => 'Request sent successfully', 'data' => $req]);
     }
 
@@ -164,6 +182,31 @@ class ClubRequestController extends Controller
             $member = User::find($clubRequest->user_id);
             $member->club_id = $clubRequest->club_id;
             $member->save();
+        }
+
+        // Notify User/Requester of status change
+        try {
+            // If join request -> Notify user who wanted to join
+            // If invite request -> Notify club who sent the invite
+            $notifiableUser = ($clubRequest->type === 'join') ? $user : User::find($clubRequest->user_id);
+            // Wait, if it's an invite, the user responds, we notify the club owner?
+            // Usually, we want to notify the other party.
+            
+            $otherParty = ($clubRequest->type === 'join') ? User::find($clubRequest->user_id) : $clubRequest->club->owner;
+            
+            if ($otherParty) {
+                $otherParty->notify(new ClubRequestNotification($clubRequest->load(['user', 'club']), [
+                    'title' => 'Club Request Update',
+                    'body' => "The club request has been $status.",
+                    'push_title' => ['en' => 'Club Request Update', 'ar' => 'تحديث طلب النادي'],
+                    'push_body' => [
+                        'en' => "The club request has been $status.",
+                        'ar' => "تم $status طلب النادي."
+                    ]
+                ]));
+            }
+        } catch (\Exception $e) {
+            // Ignore
         }
 
         return response()->json(['status' => true, 'message' => "Request $status"]);

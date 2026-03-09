@@ -8,6 +8,7 @@ use App\Models\CommunityCategory;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Storage;
+use App\Notifications\PostInteractionNotification;
 
 class CommunityController extends Controller
 {
@@ -240,6 +241,22 @@ class CommunityController extends Controller
             return response()->json(['status' => true, 'message' => 'Unliked', 'is_liked' => false]);
         } else {
             $post->likes()->create(['user_id' => $user->id]);
+
+            // Notify Post Owner
+            try {
+                if ($post->user_id !== $user->id) {
+                    $post->user->notify(new PostInteractionNotification($post, [
+                        'title' => 'New Like',
+                        'body' => "{$user->name} liked your community post.",
+                        'interaction_type' => 'like',
+                        'push_title' => ['en' => 'New Like', 'ar' => 'إعجاب جديد'],
+                        'push_body' => ['en' => "{$user->name} liked your community post.", 'ar' => "قام {$user->name} بالإعجاب بمنشورك في المجتمع."]
+                    ]));
+                }
+            } catch (\Exception $e) {
+                // Ignore
+            }
+
             return response()->json(['status' => true, 'message' => 'Liked', 'is_liked' => true]);
         }
     }
@@ -287,6 +304,22 @@ class CommunityController extends Controller
             'user_id' => $request->user()->id,
             'body' => $request->body
         ]);
+
+        // Notify Post Owner
+        try {
+            $user = $request->user();
+            if ($post->user_id !== $user->id) {
+                $post->user->notify(new PostInteractionNotification($post, [
+                    'title' => 'New Comment',
+                    'body' => "{$user->name} commented on your community post.",
+                    'interaction_type' => 'comment',
+                    'push_title' => ['en' => 'New Comment', 'ar' => 'تعليق جديد'],
+                    'push_body' => ['en' => "{$user->name} commented on your community post.", 'ar' => "قام {$user->name} بالتعليق على منشورك في المجتمع."]
+                ]));
+            }
+        } catch (\Exception $e) {
+            // Ignore
+        }
 
         return response()->json([
             'status' => true,

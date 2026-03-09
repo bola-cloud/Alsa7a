@@ -7,6 +7,7 @@ use App\Models\Service;
 use App\Models\ServiceReview;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use App\Notifications\RatingNotification;
 
 class ServiceReviewController extends Controller
 {
@@ -58,6 +59,15 @@ class ServiceReviewController extends Controller
             'rating' => $request->rating,
             'comment' => $request->comment,
         ]);
+
+        // Notify Service Provider
+        try {
+            if ($service->provider) {
+                $service->provider->notify(new RatingNotification($review->load('reviewer')));
+            }
+        } catch (\Exception $e) {
+            // Ignore
+        }
 
         return response()->json([
             'status' => true,

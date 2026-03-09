@@ -98,61 +98,12 @@ class ProviderRequestController extends Controller
         $serviceRequest->status = $request->status;
         $serviceRequest->save();
 
-        // Notify Requester (Database Notification)
+        // Notify Requester using unified notification system
         if ($serviceRequest->requester) {
             try {
                 $serviceRequest->requester->notify(new RequestStatusUpdated($serviceRequest));
             } catch (\Exception $e) {
-                // Log error but don't break flow
-                \Illuminate\Support\Facades\Log::error("Failed to send DB notification: " . $e->getMessage());
-            }
-
-            // PUSH NOTIFICATION
-            if (!empty($serviceRequest->requester->onesignal_subscription['id'])) {
-                $playerId = $serviceRequest->requester->onesignal_subscription['id'];
-
-                $titles = [];
-                $messages = [];
-
-                switch ($request->status) {
-                    case 'accepted':
-                        $titles = ['en' => 'Request Accepted', 'ar' => 'تم قبول الطلب'];
-                        $messages = [
-                            'en' => "Your request for {$serviceRequest->service->title} has been accepted!",
-                            'ar' => "تم قبول طلبك لخدمة {$serviceRequest->service->title}!"
-                        ];
-                        break;
-                    case 'rejected':
-                        $titles = ['en' => 'Request Declined', 'ar' => 'تم رفض الطلب'];
-                        $messages = [
-                            'en' => "Your request for {$serviceRequest->service->title} has been declined.",
-                            'ar' => "تم رفض طلبك لخدمة {$serviceRequest->service->title}."
-                        ];
-                        break;
-                    case 'completed':
-                        $titles = ['en' => 'Service Completed', 'ar' => 'تم إكمال الخدمة'];
-                        $messages = [
-                            'en' => "Your request for {$serviceRequest->service->title} is marked as completed.",
-                            'ar' => "تم تحديد طلبك لخدمة {$serviceRequest->service->title} كمكتمل."
-                        ];
-                        break;
-                    case 'canceled':
-                        $titles = ['en' => 'Request Canceled', 'ar' => 'تم إلغاء الطلب'];
-                        $messages = [
-                            'en' => "Your request for {$serviceRequest->service->title} has been canceled.",
-                            'ar' => "تم إلغاء طلبك لخدمة {$serviceRequest->service->title}."
-                        ];
-                        break;
-                }
-
-                if (!empty($messages)) {
-                    $this->oneSignal->sendToPlayers(
-                        [$playerId],
-                        $titles,
-                        $messages,
-                        ['request_id' => $serviceRequest->id, 'type' => 'status_update']
-                    );
-                }
+                \Illuminate\Support\Facades\Log::error("Failed to notify requester: " . $e->getMessage());
             }
         }
 

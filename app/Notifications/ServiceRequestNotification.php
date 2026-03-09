@@ -30,7 +30,7 @@ class ServiceRequestNotification extends Notification
      */
     public function via(object $notifiable): array
     {
-        return ['database'];
+        return ['database', \App\Channels\OneSignalChannel::class];
     }
 
     /**
@@ -47,6 +47,18 @@ class ServiceRequestNotification extends Notification
             'request_id' => $this->data['request_id'] ?? null,
             'service_id' => $this->data['service_id'] ?? null,
             'sender_id' => $this->data['sender_id'] ?? null, // User who triggered it
+        ];
+    }
+
+    public function toOneSignal($notifiable): array
+    {
+        return [
+            'title' => $this->data['push_title'] ?? ['en' => $this->data['title'], 'ar' => $this->data['title']],
+            'message' => $this->data['push_body'] ?? ['en' => $this->data['body'], 'ar' => $this->data['body']],
+            'data' => [
+                'type' => $this->data['type'] ?? 'info',
+                'request_id' => $this->data['request_id'] ?? null,
+            ],
         ];
     }
 }
