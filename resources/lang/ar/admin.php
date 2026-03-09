@@ -97,6 +97,7 @@ return [
         'all' => 'الكل',
         'search' => 'بحث',
         'requires_verification' => 'يتطلب توثيق',
+        'verification_settings' => 'إعدادات التوثيق',
         'verification_requirements' => 'متطلبات التوثيق',
         'verification_fields' => 'حقول التوثيق المخصصة',
         'field_id' => 'معرف الحقل (مثال: id_card)',

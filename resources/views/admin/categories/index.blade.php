@@ -60,6 +60,11 @@
                                 <i class="la la-question-circle"></i>
                             </a>
 
+                            <a href="{{ route('admin.categories.verification', $category->id) }}"
+                                class="btn btn-sm btn-outline-warning" title="{{ __('admin.categories.verification_settings') }}">
+                                <i class="la la-shield"></i>
+                            </a>
+
                             @if(!$category->isProtected())
                                 <form action="{{ route('admin.categories.destroy', $category->id) }}" method="POST"
                                     onsubmit="return confirm('{{ __('admin.buttons.confirm_delete') }}');">

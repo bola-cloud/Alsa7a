@@ -97,6 +97,7 @@ return [
         'all' => 'All',
         'search' => 'Search',
         'requires_verification' => 'Requires Verification',
+        'verification_settings' => 'Verification Settings',
         'verification_requirements' => 'Verification Requirements',
         'verification_fields' => 'Specific Verification Fields',
         'field_id' => 'Field ID (e.g. id_card)',

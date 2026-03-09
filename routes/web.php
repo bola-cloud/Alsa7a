@@ -32,6 +32,8 @@ Route::group([
     Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/dashboard', [Dashboard::class, 'index'])->name('dashboard');
 
+        Route::get('categories/{category}/verification', [CategoryController::class, 'verification'])->name('categories.verification');
+        Route::put('categories/{category}/verification', [CategoryController::class, 'updateVerification'])->name('categories.update_verification');
         Route::resource('categories', CategoryController::class);
         Route::resource('parent_categories', \App\Http\Controllers\Admin\ParentCategoryController::class);
         Route::get('questions/{question}/answers', [\App\Http\Controllers\Admin\QuestionController::class, 'answers'])->name('questions.answers');

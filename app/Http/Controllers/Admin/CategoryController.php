@@ -162,4 +162,30 @@ class CategoryController extends Controller
         $this->flashSuccess(__('admin.messages.deleted'));
         return redirect()->route('admin.categories.index', ['parent_category_id' => $parentId]);
     }
+
+    public function verification(Category $category)
+    {
+        return view('admin.categories.verification', compact('category'));
+    }
+
+    public function updateVerification(Request $request, Category $category)
+    {
+        $data = $request->validate([
+            'requires_verification' => 'nullable|boolean',
+            'verification_requirements' => 'nullable|array',
+            'verification_requirements.en' => 'nullable|string',
+            'verification_requirements.ar' => 'nullable|string',
+            'verification_fields' => 'nullable|array',
+        ]);
+
+        $category->update([
+            'requires_verification' => $request->has('requires_verification') ? 1 : 0,
+            'verification_requirements_en' => $data['verification_requirements']['en'] ?? null,
+            'verification_requirements_ar' => $data['verification_requirements']['ar'] ?? null,
+            'verification_fields' => $data['verification_fields'] ?? null,
+        ]);
+
+        $this->flashSuccess(__('admin.messages.updated'));
+        return redirect()->route('admin.categories.index', ['parent_category_id' => $category->parent_category_id]);
+    }
 }
