@@ -90,7 +90,7 @@ class QuestionController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'category_id' => 'required|integer|exists:categories,id',
-            'answers' => 'required|array|min:1',
+            'answers' => 'nullable|array',
             'answers.*.question_id' => 'required|integer|exists:questions,id',
             'answers.*.answer' => 'nullable',
             'club_account_claim_id' => 'nullable|exists:clubs,id',
@@ -124,7 +124,8 @@ class QuestionController extends Controller
         }
 
         $created = [];
-        foreach ($request->input('answers') as $item) {
+        $answers = $request->input('answers') ?? [];
+        foreach ($answers as $item) {
             $question = Question::find($item['question_id']);
             // ensure the question belongs to the category provided
             if (!$question || $question->category_id != $categoryId) {
