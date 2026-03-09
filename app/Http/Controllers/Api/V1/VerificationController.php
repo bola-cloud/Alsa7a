@@ -89,7 +89,9 @@ class VerificationController extends Controller
      */
     public function status(Request $request)
     {
-        $user = $request->user();
+        $user = $request->user()->load('category');
+        $category = $user->category;
+
         return response()->json([
             'status' => true,
             'data' => [
@@ -110,6 +112,10 @@ class VerificationController extends Controller
                         return $value;
                     });
                 })(),
+                'requires_verification' => $category ? (bool) $category->requires_verification : false,
+                'verification_requirements_en' => $category ? $category->verification_requirements_en : null,
+                'verification_requirements_ar' => $category ? $category->verification_requirements_ar : null,
+                'verification_fields' => $category ? $category->verification_fields : [],
             ]
         ]);
     }
