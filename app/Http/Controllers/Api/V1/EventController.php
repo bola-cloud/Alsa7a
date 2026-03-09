@@ -18,27 +18,32 @@ class EventController extends Controller
     {
         $query = Event::with(['club.owner.subscription', 'club.owner.category', 'sport']);
 
-        // Date Filtering
-        if ($request->type === 'upcoming') {
+        // 1. Time Filtering (Support both 'time' and legacy 'type')
+        $time = $request->input('time', $request->input('type'));
+        
+        if ($time === 'upcoming') {
             $query->where('start_at', '>', now());
-        } elseif ($request->type === 'past') {
+        } elseif ($time === 'past') {
             $query->where('start_at', '<', now());
         } else {
-            // Default to showing events from reasonably recently
+            // Default: current and future
             $query->where('start_at', '>=', now()->subDay());
         }
 
-        // Sorting & Type Filter
-        if ($request->type === 'trending') {
+        // 2. Sorting (Support both 'sort' and 'type')
+        $sort = $request->input('sort', $request->input('type'));
+
+        if ($sort === 'trending') {
             $query->orderBy('tickets_sold', 'desc')->orderBy('is_featured', 'desc');
-        } elseif ($request->type === 'past') {
+        } elseif ($time === 'past') {
+            // Past events: newest first by default
             $query->orderBy('start_at', 'desc');
         } else {
-            // Default Sorting: Closest upcoming first
+            // Upcoming events: closest first by default
             $query->orderBy('start_at', 'asc');
         }
 
-        // Month Filter (optional context from calendar view)
+        // 3. Month Filter (optional)
         if ($request->has('month')) {
             $query->whereMonth('start_at', $request->month);
         }
