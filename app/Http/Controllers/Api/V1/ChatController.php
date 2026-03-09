@@ -22,10 +22,13 @@ class ChatController extends Controller
     {
         $userId = $request->user()->id;
 
-        // Fetch conversations where user is involved
+        // Fetch conversations where user is involved and has at least one message
         $conversations = Conversation::with(['userOne', 'userTwo'])
-            ->where('user_one_id', $userId)
-            ->orWhere('user_two_id', $userId)
+            ->where(function($query) use ($userId) {
+                $query->where('user_one_id', $userId)
+                      ->orWhere('user_two_id', $userId);
+            })
+            ->has('messages')
             ->latest('updated_at')
             ->get();
 
