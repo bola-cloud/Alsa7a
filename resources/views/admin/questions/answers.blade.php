@@ -39,7 +39,9 @@
                         <tbody>
                             @forelse($answers as $answer)
                                 @php
-                                    $val = $answer->answer['value'] ?? null;
+                                    $val = (is_array($answer->answer) && isset($answer->answer['value'])) 
+                                        ? $answer->answer['value'] 
+                                        : $answer->answer;
                                     $displayVal = '-';
                                     if ($val !== null) {
                                         if ($question->type == 'boolean') {

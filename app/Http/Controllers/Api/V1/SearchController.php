@@ -54,12 +54,12 @@ class SearchController extends Controller
                         $q->where(function ($subQ) use ($answerValue) {
                             if (is_array($answerValue)) {
                                 foreach ($answerValue as $val) {
-                                    $subQ->orWhere('answer->value', $val)
-                                        ->orWhereJsonContains('answer->value', $val);
+                                    $subQ->orWhere('answer', $val)
+                                        ->orWhereJsonContains('answer', $val);
                                 }
                             } else {
-                                $subQ->where('answer->value', $answerValue)
-                                    ->orWhereJsonContains('answer->value', $answerValue);
+                                $subQ->where('answer', $answerValue)
+                                    ->orWhereJsonContains('answer', $answerValue);
                             }
                         });
                     });

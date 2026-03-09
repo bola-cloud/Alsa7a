@@ -161,7 +161,13 @@
                                         @foreach($questions as $question)
                                             @php
                                                 $answer = $userAnswers->get($question->id);
-                                                $val = $answer ? ($answer->answer['value'] ?? null) : null;
+                                                $val = null;
+                                                if ($answer) {
+                                                    // Handle both flat format and {"value": ...} format
+                                                    $val = (is_array($answer->answer) && isset($answer->answer['value'])) 
+                                                        ? $answer->answer['value'] 
+                                                        : $answer->answer;
+                                                }
                                                 $displayVal = '-';
 
                                                 if ($val !== null) {
