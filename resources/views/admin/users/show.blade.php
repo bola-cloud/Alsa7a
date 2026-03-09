@@ -105,14 +105,46 @@
                             @endif
                         </ul>
 
-                        @if($user->verification_status == 'pending')
+                        @if($user->verification_status == 'pending' || $user->verification_documents)
                             <hr>
                             <h5 class="mt-2">{{ __('admin.users.doc_verification') }}</h5>
                             @if($user->verification_documents)
-                                @foreach($user->verification_documents as $doc)
-                                    <a href="{{ url('storage/' . $doc) }}" target="_blank"
-                                        class="btn btn-sm btn-outline-info mb-1">{{ __('admin.users.view_document') }}</a>
-                                @endforeach
+                                @php
+                                    $categoryFields = $user->category->verification_fields ?? [];
+                                    $fieldsMap = collect($categoryFields)->keyBy('id');
+                                    $docs = (array) $user->verification_documents;
+                                @endphp
+                                <div class="verification-docs-list">
+                                    @foreach($docs as $key => $value)
+                                        @php
+                                            $fieldConfig = $fieldsMap->get($key);
+                                            $label = $fieldConfig ? ($fieldConfig['label_'.app()->getLocale()] ?? $fieldConfig['label_en'] ?? $key) : $key;
+                                            $type = $fieldConfig['type'] ?? 'file';
+                                            $isImage = false;
+                                            if ($type === 'file' && is_string($value)) {
+                                                $extension = pathinfo($value, PATHINFO_EXTENSION);
+                                                $isImage = in_array(strtolower($extension), ['jpg', 'jpeg', 'png', 'gif', 'webp']);
+                                            }
+                                        @endphp
+                                        <div class="mb-2 p-1 border rounded bg-light">
+                                            <div class="d-flex align-items-center justify-content-between">
+                                                <span class="font-weight-bold">{{ $label }}:</span>
+                                                @if($type === 'file')
+                                                    <div class="d-flex align-items-center">
+                                                        @if($isImage)
+                                                            <img src="{{ asset('storage/' . $value) }}" class="img-thumbnail mr-1" style="width: 50px; height: 50px; object-fit: cover;">
+                                                        @endif
+                                                        <a href="{{ asset('storage/' . $value) }}" target="_blank" class="btn btn-sm btn-outline-info">
+                                                            <i class="la la-eye"></i> {{ __('admin.buttons.view') }}
+                                                        </a>
+                                                    </div>
+                                                @else
+                                                    <span class="text-info font-weight-bold">{{ $value }}</span>
+                                                @endif
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                </div>
                             @else
                                 <p class="text-muted text-sm">{{ __('admin.users.no_docs') }}</p>
                             @endif
