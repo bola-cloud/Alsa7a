@@ -16,13 +16,25 @@ class EventController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Event::with(['club.owner.subscription', 'club.owner.category', 'sport'])->where('start_at', '>=', now()->subDay());
+        $query = Event::with(['club.owner.subscription', 'club.owner.category', 'sport']);
 
-        // Type Filter
+        // Date Filtering
+        if ($request->type === 'upcoming') {
+            $query->where('start_at', '>', now());
+        } elseif ($request->type === 'past') {
+            $query->where('start_at', '<', now());
+        } else {
+            // Default to showing events from reasonably recently
+            $query->where('start_at', '>=', now()->subDay());
+        }
+
+        // Sorting & Type Filter
         if ($request->type === 'trending') {
             $query->orderBy('tickets_sold', 'desc')->orderBy('is_featured', 'desc');
+        } elseif ($request->type === 'past') {
+            $query->orderBy('start_at', 'desc');
         } else {
-            // Default Upcoming
+            // Default Sorting: Closest upcoming first
             $query->orderBy('start_at', 'asc');
         }
 
