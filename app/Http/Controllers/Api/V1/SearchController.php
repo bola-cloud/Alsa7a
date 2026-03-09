@@ -50,16 +50,19 @@ class SearchController extends Controller
                         $q->where('question_id', $questionId);
 
                         // Data is stored as {"value": "..."} or {"value": ["...", "..."]}
-                        // To be robust, we check both exact match (for strings) and JSON containment (for arrays)
+                        // To be robust, we check:
+                        // 1. Direct match (answer = "val")
+                        // 2. JSON array contains (answer contains "val")
+                        // 3. Legacy nested format (answer->value = "val")
+                        // 4. Legacy nested JSON array (answer->value contains "val")
                         $q->where(function ($subQ) use ($answerValue) {
-                            if (is_array($answerValue)) {
-                                foreach ($answerValue as $val) {
-                                    $subQ->orWhere('answer', $val)
-                                        ->orWhereJsonContains('answer', $val);
-                                }
-                            } else {
-                                $subQ->where('answer', $answerValue)
-                                    ->orWhereJsonContains('answer', $answerValue);
+                            $values = is_array($answerValue) ? $answerValue : [$answerValue];
+                            
+                            foreach ($values as $val) {
+                                $subQ->orWhere('answer', $val)
+                                     ->orWhereJsonContains('answer', $val)
+                                     ->orWhere('answer->value', $val)
+                                     ->orWhereJsonContains('answer->value', $val);
                             }
                         });
                     });
