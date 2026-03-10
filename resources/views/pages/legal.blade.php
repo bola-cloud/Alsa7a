@@ -6,7 +6,16 @@
     <title>{{ $title }} | {{ setting('site_name', 'Alsa7a') }}</title>
     <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
-    <link rel="icon" type="image/x-icon" href="{{ asset(setting('site_icon', 'app-assets/images/logo.jpeg')) }}">
+    @php
+        $iconPath = setting('site_icon');
+        if ($iconPath && !filter_var($iconPath, FILTER_VALIDATE_URL) && !str_contains($iconPath, 'app-assets')) {
+            $iconUrl = asset('storage/' . $iconPath);
+        } else {
+            $iconUrl = asset($iconPath ?: 'app-assets/images/logo.jpeg');
+        }
+    @endphp
+    <link rel="apple-touch-icon" href="{{ asset('app-assets/images/ico/apple-icon-120.png') }}">
+    <link rel="shortcut icon" type="image/x-icon" href="{{ $iconUrl }}">
     <!-- Styles -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css">
     <style>
