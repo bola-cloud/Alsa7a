@@ -251,6 +251,8 @@ return [
         'subscription' => 'إعدادات الاشتراك',
         'subscription_monthly_price' => 'سعر الاشتراك الشهري',
         'subscription_annual_price' => 'سعر الاشتراك السنوي',
+        'terms' => 'الشروط والأحكام',
+        'privacy_policy' => 'سياسة الخصوصية',
     ],
     'messages' => [
         'created_successfully' => 'تم الإنشاء بنجاح',

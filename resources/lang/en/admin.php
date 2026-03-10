@@ -250,6 +250,8 @@ return [
         'subscription' => 'Subscription Settings',
         'subscription_monthly_price' => 'Monthly Subscription Price',
         'subscription_annual_price' => 'Annual Subscription Price',
+        'terms' => 'Terms and Conditions',
+        'privacy_policy' => 'Privacy Policy',
     ],
     'messages' => [
         'created_successfully' => 'Created successfully',

@@ -1,5 +1,20 @@
 @extends('layouts.admin')
 
+@push('css')
+    <link href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-bs4.min.css" rel="stylesheet">
+    <style>
+        .note-editor.note-frame {
+            border: 1px solid #d1d5db !important;
+            border-radius: 0.5rem !important;
+            overflow: hidden;
+        }
+        .note-toolbar {
+            background-color: #f9fafb !important;
+            border-bottom: 1px solid #d1d5db !important;
+        }
+    </style>
+@endpush
+
 @section('content')
     <div class="content-header row mb-2">
         <div class="content-header-left col-md-6 col-12 mb-2">
@@ -77,14 +92,26 @@
         </div>
     </div>
 @push('scripts')
-    <script src="https://cdn.ckeditor.com/4.16.2/standard/ckeditor.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-bs4.min.js"></script>
     <script>
         $(document).ready(function() {
-            $('.richtext').each(function() {
-                CKEDITOR.replace($(this).attr('id'), {
-                    language: '{{ app()->getLocale() }}',
-                    contentsLangDirection: '{{ app()->getLocale() == "ar" ? "rtl" : "ltr" }}'
-                });
+            $('.richtext').summernote({
+                height: 400,
+                toolbar: [
+                    ['style', ['style']],
+                    ['font', ['bold', 'underline', 'clear']],
+                    ['color', ['color']],
+                    ['para', ['ul', 'ol', 'paragraph']],
+                    ['table', ['table']],
+                    ['insert', ['link', 'picture', 'video']],
+                    ['view', ['fullscreen', 'codeview', 'help']]
+                ],
+                callbacks: {
+                    onInit: function() {
+                        $(this).summernote('code', $(this).val());
+                    }
+                },
+                lang: '{{ app()->getLocale() == "ar" ? "ar-AR" : "en-US" }}'
             });
         });
     </script>

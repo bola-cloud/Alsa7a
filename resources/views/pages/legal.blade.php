@@ -1,48 +1,120 @@
-@extends('layouts.app')
+<!DOCTYPE html>
+<html lang="{{ app()->getLocale() }}" dir="{{ app()->getLocale() == 'ar' ? 'rtl' : 'ltr' }}">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{ $title }} | {{ setting('site_name', 'Alsa7a') }}</title>
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/x-icon" href="{{ asset(setting('site_icon', 'app-assets/images/logo.jpeg')) }}">
+    <!-- Styles -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css">
+    <style>
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: #f8fafc;
+            color: #334155;
+            line-height: 1.6;
+        }
+        .navbar {
+            background: linear-gradient(90deg, #34d399 0%, #0ea5e9 100%);
+            padding: 1rem 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .navbar-brand img {
+            height: 40px;
+            border-radius: 8px;
+            margin-inline-end: 10px;
+        }
+        .navbar-brand span {
+            color: white;
+            font-weight: 700;
+            font-size: 1.25rem;
+        }
+        .legal-card {
+            margin-top: 3rem;
+            margin-bottom: 3rem;
+            border: none;
+            border-radius: 1.5rem;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+            overflow: hidden;
+        }
+        .card-header {
+            background-color: white;
+            border-bottom: 1px solid #f1f5f9;
+            padding: 2.5rem 2rem;
+            text-align: center;
+        }
+        .card-header h1 {
+            font-weight: 700;
+            color: #1e293b;
+            margin: 0;
+            font-size: 2rem;
+        }
+        .card-body {
+            background-color: white;
+            padding: 3rem 2.5rem;
+        }
+        .legal-content {
+            font-size: 1.125rem;
+            color: #475569;
+        }
+        .legal-content h2, .legal-content h3, .legal-content h4 {
+            color: #1e293b;
+            font-weight: 700;
+            margin-top: 2.5rem;
+            margin-bottom: 1.25rem;
+        }
+        .legal-content p {
+            margin-bottom: 1.5rem;
+        }
+        .footer {
+            text-align: center;
+            padding: 2rem 0;
+            color: #94a3b8;
+            font-size: 0.875rem;
+        }
+        @media (max-width: 768px) {
+            .card-body { padding: 2rem 1.5rem; }
+            .card-header h1 { font-size: 1.5rem; }
+        }
+    </style>
+</head>
+<body>
 
-@section('content')
-<div class="container py-5">
-    <div class="row justify-content-center">
-        <div class="col-md-10">
-            <div class="card shadow-sm border-0 rounded-lg">
-                <div class="card-header bg-primary text-white p-4">
-                    <h1 class="h3 mb-0 text-center">{{ $title }}</h1>
-                </div>
-                <div class="card-body p-5">
-                    <div class="legal-content">
-                        {!! $content !!}
+    <nav class="navbar">
+        <div class="container d-flex justify-content-between align-items-center">
+            <a class="navbar-brand d-flex align-items-center" href="/">
+                @if(setting('site_logo'))
+                    <img src="{{ asset(setting('site_logo')) }}" alt="Logo">
+                @endif
+                <span>{{ setting('site_name', 'Alsa7a') }}</span>
+            </a>
+            <a href="/" class="btn btn-outline-light rounded-pill px-4 btn-sm d-none d-md-block">{{ __('Home') }}</a>
+        </div>
+    </nav>
+
+    <div class="container contents-area">
+        <div class="row justify-content-center">
+            <div class="col-lg-9 col-md-11">
+                <div class="card legal-card">
+                    <div class="card-header">
+                        <h1>{{ $title }}</h1>
+                        <div class="header-decoration"></div>
+                    </div>
+                    <div class="card-body">
+                        <div class="legal-content">
+                            {!! $content !!}
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
 
-<style>
-    .legal-content {
-        line-height: 1.8;
-        color: #333;
-        font-size: 1.1rem;
-    }
-    .legal-content h2, .legal-content h3, .legal-content h4 {
-        margin-top: 2rem;
-        margin-bottom: 1rem;
-        color: #000;
-        font-weight: 700;
-    }
-    .legal-content p {
-        margin-bottom: 1.5rem;
-    }
-    .legal-content ul, .legal-content ol {
-        margin-bottom: 1.5rem;
-        padding-left: 1.5rem;
-    }
-    [dir="rtl"] .legal-content {
-        text-align: right;
-    }
-    [dir="rtl"] .legal-content ul, [dir="rtl"] .legal-content ol {
-        padding-left: 0;
-        padding-right: 1.5rem;
-    }
-</style>
-@endsection
+    <div class="footer container pb-5">
+        &copy; {{ date('Y') }} {{ setting('site_name', 'Alsa7a') }}. {{ __('All rights reserved.') }}
+    </div>
+
+</body>
+</html>
