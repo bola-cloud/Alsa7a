@@ -22,8 +22,19 @@ use App\Http\Controllers\Admin\Dashboard;
 
 Route::group([
     'prefix' => LaravelLocalization::setLocale(),
+    'middleware' => ['localeSessionRedirect', 'localizationRedirect', 'localeViewPath']
+], function () {
+    Route::get('/terms', [\App\Http\Controllers\PageController::class, 'terms'])->name('terms');
+    Route::get('/privacy', [\App\Http\Controllers\PageController::class, 'privacy'])->name('privacy');
+});
+
+Route::group([
+    'prefix' => LaravelLocalization::setLocale(),
     'middleware' => [
         'auth:sanctum',
+        'localeSessionRedirect', 
+        'localizationRedirect', 
+        'localeViewPath',
         config('jetstream.auth_session'),
         'verified',
     ]

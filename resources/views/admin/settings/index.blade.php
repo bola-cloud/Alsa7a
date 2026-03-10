@@ -20,7 +20,7 @@
                         <div class="card-body">
                             <div class="row">
                                 @foreach($groupSettings as $setting)
-                                    <div class="col-md-6 mb-3">
+                                    <div class="{{ $setting->type === 'richtext' ? 'col-md-12' : 'col-md-6' }} mb-3">
                                         <label for="{{ $setting->key }}"
                                             class="form-label font-weight-bold">{{ __($setting->label) ?? $setting->key }}</label>
 
@@ -31,6 +31,10 @@
                                         @elseif($setting->type === 'textarea')
                                             <textarea name="{{ $setting->key }}" id="{{ $setting->key }}" class="form-control"
                                                 rows="3">{{ $setting->value }}</textarea>
+
+                                        @elseif($setting->type === 'richtext')
+                                            <textarea name="{{ $setting->key }}" id="{{ $setting->key }}" class="form-control richtext"
+                                                rows="10">{{ $setting->value }}</textarea>
 
                                         @elseif($setting->type === 'select')
                                             <select name="{{ $setting->key }}" id="{{ $setting->key }}" class="form-control">
@@ -72,4 +76,17 @@
             </form>
         </div>
     </div>
+@push('scripts')
+    <script src="https://cdn.ckeditor.com/4.16.2/standard/ckeditor.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('.richtext').each(function() {
+                CKEDITOR.replace($(this).attr('id'), {
+                    language: '{{ app()->getLocale() }}',
+                    contentsLangDirection: '{{ app()->getLocale() == "ar" ? "rtl" : "ltr" }}'
+                });
+            });
+        });
+    </script>
+@endpush
 @endsection

@@ -378,6 +378,24 @@
                                 <span class="menu-title">{{ __('admin.menu.notifications.title') }}</span>
                             </a>
                         </li>
+                        <li class=" navigation-header">
+                            <span>{{ __('admin.menu.legal') }}</span><i
+                                class="la la-ellipsis-h ft-minus" data-toggle="tooltip" data-placement="right"
+                                data-original-title="Legal"></i>
+                        </li>
+                        <li class="nav-item">
+                            <a href="{{ route('terms') }}" target="_blank">
+                                <i class="la la-file-text"></i>
+                                <span class="menu-title">{{ __('admin.settings.terms_ar') }}</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="{{ route('privacy') }}" target="_blank">
+                                <i class="la la-lock"></i>
+                                <span class="menu-title">{{ __('admin.settings.privacy_ar') }}</span>
+                            </a>
+                        </li>
+
                         <li class="nav-item {{ Route::is('admin.settings.*') ? 'active' : '' }}">
                             <a href="{{ route('admin.settings.index') }}">
                                 <i class="la la-cog"></i>
