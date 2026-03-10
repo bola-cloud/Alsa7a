@@ -22,9 +22,11 @@
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
         .navbar-brand img {
-            height: 40px;
+            height: 48px;
             border-radius: 8px;
-            margin-inline-end: 10px;
+            margin-inline-end: 15px;
+            background: white;
+            padding: 2px;
         }
         .navbar-brand span {
             color: white;
@@ -58,6 +60,7 @@
         .legal-content {
             font-size: 1.125rem;
             color: #475569;
+            text-align: {{ app()->getLocale() == 'ar' ? 'right' : 'left' }};
         }
         .legal-content h2, .legal-content h3, .legal-content h4 {
             color: #1e293b;
@@ -85,12 +88,25 @@
     <nav class="navbar">
         <div class="container d-flex justify-content-between align-items-center">
             <a class="navbar-brand d-flex align-items-center" href="/">
-                @if(setting('site_logo'))
-                    <img src="{{ asset(setting('site_logo')) }}" alt="Logo">
-                @endif
+                @php
+                    $logoPath = setting('site_logo');
+                    // If stored via SettingController, it might be 'settings/abc.jpg'
+                    // If it doesn't start with http and doesn't contain app-assets, it's likely in storage
+                    if ($logoPath && !filter_var($logoPath, FILTER_VALIDATE_URL) && !str_contains($logoPath, 'app-assets')) {
+                        $logoUrl = asset('storage/' . $logoPath);
+                    } else {
+                        $logoUrl = asset($logoPath ?: 'app-assets/images/logo.jpeg');
+                    }
+                @endphp
+                <img src="{{ $logoUrl }}" alt="Logo">
                 <span>{{ setting('site_name', 'Alsa7a') }}</span>
             </a>
-            <a href="/" class="btn btn-outline-light rounded-pill px-4 btn-sm d-none d-md-block">{{ __('Home') }}</a>
+            <div class="d-flex align-items-center">
+                <a href="{{ App::getLocale() == 'ar' ? LaravelLocalization::getLocalizedURL('en') : LaravelLocalization::getLocalizedURL('ar') }}" 
+                   class="btn btn-outline-light rounded-pill px-4 btn-sm">
+                    <span class="text-uppercase">{{ App::getLocale() == 'ar' ? 'English' : 'العربية' }}</span>
+                </a>
+            </div>
         </div>
     </nav>
 
