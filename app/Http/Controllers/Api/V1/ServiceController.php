@@ -5,16 +5,26 @@ namespace App\Http\Controllers\Api\V1;
 use App\Http\Controllers\Controller;
 use App\Models\Service;
 use Illuminate\Http\Request;
+use App\Traits\FormatsProfileData;
 
 class ServiceController extends Controller
 {
+    use FormatsProfileData;
     /**
      * Display a listing of the services.
      * Public endpoint.
      */
     public function index(Request $request)
     {
-        $query = Service::with(['provider.category.parentCategory', 'sport', 'club', 'reviews', 'media'])
+        $query = Service::with([
+            'provider.category.parentCategory',
+            'provider.club',
+            'provider.ownedClub',
+            'sport',
+            'club',
+            'reviews',
+            'media'
+        ])
             ->where('is_active', true);
 
         // Filter by Sport
@@ -42,8 +52,18 @@ class ServiceController extends Controller
         $services = $query->latest()->paginate(10);
 
         // Append average rating to each service
-        $services->getCollection()->transform(function ($service) {
+        $currentUser = $request->user('sanctum');
+        $services->getCollection()->transform(function ($service) use ($currentUser) {
             $service->average_rating = $service->reviews->avg('rating') ?? 0;
+
+            if ($service->provider) {
+                $service->provider_profile = $this->getProfileData($service->provider, false, $currentUser);
+                // Flatten into provider object for transparency as requested
+                foreach ($service->provider_profile as $key => $value) {
+                    $service->provider->{$key} = $value;
+                }
+            }
+
             return $service;
         });
 
@@ -58,9 +78,19 @@ class ServiceController extends Controller
      * Display the specified service.
      * Public endpoint.
      */
-    public function show($id)
+    public function show(Request $request, $id)
     {
-        $service = Service::with(['provider.category.parentCategory', 'sport', 'club', 'reviews.user', 'media'])
+        $service = Service::with([
+            'provider.category.parentCategory',
+            'provider.club',
+            'provider.ownedClub',
+            'sport',
+            'club',
+            'reviews.user.category',
+            'reviews.user.club',
+            'reviews.user.ownedClub',
+            'media'
+        ])
             ->where('is_active', true)
             ->find($id);
 
@@ -72,6 +102,24 @@ class ServiceController extends Controller
         }
 
         $service->average_rating = $service->reviews->avg('rating') ?? 0;
+
+        $currentUser = $request->user('sanctum');
+
+        if ($service->provider) {
+            $profileData = $this->getProfileData($service->provider, false, $currentUser);
+            foreach ($profileData as $key => $value) {
+                $service->provider->{$key} = $value;
+            }
+        }
+
+        foreach ($service->reviews as $review) {
+            if ($review->user) {
+                $userData = $this->getProfileData($review->user, false, $currentUser);
+                foreach ($userData as $key => $value) {
+                    $review->user->{$key} = $value;
+                }
+            }
+        }
 
         return response()->json([
             'status' => true,

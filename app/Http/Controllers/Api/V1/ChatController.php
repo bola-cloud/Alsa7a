@@ -9,9 +9,11 @@ use App\Events\MessageSent;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use App\Notifications\MessageNotification;
+use App\Traits\FormatsProfileData;
 
 class ChatController extends Controller
 {
+    use FormatsProfileData;
     /**
      * List user's conversations.
      */
@@ -23,10 +25,13 @@ class ChatController extends Controller
         $userId = $request->user()->id;
 
         // Fetch conversations where user is involved and has at least one message
-        $conversations = Conversation::with(['userOne', 'userTwo'])
-            ->where(function($query) use ($userId) {
+        $conversations = Conversation::with([
+            'userOne.category', 'userOne.club', 'userOne.ownedClub',
+            'userTwo.category', 'userTwo.club', 'userTwo.ownedClub'
+        ])
+            ->where(function ($query) use ($userId) {
                 $query->where('user_one_id', $userId)
-                      ->orWhere('user_two_id', $userId);
+                    ->orWhere('user_two_id', $userId);
             })
             ->has('messages')
             ->latest('updated_at')
@@ -35,11 +40,31 @@ class ChatController extends Controller
         // Optional: Transform to unify "other_user" for frontend convenience
         $chats = $conversations->map(function ($chat) use ($userId) {
             $otherUser = ($chat->user_one_id == $userId) ? $chat->userTwo : $chat->userOne;
+
+            if ($otherUser) {
+                $profileData = $this->getProfileData($otherUser, false, auth()->user());
+                foreach ($profileData as $key => $value) {
+                    $otherUser->{$key} = $value;
+                }
+            }
+
+            // Also enrich user_one and user_two for consistency if they are used by mobile
+            foreach (['userOne', 'userTwo'] as $uKey) {
+                if ($chat->{$uKey}) {
+                    $uData = $this->getProfileData($chat->{$uKey}, false, auth()->user());
+                    foreach ($uData as $key => $value) {
+                        $chat->{$uKey}->{$key} = $value;
+                    }
+                }
+            }
+
             return [
                 'id' => $chat->id,
                 'other_user' => $otherUser, // Frontend can just use this
                 'last_message' => $chat->messages()->latest()->first(),
                 'updated_at' => $chat->updated_at,
+                'user_one' => $chat->userOne,
+                'user_two' => $chat->userTwo,
                 // 'service_request' => $chat->serviceRequest ?? null // Optional, might be null
             ];
         });
@@ -111,7 +136,24 @@ class ChatController extends Controller
             return response()->json(['status' => false, 'message' => 'Unauthorized'], 403);
         }
 
-        $messages = $conversation->messages()->with('sender')->latest()->paginate(20);
+        $messages = $conversation->messages()
+            ->with([
+                'sender.category',
+                'sender.club',
+                'sender.ownedClub'
+            ])
+            ->latest()
+            ->paginate(20);
+
+        $messages->getCollection()->transform(function ($message) use ($userId) {
+            if ($message->sender) {
+                $profileData = $this->getProfileData($message->sender, false, auth()->user());
+                foreach ($profileData as $key => $value) {
+                    $message->sender->{$key} = $value;
+                }
+            }
+            return $message;
+        });
 
         return response()->json([
             'status' => true,
@@ -153,6 +195,15 @@ class ChatController extends Controller
         ]);
 
         $conversation->touch(); // Update updated_at
+
+        // Enrich sender for response
+        $message->load(['sender.category', 'sender.club', 'sender.ownedClub']);
+        if ($message->sender) {
+            $profileData = $this->getProfileData($message->sender, false, $request->user());
+            foreach ($profileData as $key => $value) {
+                $message->sender->{$key} = $value;
+            }
+        }
 
         // Notify Receiver
         try {

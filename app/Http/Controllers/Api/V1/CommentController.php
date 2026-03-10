@@ -7,9 +7,11 @@ use App\Models\Comment;
 use App\Models\Post;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use App\Traits\FormatsProfileData;
 
 class CommentController extends Controller
 {
+    use FormatsProfileData;
     /**
      * List Comments for a specific Post.
      * GET /posts/{id}/comments
@@ -22,9 +24,24 @@ class CommentController extends Controller
         }
 
         $comments = $post->comments()
-            ->with(['user:id,name,profile_photo_path'])
+            ->with([
+                'user.category',
+                'user.club',
+                'user.ownedClub'
+            ])
             ->latest()
             ->paginate(20);
+
+        $currentUser = auth()->user();
+        $comments->getCollection()->transform(function ($comment) use ($currentUser) {
+            if ($comment->user) {
+                $profileData = $this->getProfileData($comment->user, false, $currentUser);
+                foreach ($profileData as $key => $value) {
+                    $comment->user->{$key} = $value;
+                }
+            }
+            return $comment;
+        });
 
         return response()->json([
             'status' => true,
@@ -60,7 +77,16 @@ class CommentController extends Controller
         return response()->json([
             'status' => true,
             'message' => 'Comment created successfully',
-            'data' => $comment->load('user:id,name,profile_photo_path')
+            'data' => (function () use ($comment) {
+                $comment->load(['user.category', 'user.club', 'user.ownedClub']);
+                if ($comment->user) {
+                    $profileData = $this->getProfileData($comment->user, false, auth()->user());
+                    foreach ($profileData as $key => $value) {
+                        $comment->user->{$key} = $value;
+                    }
+                }
+                return $comment;
+            })()
         ], 201);
     }
 

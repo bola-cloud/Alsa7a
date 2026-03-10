@@ -9,9 +9,11 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Storage;
 use App\Notifications\PostInteractionNotification;
+use App\Traits\FormatsProfileData;
 
 class CommunityController extends Controller
 {
+    use FormatsProfileData;
     /**
      * List Community Categories (Public).
      */
@@ -40,7 +42,7 @@ class CommunityController extends Controller
     {
         $user = $request->user('sanctum');
 
-        $query = CommunityPost::with(['user', 'category'])
+        $query = CommunityPost::with(['user.category', 'user.club', 'user.ownedClub', 'category'])
             ->withCount(['comments', 'likes'])
             ->where('is_hidden', false)
             ->latest();
@@ -58,15 +60,20 @@ class CommunityController extends Controller
         $posts->getCollection()->transform(function ($post) use ($user) {
             $post->is_liked = $user ? $post->likes()->where('user_id', $user->id)->exists() : false;
 
-            // Fix Author Image
+            // Standardize Author Image and Profile Data
             if ($post->user) {
-                // Ensure profile_photo_url is used as base, but assume it might be wrong if local
+                // Ensure legacy fields match requested format
                 $post->user->image = $post->user->profile_photo_url;
-
                 if ($post->user->profile_photo_path) {
                     $url = url('storage/' . $post->user->profile_photo_path);
                     $post->user->image = $url;
                     $post->user->profile_photo_url = $url;
+                }
+
+                // Apply trait data
+                $profileData = $this->getProfileData($post->user, false, $user);
+                foreach ($profileData as $key => $value) {
+                    $post->user->{$key} = $value;
                 }
             }
 
@@ -272,7 +279,21 @@ class CommunityController extends Controller
             return response()->json(['status' => false, 'message' => 'Post not found'], 404);
         }
 
-        $comments = $post->comments()->with('user:id,name,profile_photo_path')->latest()->paginate(20);
+        $comments = $post->comments()
+            ->with(['user.category', 'user.club', 'user.ownedClub'])
+            ->latest()
+            ->paginate(20);
+
+        $currentUser = auth()->user();
+        $comments->getCollection()->transform(function ($comment) use ($currentUser) {
+            if ($comment->user) {
+                $profileData = $this->getProfileData($comment->user, false, $currentUser);
+                foreach ($profileData as $key => $value) {
+                    $comment->user->{$key} = $value;
+                }
+            }
+            return $comment;
+        });
 
         return response()->json([
             'status' => true,
