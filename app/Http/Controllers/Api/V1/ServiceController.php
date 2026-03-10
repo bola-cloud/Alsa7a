@@ -53,17 +53,25 @@ class ServiceController extends Controller
 
         // Append average rating to each service
         $currentUser = $request->user('sanctum');
-        $services->getCollection()->transform(function ($service) use ($currentUser) {
-            $service->average_rating = $service->reviews->avg('rating') ?? 0;
+        // Unique users (providers) processing
+        $providersToProcess = collect();
+        foreach ($services as $service) {
+            if ($service->provider) $providersToProcess->put($service->provider->id, $service->provider);
+        }
 
-            if ($service->provider) {
-                $service->provider_profile = $this->getProfileData($service->provider, false, $currentUser);
-                // Flatten into provider object for transparency as requested
-                foreach ($service->provider_profile as $key => $value) {
-                    $service->provider->{$key} = $value;
+        $providersToProcess->each(function ($provider) use ($currentUser) {
+            if (is_object($provider)) {
+                $profileData = $this->getProfileData($provider, false, $currentUser);
+                foreach ($profileData as $key => $value) {
+                    if (!is_array($provider->{$key})) {
+                        $provider->{$key} = $value;
+                    }
                 }
             }
+        });
 
+        $services->getCollection()->transform(function ($service) {
+            $service->average_rating = $service->reviews->avg('rating') ?? 0;
             return $service;
         });
 
@@ -105,21 +113,31 @@ class ServiceController extends Controller
 
         $currentUser = $request->user('sanctum');
 
-        if ($service->provider) {
+        if ($service->provider && is_object($service->provider)) {
             $profileData = $this->getProfileData($service->provider, false, $currentUser);
             foreach ($profileData as $key => $value) {
-                $service->provider->{$key} = $value;
-            }
-        }
-
-        foreach ($service->reviews as $review) {
-            if ($review->user) {
-                $userData = $this->getProfileData($review->user, false, $currentUser);
-                foreach ($userData as $key => $value) {
-                    $review->user->{$key} = $value;
+                if (!is_array($service->provider->{$key})) {
+                    $service->provider->{$key} = $value;
                 }
             }
         }
+
+        // Unique reviewers processing
+        $reviewersToProcess = collect();
+        foreach ($service->reviews as $review) {
+            if ($review->user) $reviewersToProcess->put($review->user->id, $review->user);
+        }
+
+        $reviewersToProcess->each(function ($userObj) use ($currentUser) {
+            if (is_object($userObj)) {
+                $userData = $this->getProfileData($userObj, false, $currentUser);
+                foreach ($userData as $key => $value) {
+                    if (!is_array($userObj->{$key})) {
+                        $userObj->{$key} = $value;
+                    }
+                }
+            }
+        });
 
         return response()->json([
             'status' => true,

@@ -32,15 +32,21 @@ class CommentController extends Controller
             ->latest()
             ->paginate(20);
 
-        $currentUser = auth()->user();
-        $comments->getCollection()->transform(function ($comment) use ($currentUser) {
-            if ($comment->user) {
-                $profileData = $this->getProfileData($comment->user, false, $currentUser);
+        // Unique users processing
+        $usersToProcess = collect();
+        foreach ($comments as $comment) {
+            if ($comment->user) $usersToProcess->put($comment->user->id, $comment->user);
+        }
+
+        $usersToProcess->each(function ($userObj) use ($currentUser) {
+            if (is_object($userObj)) {
+                $profileData = $this->getProfileData($userObj, false, $currentUser);
                 foreach ($profileData as $key => $value) {
-                    $comment->user->{$key} = $value;
+                    if (!is_array($userObj->{$key})) {
+                        $userObj->{$key} = $value;
+                    }
                 }
             }
-            return $comment;
         });
 
         return response()->json([

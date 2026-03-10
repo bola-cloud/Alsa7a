@@ -37,26 +37,27 @@ class ChatController extends Controller
             ->latest('updated_at')
             ->get();
 
+        // Collect all unique users to process them once
+        $usersToProcess = collect();
+        foreach ($conversations as $chat) {
+            if ($chat->userOne) $usersToProcess->put($chat->userOne->id, $chat->userOne);
+            if ($chat->userTwo) $usersToProcess->put($chat->userTwo->id, $chat->userTwo);
+        }
+
+        $currentUser = auth()->user();
+        $usersToProcess->each(function ($user) use ($currentUser) {
+            $profileData = $this->getProfileData($user, false, $currentUser);
+            foreach ($profileData as $key => $value) {
+                // Only set if not already flattened to avoid issues
+                if (!is_array($user->{$key})) {
+                    $user->{$key} = $value;
+                }
+            }
+        });
+
         // Optional: Transform to unify "other_user" for frontend convenience
         $chats = $conversations->map(function ($chat) use ($userId) {
             $otherUser = ($chat->user_one_id == $userId) ? $chat->userTwo : $chat->userOne;
-
-            if ($otherUser) {
-                $profileData = $this->getProfileData($otherUser, false, auth()->user());
-                foreach ($profileData as $key => $value) {
-                    $otherUser->{$key} = $value;
-                }
-            }
-
-            // Also enrich user_one and user_two for consistency if they are used by mobile
-            foreach (['userOne', 'userTwo'] as $uKey) {
-                if ($chat->{$uKey}) {
-                    $uData = $this->getProfileData($chat->{$uKey}, false, auth()->user());
-                    foreach ($uData as $key => $value) {
-                        $chat->{$uKey}->{$key} = $value;
-                    }
-                }
-            }
 
             return [
                 'id' => $chat->id,
@@ -65,7 +66,7 @@ class ChatController extends Controller
                 'updated_at' => $chat->updated_at,
                 'user_one' => $chat->userOne,
                 'user_two' => $chat->userTwo,
-                // 'service_request' => $chat->serviceRequest ?? null // Optional, might be null
+                // 'service_request' => $chat->serviceRequest ?? null 
             ];
         });
 
@@ -145,13 +146,24 @@ class ChatController extends Controller
             ->latest()
             ->paginate(20);
 
-        $messages->getCollection()->transform(function ($message) use ($userId) {
-            if ($message->sender) {
-                $profileData = $this->getProfileData($message->sender, false, auth()->user());
+        // Unique senders processing
+        $sendersToProcess = collect();
+        foreach ($messages as $message) {
+            if ($message->sender) $sendersToProcess->put($message->sender->id, $message->sender);
+        }
+
+        $sendersToProcess->each(function ($sender) use ($userId) {
+            if (is_object($sender)) {
+                $profileData = $this->getProfileData($sender, false, auth()->user());
                 foreach ($profileData as $key => $value) {
-                    $message->sender->{$key} = $value;
+                    if (!is_array($sender->{$key})) {
+                        $sender->{$key} = $value;
+                    }
                 }
             }
+        });
+
+        $messages->getCollection()->transform(function ($message) {
             return $message;
         });
 

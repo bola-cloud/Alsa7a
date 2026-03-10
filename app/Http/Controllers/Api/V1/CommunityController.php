@@ -57,26 +57,34 @@ class CommunityController extends Controller
 
         $posts = $query->paginate(10);
 
-        $posts->getCollection()->transform(function ($post) use ($user) {
-            $post->is_liked = $user ? $post->likes()->where('user_id', $user->id)->exists() : false;
+        // Unique users processing to avoid redundant work and errors
+        $usersToProcess = collect();
+        foreach ($posts as $post) {
+            if ($post->user) $usersToProcess->put($post->user->id, $post->user);
+        }
 
-            // Standardize Author Image and Profile Data
-            if ($post->user) {
+        $usersToProcess->each(function ($userObj) use ($user) {
+            if (is_object($userObj)) {
                 // Ensure legacy fields match requested format
-                $post->user->image = $post->user->profile_photo_url;
-                if ($post->user->profile_photo_path) {
-                    $url = url('storage/' . $post->user->profile_photo_path);
-                    $post->user->image = $url;
-                    $post->user->profile_photo_url = $url;
+                $userObj->image = $userObj->profile_photo_url;
+                if ($userObj->profile_photo_path) {
+                    $url = url('storage/' . $userObj->profile_photo_path);
+                    $userObj->image = $url;
+                    $userObj->profile_photo_url = $url;
                 }
 
                 // Apply trait data
-                $profileData = $this->getProfileData($post->user, false, $user);
+                $profileData = $this->getProfileData($userObj, false, $user);
                 foreach ($profileData as $key => $value) {
-                    $post->user->{$key} = $value;
+                    if (!is_array($userObj->{$key})) {
+                        $userObj->{$key} = $value;
+                    }
                 }
             }
+        });
 
+        $posts->getCollection()->transform(function ($post) use ($user) {
+            $post->is_liked = $user ? $post->likes()->where('user_id', $user->id)->exists() : false;
             return $post;
         });
 
@@ -284,15 +292,21 @@ class CommunityController extends Controller
             ->latest()
             ->paginate(20);
 
-        $currentUser = auth()->user();
-        $comments->getCollection()->transform(function ($comment) use ($currentUser) {
-            if ($comment->user) {
-                $profileData = $this->getProfileData($comment->user, false, $currentUser);
+        // Unique users processing
+        $usersToProcess = collect();
+        foreach ($comments as $comment) {
+            if ($comment->user) $usersToProcess->put($comment->user->id, $comment->user);
+        }
+
+        $usersToProcess->each(function ($userObj) use ($currentUser) {
+            if (is_object($userObj)) {
+                $profileData = $this->getProfileData($userObj, false, $currentUser);
                 foreach ($profileData as $key => $value) {
-                    $comment->user->{$key} = $value;
+                    if (!is_array($userObj->{$key})) {
+                        $userObj->{$key} = $value;
+                    }
                 }
             }
-            return $comment;
         });
 
         return response()->json([

@@ -28,30 +28,30 @@ trait FormatsProfileData
             'image' => $user->profile_photo_path ? url('storage/' . $user->profile_photo_path) : $user->profile_photo_url,
             'cover_photo' => $user->cover_photo_path ? url('storage/' . $user->cover_photo_path) : null,
             'category' => $user->category ? [
-                'id' => $user->category->id,
-                'name' => $user->category->name,
-                'name_en' => $user->category->name_en, // Restored
-                'name_ar' => $user->category->name_ar, // Restored
-                'is_service_provider' => $user->category->is_service_provider,
-                'requires_verification' => (bool) $user->category->requires_verification,
-                'verification_requirements_en' => $user->category->verification_requirements_en,
-                'verification_requirements_ar' => $user->category->verification_requirements_ar,
-                'verification_fields' => $user->category->verification_fields,
-                'parent_category_id' => $user->category->parent_category_id,
-                'parent_category' => $user->category->parentCategory ? [
-                    'id' => $user->category->parentCategory->id,
-                    'name' => $user->category->parentCategory->name,
-                    'image' => $user->category->parentCategory->image ? url('storage/' . $user->category->parentCategory->image) : null,
+                'id' => data_get($user->category, 'id'),
+                'name' => data_get($user->category, 'name'),
+                'name_en' => data_get($user->category, 'name_en'), // Restored
+                'name_ar' => data_get($user->category, 'name_ar'), // Restored
+                'is_service_provider' => data_get($user->category, 'is_service_provider'),
+                'requires_verification' => (bool) data_get($user->category, 'requires_verification'),
+                'verification_requirements_en' => data_get($user->category, 'verification_requirements_en'),
+                'verification_requirements_ar' => data_get($user->category, 'verification_requirements_ar'),
+                'verification_fields' => data_get($user->category, 'verification_fields'),
+                'parent_category_id' => data_get($user->category, 'parent_category_id'),
+                'parent_category' => data_get($user->category, 'parentCategory') ? [
+                    'id' => data_get($user->category, 'parentCategory.id'),
+                    'name' => data_get($user->category, 'parentCategory.name'),
+                    'image' => data_get($user->category, 'parentCategory.image') ? url('storage/' . data_get($user->category, 'parentCategory.image')) : null,
                 ] : null,
             ] : null,
 
             // Professional Details
             'professional' => [
-                'club' => $user->club ? [
-                    'id' => $user->club->id,
-                    'name' => $user->club->name,
-                    'logo' => $user->club->logo_url,
-                    'user_id' => $user->club->user_id,
+                'club' => data_get($user, 'club') ? [
+                    'id' => data_get($user, 'club.id'),
+                    'name' => data_get($user, 'club.name'),
+                    'logo' => data_get($user, 'club.logo_url'),
+                    'user_id' => data_get($user, 'club.user_id'),
                 ] : null,
                 'team_id' => $user->team_id,
                 'position' => $user->position,
@@ -182,14 +182,14 @@ trait FormatsProfileData
         $club = $user->ownedClub ?: $user->club;
         if ($club) {
             $data['club_details'] = [
-                'id' => $club->id,
-                'name' => $club->name,
-                'logo' => $club->logo_url,
-                'banner' => $club->banner_url,
-                'user_id' => $club->user_id,
+                'id' => data_get($club, 'id'),
+                'name' => data_get($club, 'name'),
+                'logo' => data_get($club, 'logo_url') ?: data_get($club, 'logo'), // Handle both model and array
+                'banner' => data_get($club, 'banner_url') ?: data_get($club, 'banner'),
+                'user_id' => data_get($club, 'user_id'),
             ];
 
-            if ($user->relationLoaded('club.teams') || $user->relationLoaded('ownedClub.teams')) {
+            if (is_object($club) && ($user->relationLoaded('club.teams') || $user->relationLoaded('ownedClub.teams'))) {
                 $data['club_details']['teams'] = $club->teams()->with('members:id,name,email,profile_photo_path,position,number,team_id')->get()->map(function ($team) {
                     return [
                         'id' => $team->id,
