@@ -38,6 +38,7 @@ class CommentController extends Controller
             if ($comment->user) $usersToProcess->put($comment->user->id, $comment->user);
         }
 
+        $currentUser = auth()->user();
         $usersToProcess->each(function ($userObj) use ($currentUser) {
             if (is_object($userObj)) {
                 $profileData = $this->getProfileData($userObj, false, $currentUser);
