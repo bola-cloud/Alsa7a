@@ -60,7 +60,7 @@
                 wssPort: {{ env('REVERB_PORT', 443) }},
                 forceTLS: true,
                 enabledTransports: ['ws', 'wss'],
-                authEndpoint: '/broadcasting/auth', // Default Laravel broadcast auth route
+                authEndpoint: '/api/v1/broadcasting/auth', // Explicitly use API route to avoid web middleware/CSRF issues
                 auth: {
                     headers: {
                         Authorization: token ? (token.startsWith('Bearer') ? token : `Bearer ${token}`) : null,
