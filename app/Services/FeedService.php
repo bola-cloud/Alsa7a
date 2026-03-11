@@ -7,9 +7,12 @@ use App\Models\User;
 use App\Models\PostView;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
+use App\Traits\FormatsProfileData;
 
 class FeedService
 {
+    use FormatsProfileData;
+
     /**
      * Get Algorithmic Feed for a User.
      * Logic:
@@ -23,7 +26,7 @@ class FeedService
         $followingIds = $user->following()->pluck('following_id')->toArray();
 
         // 1. Get Unseen posts from Followed users
-        $followedUnseen = Post::with(['user', 'comments'])
+        $followedUnseen = Post::with(['user.category', 'user.club', 'user.ownedClub', 'comments'])
             ->withCount(['likes', 'comments'])
             ->whereIn('user_id', $followingIds)
             ->whereNotIn('id', $viewedPostIds)
@@ -31,7 +34,7 @@ class FeedService
             ->latest();
 
         // 2. Get Unseen posts from non-followed (Suggestions)
-        $suggestedUnseen = Post::with(['user', 'comments'])
+        $suggestedUnseen = Post::with(['user.category', 'user.club', 'user.ownedClub', 'comments'])
             ->withCount(['likes', 'comments'])
             ->whereNotIn('user_id', array_merge($followingIds, [$user->id]))
             ->whereNotIn('id', $viewedPostIds)
@@ -45,7 +48,7 @@ class FeedService
         // 3. Fallback: If results are few, add seen posts back with priority
         if ($results->count() < $perPage) {
             // Seen posts from followed users (Latest)
-            $seenFollowed = Post::with(['user', 'comments'])
+            $seenFollowed = Post::with(['user.category', 'user.club', 'user.ownedClub', 'comments'])
                 ->withCount(['likes', 'comments'])
                 ->whereIn('user_id', $followingIds)
                 ->whereIn('id', $viewedPostIds)
@@ -55,7 +58,7 @@ class FeedService
                 ->get();
 
             // Seen posts from others (Suggestions)
-            $seenSuggested = Post::with(['user', 'comments'])
+            $seenSuggested = Post::with(['user.category', 'user.club', 'user.ownedClub', 'comments'])
                 ->withCount(['likes', 'comments'])
                 ->whereNotIn('user_id', array_merge($followingIds, [$user->id]))
                 ->whereIn('id', $viewedPostIds)
@@ -78,6 +81,32 @@ class FeedService
             $currentPage,
             ['path' => LengthAwarePaginator::resolveCurrentPath()]
         );
+
+        // Unique users processing to avoid redundant work and errors
+        $usersToProcess = collect();
+        foreach ($paginated as $post) {
+            if ($post->user) $usersToProcess->put($post->user->id, $post->user);
+        }
+
+        $usersToProcess->each(function ($userObj) use ($user) {
+            if (is_object($userObj)) {
+                // Ensure legacy fields match requested format
+                $userObj->image = $userObj->profile_photo_url;
+                if ($userObj->profile_photo_path) {
+                    $url = url('storage/' . $userObj->profile_photo_path);
+                    $userObj->image = $url;
+                    $userObj->profile_photo_url = $url;
+                }
+
+                // Apply trait data
+                $profileData = $this->getProfileData($userObj, false, $user);
+                foreach ($profileData as $key => $value) {
+                    if (!is_array($userObj->{$key})) {
+                        $userObj->{$key} = $value;
+                    }
+                }
+            }
+        });
 
         // Add is_liked status
         $paginated->getCollection()->transform(function ($post) use ($user) {

@@ -96,7 +96,7 @@
 
     <nav class="navbar">
         <div class="container d-flex justify-content-between align-items-center">
-            <a class="navbar-brand d-flex align-items-center" href="/">
+            <a class="navbar-brand d-flex align-items-center" href="#">
                 @php
                     $logoPath = setting('site_logo');
                     // If stored via SettingController, it might be 'settings/abc.jpg'

@@ -11,9 +11,12 @@ use App\Models\Club;
 use App\Models\Service;
 use App\Models\User;
 use App\Models\Slider;
+use App\Traits\FormatsProfileData;
 
 class HomeController extends Controller
 {
+    use FormatsProfileData;
+
     public function index(Request $request)
     {
         $sports = Sport::select('id', 'name', 'name_en', 'name_ar', 'slug', 'icon_url')->orderBy('name')->get();
@@ -28,16 +31,17 @@ class HomeController extends Controller
 
         $topClubs = Club::where('is_featured', true)->with('media')->take(8)->get();
 
-        // Only return users belonging to the 'Player' category (category_id = 1)
-        $topPlayers = User::with('subscription')
+        // Returning full user details with relations for proper profile formatting
+        $topPlayers = User::with(['subscription', 'category', 'club', 'ownedClub'])
             ->where('category_id', 1)
             ->where('is_featured', true)
-            ->select('id', 'name', 'profile_title', 'bio', 'city', 'profile_photo_path')
             ->take(8)
             ->get();
 
-        // Transform top players to ensure full image URL
-        $topPlayers->transform(function ($player) {
+        $currentUser = auth('sanctum')->user();
+
+        // Transform top players to ensure full image URL and profile formatting
+        $topPlayers->transform(function ($player) use ($currentUser) {
             $player->image = $player->profile_photo_url;
             if ($player->profile_photo_path) {
                 $url = url('storage/' . $player->profile_photo_path);
@@ -45,12 +49,12 @@ class HomeController extends Controller
                 $player->profile_photo_url = $url;
             }
 
-            $player->subscription = [
-                'is_subscribed' => $player->isSubscribed(),
-                'type' => $player->subscription ? $player->subscription->type : null,
-                'end_date' => $player->subscription ? $player->subscription->end_date : null,
-                'status' => $player->subscription ? $player->subscription->status : null,
-            ];
+            $profileData = $this->getProfileData($player, false, $currentUser);
+            foreach ($profileData as $key => $value) {
+                if (!is_array($player->{$key})) {
+                    $player->{$key} = $value;
+                }
+            }
 
             return $player;
         });
@@ -75,7 +79,24 @@ class HomeController extends Controller
         $featuredClubs = $topClubs;
 
         // featured services
-        $featuredServices = Service::with(['provider', 'sport', 'club', 'media'])->where('is_featured', true)->where('is_active', true)->take(10)->get();
+        $featuredServices = Service::with(['provider.category', 'provider.club', 'provider.ownedClub', 'sport', 'club', 'media'])->where('is_featured', true)->where('is_active', true)->take(10)->get();
+
+        // Unique providers processing
+        $providersToProcess = collect();
+        foreach ($featuredServices as $service) {
+            if ($service->provider) $providersToProcess->put($service->provider->id, $service->provider);
+        }
+
+        $providersToProcess->each(function ($provider) use ($currentUser) {
+            if (is_object($provider)) {
+                $profileData = $this->getProfileData($provider, false, $currentUser);
+                foreach ($profileData as $key => $value) {
+                    if (!is_array($provider->{$key})) {
+                        $provider->{$key} = $value;
+                    }
+                }
+            }
+        });
 
         // Transform featured services to include a primary image URL
         $featuredServices->transform(function ($service) {

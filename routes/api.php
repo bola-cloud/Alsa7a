@@ -73,6 +73,9 @@ Route::prefix('v1')->middleware('set.api.locale')->group(function () {
     Route::get('events', [App\Http\Controllers\Api\V1\EventController::class, 'index']);
     Route::get('events/{id}', [App\Http\Controllers\Api\V1\EventController::class, 'show']);
 
+    // --- Feed Routes (Public) ---
+    Route::get('feed', [App\Http\Controllers\Api\V1\FeedController::class, 'index']);
+
     // Protected Routes (Require authentication)
     Route::middleware('auth:sanctum')->group(function () {
         Route::get('/user', function (Request $request) {
@@ -140,7 +143,6 @@ Route::prefix('v1')->middleware('set.api.locale')->group(function () {
         Route::get('users/{id}/ratings', [App\Http\Controllers\Api\V1\ProfileController::class, 'ratings']);
 
         // --- Feed Actions ---
-        Route::get('feed', [App\Http\Controllers\Api\V1\FeedController::class, 'index']);
         Route::post('feed/seen', [App\Http\Controllers\Api\V1\FeedController::class, 'markAsSeen']);
 
         // --- Post/Community Actions ---
