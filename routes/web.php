@@ -106,3 +106,8 @@ Route::group([
 // Payment Callbacks
 Route::get('/payment/success', [\App\Http\Controllers\Api\V1\PaymentController::class, 'success'])->name('payment.success');
 Route::get('/payment/cancel', [\App\Http\Controllers\Api\V1\PaymentController::class, 'cancel'])->name('payment.cancel');
+
+// Temporary Reverb Test Route
+Route::get('/chat-test', function () {
+    return view('chat-test');
+});
