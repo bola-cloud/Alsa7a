@@ -20,67 +20,68 @@ class FeedService
      * 2. Unseen posts from non-followed users (Suggestions)
      * 3. Fallback to seen posts if all content is exhausted.
      */
-    public function getFeed(User $user, int $perPage = 10)
+    public function getFeed(?User $user = null, int $perPage = 10)
     {
-        $viewedPostIds = $user->viewedPosts()->pluck('post_id')->toArray();
-        $followingIds = $user->following()->pluck('following_id')->toArray();
-
-        // 1. Get Unseen posts from Followed users
-        $followedUnseen = Post::with(['user.category', 'user.club', 'user.ownedClub', 'comments'])
+        // Base unseen query for both authenticated and guests
+        $baseUnseen = Post::with(['user.category', 'user.club', 'user.ownedClub', 'comments'])
             ->withCount(['likes', 'comments'])
-            ->whereIn('user_id', $followingIds)
-            ->whereNotIn('id', $viewedPostIds)
             ->where('is_hidden', false)
             ->latest();
 
-        // 2. Get Unseen posts from non-followed (Suggestions)
-        $suggestedUnseen = Post::with(['user.category', 'user.club', 'user.ownedClub', 'comments'])
-            ->withCount(['likes', 'comments'])
-            ->whereNotIn('user_id', array_merge($followingIds, [$user->id]))
-            ->whereNotIn('id', $viewedPostIds)
-            ->where('is_hidden', false)
-            ->latest();
+        if ($user) {
+            $viewedPostIds = $user->viewedPosts()->pluck('post_id')->toArray();
+            $followingIds = $user->following()->pluck('following_id')->toArray();
+            $baseUnseenUser = (clone $baseUnseen)->whereNotIn('id', $viewedPostIds);
 
-        // Combine using Union or separate queries depending on count
-        // For simple algorithm, we merge them but keep order
-        $results = $followedUnseen->get()->merge($suggestedUnseen->get());
+            // 1. Get Unseen posts from Followed users
+            $followedUnseen = (clone $baseUnseenUser)->whereIn('user_id', $followingIds);
 
-        // 3. Fallback: If results are few, add seen posts back with priority
-        if ($results->count() < $perPage) {
-            // Seen posts from followed users (Latest)
-            $seenFollowed = Post::with(['user.category', 'user.club', 'user.ownedClub', 'comments'])
-                ->withCount(['likes', 'comments'])
-                ->whereIn('user_id', $followingIds)
-                ->whereIn('id', $viewedPostIds)
-                ->where('is_hidden', false)
-                ->latest()
-                ->limit($perPage)
-                ->get();
+            // 2. Get Unseen posts from non-followed (Suggestions)
+            $suggestedUnseen = (clone $baseUnseenUser)->whereNotIn('user_id', array_merge($followingIds, [$user->id]));
 
-            // Seen posts from others (Suggestions)
-            $seenSuggested = Post::with(['user.category', 'user.club', 'user.ownedClub', 'comments'])
-                ->withCount(['likes', 'comments'])
-                ->whereNotIn('user_id', array_merge($followingIds, [$user->id]))
-                ->whereIn('id', $viewedPostIds)
-                ->where('is_hidden', false)
-                ->latest()
-                ->limit($perPage)
-                ->get();
+            // Combine using Union or separate queries depending on count
+            $results = $followedUnseen->get()->merge($suggestedUnseen->get());
 
-            $results = $results->merge($seenFollowed)->merge($seenSuggested)->unique('id');
+            // 3. Fallback: If results are few, add seen posts back with priority
+            if ($results->count() < $perPage) {
+                // Seen posts from followed users (Latest)
+                $seenFollowed = Post::with(['user.category', 'user.club', 'user.ownedClub', 'comments'])
+                    ->withCount(['likes', 'comments'])
+                    ->whereIn('user_id', $followingIds)
+                    ->whereIn('id', $viewedPostIds)
+                    ->where('is_hidden', false)
+                    ->latest()
+                    ->limit($perPage)
+                    ->get();
+
+                // Seen posts from others (Suggestions)
+                $seenSuggested = Post::with(['user.category', 'user.club', 'user.ownedClub', 'comments'])
+                    ->withCount(['likes', 'comments'])
+                    ->whereNotIn('user_id', array_merge($followingIds, [$user->id]))
+                    ->whereIn('id', $viewedPostIds)
+                    ->where('is_hidden', false)
+                    ->latest()
+                    ->limit($perPage)
+                    ->get();
+
+                $results = $results->merge($seenFollowed)->merge($seenSuggested)->unique('id');
+            }
+
+            // Manual Pagination for memory collections
+            $currentPage = LengthAwarePaginator::resolveCurrentPage();
+            $currentItems = $results->slice(($currentPage - 1) * $perPage, $perPage)->values()->all();
+
+            $paginated = new LengthAwarePaginator(
+                $currentItems,
+                $results->count(),
+                $perPage,
+                $currentPage,
+                ['path' => LengthAwarePaginator::resolveCurrentPath()]
+            );
+        } else {
+            // Guest Feed Logic: Native pagination on latest posts (order of posting)
+            $paginated = $baseUnseen->paginate($perPage);
         }
-
-        // Manual Pagination
-        $currentPage = LengthAwarePaginator::resolveCurrentPage();
-        $currentItems = $results->slice(($currentPage - 1) * $perPage, $perPage)->values()->all();
-
-        $paginated = new LengthAwarePaginator(
-            $currentItems,
-            $results->count(),
-            $perPage,
-            $currentPage,
-            ['path' => LengthAwarePaginator::resolveCurrentPath()]
-        );
 
         // Unique users processing to avoid redundant work and errors
         $usersToProcess = collect();
@@ -110,7 +111,7 @@ class FeedService
 
         // Add is_liked status
         $paginated->getCollection()->transform(function ($post) use ($user) {
-            $post->is_liked = $post->likes()->where('user_id', $user->id)->exists();
+            $post->is_liked = $user ? $post->likes()->where('user_id', $user->id)->exists() : false;
             return $post;
         });
 
