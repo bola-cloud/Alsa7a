@@ -13,10 +13,7 @@ class BroadcastServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        // Manual Route Definition to avoid conflicts and ensure API behavior
-        Route::post('api/v1/broadcasting/auth', function (\Illuminate\Http\Request $request) {
-            return Broadcast::auth($request);
-        })->middleware(['api', 'auth:sanctum']);
+        Broadcast::routes(['prefix' => 'api/v1', 'middleware' => ['api', 'auth:sanctum']]);
 
         require base_path('routes/channels.php');
     }
