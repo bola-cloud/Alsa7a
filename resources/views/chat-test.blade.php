@@ -48,6 +48,9 @@
 
             log(`Attempting to connect to Reverb for chat.${convoId}...`);
 
+            // Enable verbose pusher logging to console
+            Pusher.logToConsole = true;
+
             // Initialize Echo with Reverb Keys
             window.Echo = new Echo({
                 broadcaster: 'reverb',
@@ -57,7 +60,7 @@
                 wssPort: {{ env('REVERB_PORT', 443) }},
                 forceTLS: true,
                 enabledTransports: ['ws', 'wss'],
-                authEndpoint: '/api/v1/broadcasting/auth', // Since this is expected for Sanctum
+                authEndpoint: '/broadcasting/auth', // Default Laravel broadcast auth route
                 auth: {
                     headers: {
                         Authorization: token ? (token.startsWith('Bearer') ? token : `Bearer ${token}`) : null,
