@@ -1,0 +1,22 @@
+﻿
+   ReflectionException 
+
+  Class "App\Http\Controllers\Admin\ReportController" does not exist
+
+  at vendor\laravel\framework\src\Illuminate\Foundation\Console\RouteListCommand.php:235
+    231Γûò             if ($this->isFrameworkController($route)) {
+    232Γûò                 return false;
+    233Γûò             }
+    234Γûò 
+  Γ₧£ 235Γûò             $path = (new ReflectionClass($route->getControllerClass()))
+    236Γûò                 ->getFileName();
+    237Γûò         } else {
+    238Γûò             return false;
+    239Γûò         }
+
+  1   vendor\laravel\framework\src\Illuminate\Foundation\Console\RouteListCommand.php:235
+      ReflectionClass::__construct("App\Http\Controllers\Admin\ReportController")
+
+  2   vendor\laravel\framework\src\Illuminate\Foundation\Console\RouteListCommand.php:149
+      Illuminate\Foundation\Console\RouteListCommand::isVendorRoute(Object(Illuminate\Routing\Route))
+
