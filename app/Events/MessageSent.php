@@ -31,7 +31,7 @@ class MessageSent implements ShouldBroadcast
     {
         // Broadcast to specific conversation channel
         return [
-            new PrivateChannel('chat.' . $this->message->conversation_id),
+            new Channel('chat.' . $this->message->conversation_id),
         ];
     }
 
