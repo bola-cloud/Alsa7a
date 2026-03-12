@@ -39,4 +39,12 @@ class MessageSent implements ShouldBroadcast
     {
         return ['message' => $this->message->load('sender')];
     }
+
+    /**
+     * The event's broadcast name.
+     */
+    public function broadcastAs(): string
+    {
+        return 'chat.ping';
+    }
 }
