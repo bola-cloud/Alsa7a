@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Log;
 
 class OtpService
 {
-    private $baseUrl = 'https://otp.wasl-x.com/api/v1/otp';
+    private $baseUrl = 'http://187.124.163.30:5001';
     private $token;
 
     public function __construct()

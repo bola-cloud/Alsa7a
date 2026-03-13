@@ -5,11 +5,11 @@ const axios = require('axios');
 const TOKEN = '220|q7inlQqFwtgqmHaQpBoiWF8opn8Kbl52Vi0gv3Yof6cd9463';
 const CONVERSATION_ID = 18;
 const APP_KEY = 't6o995a86az28cff';
-const AUTH_ENDPOINT = 'https://alsaha.tech/api/v1/broadcasting/auth';
 const WS_URL = `wss://alsaha.tech/app/${APP_KEY}?protocol=7&client=js&version=8.3.0&flash=false`;
+const SEND_URL = `https://alsaha.tech/api/v1/chat/conversations/${CONVERSATION_ID}/messages`;
 
 async function runTest() {
-    console.log('🚀 Starting Reverb Simulation Test...');
+    console.log('🚀 Starting Reverb Public Channel Test (NO AUTH)...');
     console.log(`📡 Connecting to: ${WS_URL}`);
 
     const ws = new WebSocket(WS_URL);
@@ -22,62 +22,51 @@ async function runTest() {
         const message = JSON.parse(data.toString());
         console.log('📥 Received:', JSON.stringify(message));
 
-        // 2. Handle connection established
+        // When connected, subscribe to PUBLIC channel (no auth needed)
         if (message.event === 'pusher:connection_established') {
             const socketId = JSON.parse(message.data).socket_id;
             console.log(`🔑 Socket ID: ${socketId}`);
 
-            // 3. Authenticate with Laravel Sanctum
-            try {
-                console.log('🔐 Requesting Channel Authorization...');
-                const authResponse = await axios.post(AUTH_ENDPOINT, {
-                    socket_id: socketId,
-                    channel_name: `private-chat.${CONVERSATION_ID}`
-                }, {
-                    headers: {
-                        'Authorization': `Bearer ${TOKEN}`,
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/json'
-                    }
-                });
-
-                console.log('✅ Auth Success:', JSON.stringify(authResponse.data));
-
-                // 4. Subscribe to private channel
-                const subscribePayload = {
-                    event: 'pusher:subscribe',
-                    data: {
-                        auth: authResponse.data.auth,
-                        channel: `private-chat.${CONVERSATION_ID}`
-                    }
-                };
-                ws.send(JSON.stringify(subscribePayload));
-                console.log(`📤 Subscribed to private-chat.${CONVERSATION_ID}. Now send a message via API to test!`);
-
-            } catch (error) {
-                console.error('❌ Auth Failed:', error.response ? JSON.stringify(error.response.data) : error.message);
-                process.exit(1);
-            }
+            // Subscribe DIRECTLY - no auth needed for public channels
+            const subscribePayload = {
+                event: 'pusher:subscribe',
+                data: {
+                    channel: `chat.${CONVERSATION_ID}`  // public: no "private-" prefix
+                }
+            };
+            ws.send(JSON.stringify(subscribePayload));
+            console.log(`📤 Subscribed to public channel: chat.${CONVERSATION_ID}`);
         }
 
-        // 5. Subscription confirmed
+        // Subscription confirmed
         if (message.event === 'pusher_internal:subscription_succeeded') {
-            console.log('🏁 SUCCESS: Subscribed to channel! Waiting for events...');
-            console.log('');
-            console.log('👉 Now run this curl to fire a test message:');
-            console.log(`curl -X POST "https://alsaha.tech/api/v1/chat/conversations/${CONVERSATION_ID}/messages" \\`);
-            console.log(`     -H "Authorization: Bearer ${TOKEN}" \\`);
-            console.log(`     -H "Content-Type: application/json" \\`);
-            console.log(`     -d '{"body": "Hello from Node.js test!"}'`);
+            console.log('🏁 SUCCESS: Subscribed! Sending test message via API in 2 seconds...');
+
+            setTimeout(async () => {
+                try {
+                    const response = await axios.post(SEND_URL, {
+                        body: 'Hello from script! Public channel test.'
+                    }, {
+                        headers: {
+                            'Authorization': `Bearer ${TOKEN}`,
+                            'Accept': 'application/json',
+                            'Content-Type': 'application/json'
+                        }
+                    });
+                    console.log('✅ Message sent via API:', response.data.data?.body);
+                } catch (err) {
+                    console.error('❌ API error:', err.response ? JSON.stringify(err.response.data) : err.message);
+                }
+            }, 2000);
         }
 
-        // 6. Our real-time event
+        // Our real-time event
         if (message.event === 'chat.ping') {
             console.log('');
             console.log('🔔🔔🔔 REAL-TIME EVENT RECEIVED: chat.ping');
-            console.log('📦 Data:', message.data);
+            console.log('📦 Payload:', message.data);
             console.log('');
-            console.log('✅✅✅ TEST PASSED! Real-time chat is fully working!');
+            console.log('✅✅✅ TEST PASSED! Public channel real-time chat works!');
             process.exit(0);
         }
     });
@@ -88,7 +77,7 @@ async function runTest() {
     });
 
     setTimeout(() => {
-        console.log('⏰ Timeout: No event received within 30 seconds.');
+        console.log('⏰ Timeout after 30s. No event received.');
         process.exit(1);
     }, 30000);
 }
