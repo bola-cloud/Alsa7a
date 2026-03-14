@@ -136,6 +136,7 @@ Route::prefix('v1')->middleware('set.api.locale')->group(function () {
 
         // --- Profile Actions ---
         Route::post('users/profile', [App\Http\Controllers\Api\V1\ProfileController::class, 'update']);
+        Route::delete('users/account', [App\Http\Controllers\Api\V1\ProfileController::class, 'destroyAccount']);
         Route::post('users/{id}/follow', [App\Http\Controllers\Api\V1\ProfileController::class, 'follow']);
         Route::get('users/{id}/followers', [App\Http\Controllers\Api\V1\ProfileController::class, 'followers']);
         Route::get('users/{id}/following', [App\Http\Controllers\Api\V1\ProfileController::class, 'following']);

@@ -197,7 +197,34 @@ class ProfileController extends Controller
 
         $user->save();
 
-        return $this->formatProfileResponse($user, true, $user);
+    }
+
+    /**
+     * Delete User Account (Protected).
+     * Required for Apple App Store compliance.
+     */
+    public function destroyAccount(Request $request)
+    {
+        $user = $request->user();
+
+        // Optional: Delete profile/cover photos from storage
+        if ($user->profile_photo_path) {
+            Storage::disk('public')->delete($user->profile_photo_path);
+        }
+        if ($user->cover_photo_path) {
+            Storage::disk('public')->delete($user->cover_photo_path);
+        }
+
+        // Revoke all tokens to log the user out everywhere
+        $user->tokens()->delete();
+
+        // Delete the user record
+        $user->delete();
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Account deleted successfully'
+        ]);
     }
 
     /**
