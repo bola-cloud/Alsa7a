@@ -326,6 +326,13 @@ return [
         'block' => 'Block',
         'unblock' => 'Unblock',
         'is_blocked' => 'Is Blocked?',
+        'subscription_status' => 'Subscription Status',
+        'all_subscriptions' => 'All Subscriptions',
+        'subscribed' => 'Subscribed',
+        'not_subscribed' => 'Not Subscribed',
+        'activate_subscription' => 'Activate Subscription',
+        'cancel_subscription' => 'Cancel Subscription',
+        'confirm_cancel_subscription' => 'Are you sure you want to cancel this user\'s subscription?',
     ],
     'status' => [
         'pending' => 'Pending',

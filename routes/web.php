@@ -65,6 +65,8 @@ Route::group([
         Route::post('users/{user}/verify', [\App\Http\Controllers\Admin\UserController::class, 'verifyDocuments'])->name('users.verify');
         Route::post('users/{user}/verify-phone', [\App\Http\Controllers\Admin\UserController::class, 'verifyPhone'])->name('users.verify_phone');
         Route::post('users/{user}/toggle-block', [\App\Http\Controllers\Admin\UserController::class, 'toggleBlock'])->name('users.toggle_block');
+        Route::post('users/{user}/activate-subscription', [\App\Http\Controllers\Admin\UserController::class, 'activateSubscription'])->name('users.activate_subscription');
+        Route::post('users/{user}/cancel-subscription', [\App\Http\Controllers\Admin\UserController::class, 'cancelSubscription'])->name('users.cancel_subscription');
         Route::get('users/search', [\App\Http\Controllers\Admin\UserController::class, 'searchUsers'])->name('users.search'); // Search API
         Route::get('verification/manual', [\App\Http\Controllers\Admin\UserController::class, 'manualVerificationIndex'])->name('verification.manual');
         Route::get('clubs/{club}/teams-json', [\App\Http\Controllers\Admin\UserController::class, 'getClubTeams'])->name('clubs.teams_json');

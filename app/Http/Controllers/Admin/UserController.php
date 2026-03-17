@@ -10,12 +10,13 @@ class UserController extends Controller
 {
     public function index(Request $request)
     {
-        $query = User::with('category')->latest();
+        $query = User::with('category', 'subscription')->latest();
 
         // General Search (Name, Email, Phone)
         if ($request->filled('search')) {
             $search = $request->search;
-            $query->where(function ($q) use ($search) {
+            $query->where(function ($q) {
+                $search = request('search');
                 $q->where('name', 'like', "%{$search}%")
                     ->orWhere('email', 'like', "%{$search}%")
                     ->orWhere('phone', 'like', "%{$search}%");
@@ -33,6 +34,24 @@ class UserController extends Controller
         }
         if ($request->has('pending_verification')) {
             $query->where('verification_status', 'pending');
+        }
+
+        // Filter by Subscription Status
+        if ($request->filled('subscription_status')) {
+            if ($request->subscription_status == 'subscribed') {
+                $query->whereHas('subscription', function ($q) {
+                    $q->where('status', 'active')
+                      ->where('end_date', '>', now());
+                });
+            } else {
+                $query->where(function ($q) {
+                    $q->whereDoesntHave('subscription')
+                      ->orWhereHas('subscription', function ($q2) {
+                          $q2->where('status', '!=', 'active')
+                             ->orWhere('end_date', '<=', now());
+                      });
+                });
+            }
         }
 
         $users = $query->paginate(15)->withQueryString();
@@ -252,5 +271,39 @@ class UserController extends Controller
     {
         $teams = $club->teams()->select('id', 'name')->get();
         return response()->json($teams);
+    }
+
+    /**
+     * Activate Manual Subscription
+     */
+    public function activateSubscription(User $user)
+    {
+        $user->subscription()->updateOrCreate(
+            [],
+            [
+                'type' => 'manual',
+                'price' => 0,
+                'start_date' => now(),
+                'end_date' => now()->addYears(10), // Long term subscription
+                'status' => 'active',
+            ]
+        );
+
+        return redirect()->back()->with('swal_success', 'Subscription activated successfully');
+    }
+
+    /**
+     * Cancel Subscription
+     */
+    public function cancelSubscription(User $user)
+    {
+        if ($user->subscription) {
+            $user->subscription->update([
+                'status' => 'cancelled',
+                'end_date' => now(), // End it now
+            ]);
+        }
+
+        return redirect()->back()->with('swal_success', 'Subscription cancelled successfully');
     }
 }

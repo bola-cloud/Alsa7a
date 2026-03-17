@@ -327,6 +327,13 @@ return [
         'block' => 'حظر',
         'unblock' => 'إلغاء الحظر',
         'is_blocked' => 'هل هو محظور؟',
+        'subscription_status' => 'حالة الاشتراك',
+        'all_subscriptions' => 'جميع الاشتراكات',
+        'subscribed' => 'مشترك',
+        'not_subscribed' => 'غير مشترك',
+        'activate_subscription' => 'تفعيل الاشتراك',
+        'cancel_subscription' => 'إلغاء الاشتراك',
+        'confirm_cancel_subscription' => 'هل أنت متأكد أنك تريد إلغاء اشتراك هذا المستخدم؟',
     ],
     'status' => [
         'pending' => 'قيد الانتظار',

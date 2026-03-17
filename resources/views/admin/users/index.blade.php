@@ -30,7 +30,7 @@
                                 </button>
                             </div>
                         </div>
-                        <div class="col-md-4 mb-2 mb-md-0">
+                        <div class="col-md-3 mb-2 mb-md-0">
                             <label class="text-muted small mb-1">{{ __('admin.users.role_category') }}</label>
                             <select name="category_id" class="form-control">
                                 <option value="">{{ __('admin.users.all_roles') }}</option>
@@ -41,7 +41,15 @@
                                 @endforeach
                             </select>
                         </div>
-                        <div class="col-md-3">
+                        <div class="col-md-2 mb-2 mb-md-0">
+                            <label class="text-muted small mb-1">{{ __('admin.users.subscription_status') }}</label>
+                            <select name="subscription_status" class="form-control">
+                                <option value="">{{ __('admin.users.all_subscriptions') }}</option>
+                                <option value="subscribed" {{ request('subscription_status') == 'subscribed' ? 'selected' : '' }}>{{ __('admin.users.subscribed') }}</option>
+                                <option value="unsubscribed" {{ request('subscription_status') == 'unsubscribed' ? 'selected' : '' }}>{{ __('admin.users.not_subscribed') }}</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
                             <button type="submit" class="btn btn-primary btn-block">
                                 <i class="la la-filter"></i> {{ __('admin.users.filter') }}
                             </button>
@@ -84,6 +92,12 @@
                                         @if($user->is_blocked)
                                             <span class="badge badge-danger">{{ __('admin.users.block') }}</span>
                                         @endif
+
+                                        @if($user->isSubscribed())
+                                            <span class="badge badge-info">{{ __('admin.users.subscribed') }}</span>
+                                        @else
+                                            <span class="badge badge-secondary">{{ __('admin.users.not_subscribed') }}</span>
+                                        @endif
                                     </td>
                                     <td>
                                         @if($user->verification_status === 'approved')
@@ -124,6 +138,22 @@
                                                 @csrf
                                                 <button type="submit" class="btn btn-sm btn-success" title="{{ __('admin.users.approve_access') }}"><i class="la la-check"></i></button>
                                             </form>
+                                        @endif
+
+                                        @if($user->email !== 'admin@alsa7a.com')
+                                            @if(!$user->isSubscribed())
+                                                <form action="{{ route('admin.users.activate_subscription', $user->id) }}" method="POST"
+                                                    style="display:inline-block;">
+                                                    @csrf
+                                                    <button type="submit" class="btn btn-sm btn-outline-primary" title="{{ __('admin.users.activate_subscription') }}"><i class="la la-rocket"></i></button>
+                                                </form>
+                                            @else
+                                                <form action="{{ route('admin.users.cancel_subscription', $user->id) }}" method="POST"
+                                                    style="display:inline-block;" onsubmit="return confirm('{{ __('admin.users.confirm_cancel_subscription') }}');">
+                                                    @csrf
+                                                    <button type="submit" class="btn btn-sm btn-outline-danger" title="{{ __('admin.users.cancel_subscription') }}"><i class="la la-close"></i></button>
+                                                </form>
+                                            @endif
                                         @endif
                                     </td>
                                 </tr>
