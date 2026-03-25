@@ -271,6 +271,8 @@ return [
         'featured_activated' => 'تم تعيين الخدمة كمميزة بنجاح',
         'featured_deactivated' => 'تمت إزالة التمييز عن الخدمة بنجاح',
         'hello' => 'مرحبا',
+        'subscription_activated_successfully' => 'تم تفعيل الاشتراك بنجاح',
+        'subscription_deactivated_successfully' => 'تم إلغاء تفعيل الاشتراك بنجاح',
     ],
     'modal' => [
         'success' => 'تم بنجاح!',

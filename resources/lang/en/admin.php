@@ -270,6 +270,8 @@ return [
         'featured_activated' => 'Marked as featured successfully',
         'featured_deactivated' => 'Removed from featured successfully',
         'hello' => 'Hello',
+        'subscription_activated_successfully' => 'Subscription activated successfully',
+        'subscription_deactivated_successfully' => 'Subscription deactivated successfully',
     ],
     'modal' => [
         'success' => 'Success!',

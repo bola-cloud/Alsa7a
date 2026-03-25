@@ -289,7 +289,7 @@ class UserController extends Controller
             ]
         );
 
-        return redirect()->back()->with('swal_success', 'Subscription activated successfully');
+        return redirect()->back()->with('swal_success', __('admin.messages.subscription_activated_successfully'));
     }
 
     /**
