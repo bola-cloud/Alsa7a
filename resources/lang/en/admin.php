@@ -272,6 +272,7 @@ return [
         'hello' => 'Hello',
         'subscription_activated_successfully' => 'Subscription activated successfully',
         'subscription_deactivated_successfully' => 'Subscription deactivated successfully',
+        'subscription_cancelled_successfully' => 'Subscription cancelled successfully',
     ],
     'modal' => [
         'success' => 'Success!',

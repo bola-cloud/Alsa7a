@@ -304,6 +304,6 @@ class UserController extends Controller
             ]);
         }
 
-        return redirect()->back()->with('swal_success', 'Subscription cancelled successfully');
+        return redirect()->back()->with('swal_success', __('admin.messages.subscription_cancelled_successfully'));
     }
 }

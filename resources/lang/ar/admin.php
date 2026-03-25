@@ -273,6 +273,7 @@ return [
         'hello' => 'مرحبا',
         'subscription_activated_successfully' => 'تم تفعيل الاشتراك بنجاح',
         'subscription_deactivated_successfully' => 'تم إلغاء تفعيل الاشتراك بنجاح',
+        'subscription_cancelled_successfully' => 'تم إلغاء الاشتراك بنجاح',
     ],
     'modal' => [
         'success' => 'تم بنجاح!',
