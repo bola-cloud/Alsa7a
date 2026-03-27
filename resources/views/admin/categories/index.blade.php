@@ -33,7 +33,7 @@
                     <div class="card-img-top-wrapper"
                         style="height: 140px; background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);">
                         @if($category->image)
-                            <img src="{{ asset('storage/' . $category->image) }}" alt="{{ $category->name }}"
+                            <img src="{{ $category->image }}" alt="{{ $category->name }}"
                                 style="height: 80px; width: 80px; object-fit: contain; border-radius: 50%; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
                         @else
                             <div class="d-flex align-items-center justify-content-center h-100 w-100">
@@ -47,7 +47,7 @@
                         {{ Str::limit($category->description, 50) ?? __('admin.messages.no_description') }}
                         </p>
 
-                        <div class="card-actions">
+                        <div class="card-actions d-flex flex-nowrap align-items-center justify-content-center w-100" style="gap: 5px; overflow-x: auto; padding-bottom: 5px;">
                             @if(!$category->isProtected())
                                 <a href="{{ route('admin.categories.edit', $category->id) }}" class="btn btn-sm btn-outline-primary"
                                     title="{{ __('admin.buttons.edit') }}">
@@ -67,7 +67,7 @@
 
                             @if(!$category->isProtected())
                                 <form action="{{ route('admin.categories.destroy', $category->id) }}" method="POST"
-                                    onsubmit="return confirm('{{ __('admin.buttons.confirm_delete') }}');">
+                                    onsubmit="return confirm('{{ __('admin.buttons.confirm_delete') }}');" class="mb-0">
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit" class="btn btn-sm btn-outline-danger"
