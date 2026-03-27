@@ -44,7 +44,12 @@ class Category extends Model
         if (preg_match('#^https?://#i', $value)) {
             return $value;
         }
-        return url(ltrim($value, '/'));
+        
+        $path = ltrim($value, '/');
+        if (!str_starts_with($path, 'storage/') && !str_starts_with($path, 'images-demo/')) {
+            $path = 'storage/' . $path;
+        }
+        return url($path);
     }
 
 
