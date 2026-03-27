@@ -38,7 +38,7 @@
                                             <input type="file" id="image" class="form-control-file" name="image">
                                             @if($parentCategory->image)
                                                 <div class="mt-2">
-                                                    <img src="{{ asset('storage/' . $parentCategory->image) }}"
+                                                    <img src="{{ $parentCategory->image }}"
                                                         alt="Current Image"
                                                         style="width: 80px; height: 80px; object-fit: cover; border-radius: 8px;">
                                                 </div>
