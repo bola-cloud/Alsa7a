@@ -255,6 +255,13 @@
                                     data-i18n="nav.morris_charts.main">{{ __('admin.menu.dashboard') }}</span>
                             </a>
                         </li>
+
+                        <!-- User Management -->
+                        <li class=" navigation-header">
+                            <span>{{ __('admin.menu.users') ?? 'إدارة المستخدمين' }}</span><i
+                                class="la la-ellipsis-h ft-minus" data-toggle="tooltip" data-placement="right"
+                                data-original-title="Users"></i>
+                        </li>
                         <li
                             class="nav-item {{ Route::is('admin.users.*') && !request()->has('pending_verification') ? 'active' : '' }}">
                             <a href="{{ route('admin.users.index') }}">
@@ -280,28 +287,17 @@
                                 <span class="menu-title">{{ __('admin.otps.force_verification') }}</span>
                             </a>
                         </li>
-                        <li class="nav-item {{ Route::is('admin.categories.*') ? 'active' : '' }}">
-                            <a href="{{ route('admin.categories.index') }}">
-                                <i class="la la-list"></i>
-                                <span class="menu-title">{{ __('admin.menu.categories') }}</span>
-                            </a>
-                        </li>
-                        <li class="nav-item {{ Route::is('admin.parent_categories.*') ? 'active' : '' }}">
-                            <a href="{{ route('admin.parent_categories.index') }}">
-                                <i class="la la-sitemap"></i>
-                                <span class="menu-title">{{ __('admin.parent_categories.index') }}</span>
-                            </a>
+
+                        <!-- Sports & Events -->
+                        <li class=" navigation-header">
+                            <span>{{ App::getLocale() == 'ar' ? 'الرياضة والفعاليات' : 'Sports & Events' }}</span><i
+                                class="la la-ellipsis-h ft-minus" data-toggle="tooltip" data-placement="right"
+                                data-original-title="Sports"></i>
                         </li>
                         <li class="nav-item {{ Route::is('admin.sports.*') ? 'active' : '' }}">
                             <a href="{{ route('admin.sports.index') }}">
                                 <i class="la la-trophy"></i>
                                 <span class="menu-title">{{ __('admin.menu.sports') }}</span>
-                            </a>
-                        </li>
-                        <li class="nav-item {{ Route::is('admin.sliders.*') ? 'active' : '' }}">
-                            <a href="{{ route('admin.sliders.index') }}">
-                                <i class="la la-image"></i>
-                                <span class="menu-title">{{ __('admin.menu.sliders') }}</span>
                             </a>
                         </li>
                         <li class="nav-item {{ Route::is('admin.leagues.*') ? 'active' : '' }}">
@@ -310,32 +306,49 @@
                                 <span class="menu-title">{{ __('admin.leagues.index') }}</span>
                             </a>
                         </li>
-                        <li class="nav-item {{ request()->routeIs('admin.events.*') ? 'active' : '' }}">
-                            <a href="{{ route('admin.events.index') }}">
-                                <i class="la la-calendar"></i>
-                                <span class="menu-title">{{ __('admin.events.index') }}</span>
-                            </a>
-                        </li>
                         <li class="nav-item {{ request()->routeIs('admin.clubs.*') ? 'active' : '' }}">
                             <a href="{{ route('admin.clubs.index') }}">
                                 <i class="la la-shield"></i>
                                 <span class="menu-title">{{ __('admin.menu.clubs') }}</span>
                             </a>
                         </li>
-
-                        <li class=" navigation-header">
-                            <span data-i18n="nav.category.community">Community</span><i
-                                class="la la-ellipsis-h ft-minus" data-toggle="tooltip" data-placement="right"
-                                data-original-title="Community"></i>
+                        <li class="nav-item {{ request()->routeIs('admin.events.*') ? 'active' : '' }}">
+                            <a href="{{ route('admin.events.index') }}">
+                                <i class="la la-calendar"></i>
+                                <span class="menu-title">{{ __('admin.events.index') }}</span>
+                            </a>
                         </li>
 
+                        <!-- Content & Community -->
+                        <li class=" navigation-header">
+                            <span>{{ App::getLocale() == 'ar' ? 'المحتوى والأقسام' : 'Content & Categories' }}</span><i
+                                class="la la-ellipsis-h ft-minus" data-toggle="tooltip" data-placement="right"
+                                data-original-title="Content"></i>
+                        </li>
+                        <li class="nav-item {{ Route::is('admin.parent_categories.*') ? 'active' : '' }}">
+                            <a href="{{ route('admin.parent_categories.index') }}">
+                                <i class="la la-sitemap"></i>
+                                <span class="menu-title">{{ __('admin.parent_categories.index') }}</span>
+                            </a>
+                        </li>
+                        <li class="nav-item {{ Route::is('admin.categories.*') ? 'active' : '' }}">
+                            <a href="{{ route('admin.categories.index') }}">
+                                <i class="la la-list"></i>
+                                <span class="menu-title">{{ __('admin.menu.categories') }}</span>
+                            </a>
+                        </li>
+                        <li class="nav-item {{ request()->routeIs('admin.community_categories.*') ? 'active' : '' }}">
+                            <a href="{{ route('admin.community_categories.index') }}">
+                                <i class="la la-tags"></i>
+                                <span class="menu-title">{{ __('admin.community_categories.index') }}</span>
+                            </a>
+                        </li>
                         <li class="nav-item {{ request()->routeIs('admin.news.*') ? 'active' : '' }}">
                             <a href="{{ route('admin.news.index') }}">
                                 <i class="la la-newspaper-o"></i>
                                 <span class="menu-title">{{ __('admin.news.title') }}</span>
                             </a>
                         </li>
-
                         <li class="nav-item {{ request()->routeIs('admin.posts.*') ? 'active' : '' }}">
                             <a href="{{ route('admin.posts.index') }}">
                                 <i class="la la-instagram"></i>
@@ -348,11 +361,18 @@
                                 <span class="menu-title">{{ __('admin.community_posts.title') }}</span>
                             </a>
                         </li>
-                        <li class="nav-item {{ request()->routeIs('admin.community_categories.*') ? 'active' : '' }}">
-                            <a href="{{ route('admin.community_categories.index') }}">
-                                <i class="la la-tags"></i>
-                                <span class="menu-title">{{ __('admin.community_categories.index') }}</span>
+                        <li class="nav-item {{ Route::is('admin.sliders.*') ? 'active' : '' }}">
+                            <a href="{{ route('admin.sliders.index') }}">
+                                <i class="la la-image"></i>
+                                <span class="menu-title">{{ __('admin.menu.sliders') }}</span>
                             </a>
+                        </li>
+
+                        <!-- Services & Support -->
+                        <li class=" navigation-header">
+                            <span>{{ App::getLocale() == 'ar' ? 'الخدمات والدعم' : 'Services & Support' }}</span><i
+                                class="la la-ellipsis-h ft-minus" data-toggle="tooltip" data-placement="right"
+                                data-original-title="Services"></i>
                         </li>
                         <li class="nav-item {{ request()->routeIs('admin.services.*') ? 'active' : '' }}">
                             <a href="{{ route('admin.services.index') }}">
@@ -372,16 +392,24 @@
                                 <span class="menu-title">{{ __('admin.tickets.title') }}</span>
                             </a>
                         </li>
+
+                        <!-- Settings & Legal -->
+                        <li class=" navigation-header">
+                            <span>{{ __('admin.menu.settings') ?? 'الإعدادات والقوانين' }}</span><i
+                                class="la la-ellipsis-h ft-minus" data-toggle="tooltip" data-placement="right"
+                                data-original-title="Settings"></i>
+                        </li>
                         <li class="nav-item {{ request()->routeIs('admin.notifications.*') ? 'active' : '' }}">
                             <a href="{{ route('admin.notifications.create') }}">
                                 <i class="la la-bell"></i>
                                 <span class="menu-title">{{ __('admin.menu.notifications.title') }}</span>
                             </a>
                         </li>
-                        <li class=" navigation-header">
-                            <span>{{ __('admin.menu.legal') }}</span><i
-                                class="la la-ellipsis-h ft-minus" data-toggle="tooltip" data-placement="right"
-                                data-original-title="Legal"></i>
+                        <li class="nav-item {{ Route::is('admin.settings.*') ? 'active' : '' }}">
+                            <a href="{{ route('admin.settings.index') }}">
+                                <i class="la la-cog"></i>
+                                <span class="menu-title">{{ __('admin.settings.index') }}</span>
+                            </a>
                         </li>
                         <li class="nav-item">
                             <a href="{{ route('terms') }}" target="_blank">
@@ -393,13 +421,6 @@
                             <a href="{{ route('privacy') }}" target="_blank">
                                 <i class="la la-lock"></i>
                                 <span class="menu-title">{{ __('admin.settings.privacy_ar') }}</span>
-                            </a>
-                        </li>
-
-                        <li class="nav-item {{ Route::is('admin.settings.*') ? 'active' : '' }}">
-                            <a href="{{ route('admin.settings.index') }}">
-                                <i class="la la-cog"></i>
-                                <span class="menu-title">{{ __('admin.settings.index') }}</span>
                             </a>
                         </li>
                     </ul>
