@@ -208,12 +208,14 @@ class ServiceRequestController extends Controller
                 'requester.subscription', 'requester.category', 'requester.club'
             ])
             ->whereHas('requester', function ($query) {
-                // Filter out requests where the requester has opted out
-                $query->where('show_services_activity', true);
+                // Filter out requests where the requester has explicitly opted out (false/0)
+                $query->where('show_services_activity', true)
+                      ->orWhereNull('show_services_activity');
             })
             ->whereHas('provider', function ($query) {
-                // Filter out requests where the provider has opted out
-                $query->where('show_services_activity', true);
+                // Filter out requests where the provider has explicitly opted out
+                $query->where('show_services_activity', true)
+                      ->orWhereNull('show_services_activity');
             })
             ->latest()
             ->paginate(15);
