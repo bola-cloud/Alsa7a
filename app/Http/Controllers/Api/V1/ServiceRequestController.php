@@ -195,4 +195,62 @@ class ServiceRequestController extends Controller
             'data' => $serviceRequest
         ]);
     }
+
+    /**
+     * Global Services Activity Log.
+     * GET /services-activity
+     */
+    public function activity(Request $request)
+    {
+        $requests = ServiceRequest::with([
+                'service.media', 
+                'provider.subscription', 'provider.category', 'provider.club', 
+                'requester.subscription', 'requester.category', 'requester.club'
+            ])
+            ->whereHas('requester', function ($query) {
+                // Filter out requests where the requester has opted out
+                $query->where('show_services_activity', true);
+            })
+            ->whereHas('provider', function ($query) {
+                // Filter out requests where the provider has opted out
+                $query->where('show_services_activity', true);
+            })
+            ->latest()
+            ->paginate(15);
+
+        $currentUser = $request->user('sanctum');
+        
+        $requests->getCollection()->transform(function ($req) use ($currentUser) {
+            // Format service image
+            if ($req->service && $req->service->media->isNotEmpty()) {
+                $firstMedia = $req->service->media->first();
+                $image = $firstMedia->file_path ?? $firstMedia->image;
+                if ($image) {
+                    $req->service->featured_image = preg_match('#^https?://#i', $image) ? $image : asset('storage/' . $image);
+                }
+            } else {
+                if ($req->service) {
+                    $req->service->featured_image = null;
+                }
+            }
+
+            // Format provider and requester details
+            if ($req->provider) {
+                $req->provider->image = $req->provider->profile_photo_url;
+                $req->provider_profile = $this->getProfileData($req->provider, false, $currentUser);
+            }
+
+            if ($req->requester) {
+                $req->requester_profile = $this->getProfileData($req->requester, false, $currentUser);
+            }
+
+            return $req;
+        });
+
+        return response()->json([
+            'status' => true,
+            'data' => $requests,
+            'message' => 'Activity log retrieved successfully'
+        ]);
+    }
 }

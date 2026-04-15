@@ -49,6 +49,11 @@ class ServiceController extends Controller
             $query->where('provider_id', $request->provider_id);
         }
 
+        // Filter by Type
+        if ($request->has('type')) {
+            $query->where('type', $request->type);
+        }
+
         $services = $query->latest()->paginate(10);
 
         // Append average rating to each service
@@ -164,6 +169,7 @@ class ServiceController extends Controller
             'days_available.*' => 'string|in:SUN,MON,TUE,WED,THU,FRI,SAT',
             'location' => 'nullable|string|max:255',
             'address' => 'nullable|string|max:255',
+            'type' => 'nullable|string|in:default,performance_experience',
             'gallery' => 'nullable|array',
             'gallery.*' => 'image|max:10240', // Limit 10MB per image
         ]);
@@ -185,6 +191,7 @@ class ServiceController extends Controller
             'price' => $request->price,
             'currency' => 'OMR', // Standardized to OMR
             'is_active' => true,
+            'type' => $request->type ?? 'default',
         ]);
 
         // Handle Gallery
@@ -231,6 +238,7 @@ class ServiceController extends Controller
             'days_available.*' => 'string|in:SUN,MON,TUE,WED,THU,FRI,SAT',
             'location' => 'nullable|string|max:255',
             'address' => 'nullable|string|max:255',
+            'type' => 'sometimes|string|in:default,performance_experience',
             'gallery' => 'nullable|array',
             'gallery.*' => 'image|max:10240',
         ]);
@@ -254,6 +262,8 @@ class ServiceController extends Controller
             $service->location = $request->location;
         if ($request->has('address'))
             $service->address = $request->address;
+        if ($request->has('type'))
+            $service->type = $request->type;
 
         $service->save();
 

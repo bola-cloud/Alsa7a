@@ -28,7 +28,8 @@ class Service extends Model
         'currency',
         'is_active',
         'is_featured',
-        'meta'
+        'meta',
+        'type'
     ];
 
     protected $casts = [

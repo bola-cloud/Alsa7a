@@ -57,6 +57,7 @@ class User extends Authenticatable
         'is_blocked',
         'verification_status',
         'verification_documents',
+        'show_services_activity',
         'rejection_reason',
         'onesignal_subscription',
     ];
@@ -223,6 +224,7 @@ class User extends Authenticatable
         'is_approved' => 'boolean',
         'is_blocked' => 'boolean',
         'is_admin' => 'boolean',
+        'show_services_activity' => 'boolean',
         'verification_documents' => 'array',
         'onesignal_subscription' => 'array',
     ];

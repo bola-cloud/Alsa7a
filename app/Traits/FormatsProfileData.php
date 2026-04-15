@@ -140,6 +140,7 @@ trait FormatsProfileData
             'verification_status' => $user->verification_status, // Restored
             'is_verified' => $user->verification_status === 'approved', // Restored
             'is_blocked' => (bool) $user->is_blocked, // Added
+            'show_services_activity' => (bool) $user->show_services_activity, // Added
             
             'address' => $user->address, // Added
             'city' => $user->city, // Added

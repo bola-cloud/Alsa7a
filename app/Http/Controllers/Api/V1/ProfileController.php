@@ -97,6 +97,7 @@ class ProfileController extends Controller
             'bio' => 'nullable|string|max:1000',
             'profile_title' => 'nullable|string|max:255',
             'category_id' => 'nullable|exists:categories,id', // Added
+            'show_services_activity' => 'nullable|boolean', // Added
             'image' => 'nullable|image|max:4096', // Profile Photo
             'cover_photo' => 'nullable|image|max:4096', // Cover Photo
             'gallery_images.*' => 'nullable|image|max:4096', // For adding to gallery
@@ -134,6 +135,8 @@ class ProfileController extends Controller
             $user->profile_title = $request->profile_title;
         if ($request->has('category_id'))
             $user->category_id = $request->category_id; // Added
+        if ($request->has('show_services_activity'))
+            $user->show_services_activity = $request->show_services_activity;
 
         // Profile Photo
         if ($request->hasFile('image')) {
@@ -197,6 +200,11 @@ class ProfileController extends Controller
 
         $user->save();
 
+        return response()->json([
+            'status' => true,
+            'message' => 'Profile updated successfully',
+            'data' => $this->getProfileData($user, false, $user)
+        ]);
     }
 
     /**

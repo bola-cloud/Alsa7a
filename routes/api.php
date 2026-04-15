@@ -49,6 +49,7 @@ Route::prefix('v1')->middleware('set.api.locale')->group(function () {
     // Public Services
     Route::get('services', [App\Http\Controllers\Api\V1\ServiceController::class, 'index']);
     Route::get('services/{id}', [App\Http\Controllers\Api\V1\ServiceController::class, 'show']);
+    Route::get('services-activity', [App\Http\Controllers\Api\V1\ServiceRequestController::class, 'activity']);
 
     // Public Profile
     // Public Profile
