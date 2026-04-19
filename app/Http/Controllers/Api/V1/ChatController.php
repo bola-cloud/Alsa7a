@@ -195,6 +195,7 @@ class ChatController extends Controller
 
         $validator = Validator::make($request->all(), [
             'body' => 'required|string',
+            'meta' => 'nullable|array',
         ]);
 
         if ($validator->fails()) {
@@ -203,7 +204,8 @@ class ChatController extends Controller
 
         $message = $conversation->messages()->create([
             'sender_id' => $userId,
-            'body' => $request->body,
+            'body'      => $request->body,
+            'meta'      => $request->meta,
         ]);
 
         $conversation->touch(); // Update updated_at

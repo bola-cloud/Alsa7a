@@ -169,7 +169,7 @@ class ServiceController extends Controller
             'days_available.*' => 'string|in:SUN,MON,TUE,WED,THU,FRI,SAT',
             'location' => 'nullable|string|max:255',
             'address' => 'nullable|string|max:255',
-            'type' => 'nullable|string|in:default,performance_experience',
+            'type' => 'nullable|string|in:default,performance_experience,loan_request',
             'gallery' => 'nullable|array',
             'gallery.*' => 'image|max:10240', // Limit 10MB per image
         ]);
@@ -238,7 +238,7 @@ class ServiceController extends Controller
             'days_available.*' => 'string|in:SUN,MON,TUE,WED,THU,FRI,SAT',
             'location' => 'nullable|string|max:255',
             'address' => 'nullable|string|max:255',
-            'type' => 'sometimes|string|in:default,performance_experience',
+            'type' => 'sometimes|string|in:default,performance_experience,loan_request',
             'gallery' => 'nullable|array',
             'gallery.*' => 'image|max:10240',
         ]);

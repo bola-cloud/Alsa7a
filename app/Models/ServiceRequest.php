@@ -21,14 +21,16 @@ class ServiceRequest extends Model
         'price',
         'payment_status',
         'payment_transaction_id',
-        'payment_meta'
+        'payment_meta',
+        'is_free',
     ];
 
     protected $casts = [
         'payment_meta' => 'array',
         'scheduled_at' => 'datetime',
-        'end_at' => 'datetime',
-        'is_disputed' => 'boolean'
+        'end_at'       => 'datetime',
+        'is_disputed'  => 'boolean',
+        'is_free'      => 'boolean',
     ];
 
     public function service()

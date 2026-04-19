@@ -37,7 +37,8 @@ class ServiceRequestController extends Controller
         // Validate
         $validator = Validator::make($request->all(), [
             'scheduled_at' => 'required|date|after:now',
-            'message' => 'nullable|string|max:500',
+            'message'      => 'nullable|string|max:500',
+            'is_free'      => 'nullable|boolean',
         ]);
 
         if ($validator->fails()) {
@@ -49,34 +50,74 @@ class ServiceRequestController extends Controller
             return response()->json(['status' => false, 'message' => 'You cannot book your own service'], 400);
         }
 
+        // -------------------------------------------------------
+        // Pricing Logic for special service types
+        // -------------------------------------------------------
+        $specialTypes   = ['performance_experience', 'loan_request'];
+        $isSpecialType  = in_array($service->type, $specialTypes);
+        $isFreeFlag     = $request->boolean('is_free', false); // Club-invited free
+
+        $price         = $service->price;
+        $paymentStatus = 'pending';
+
+        if ($isFreeFlag) {
+            // Club invites the player for free — mark as fully paid with 0 price
+            $price         = 0;
+            $paymentStatus = 'paid';
+
+        } elseif ($isSpecialType) {
+            // Count how many COMPLETED or ACTIVE requests this requester already has
+            // for this same service TYPE with the same provider
+            $usedCount = ServiceRequest::where('requester_id', $request->user()->id)
+                ->where('provider_id', $service->provider_id)
+                ->whereHas('service', function ($q) use ($service) {
+                    $q->where('type', $service->type);
+                })
+                ->whereNotIn('status', ['canceled', 'rejected'])
+                ->count();
+
+            if ($usedCount < 2) {
+                // First or second time → free (but recorded as paid)
+                $price         = 0;
+                $paymentStatus = 'paid';
+            } else {
+                // Third time onwards → charge from settings
+                $settingKey    = $service->type === 'performance_experience'
+                    ? 'performance_experience_price'
+                    : 'loan_request_price';
+                $price         = (float) setting($settingKey, $service->price);
+                $paymentStatus = 'pending';
+            }
+        }
+
         // Create Request
         $serviceRequest = ServiceRequest::create([
-            'service_id' => $service->id,
-            'requester_id' => $request->user()->id,
-            'provider_id' => $service->provider_id,
-            'status' => 'pending',
-            'scheduled_at' => $request->scheduled_at,
-            'message' => $request->message,
-            'price' => $service->price, // Snapshot price
-            'payment_status' => 'pending',
+            'service_id'    => $service->id,
+            'requester_id'  => $request->user()->id,
+            'provider_id'   => $service->provider_id,
+            'status'        => 'pending',
+            'scheduled_at'  => $request->scheduled_at,
+            'message'       => $request->message,
+            'price'         => $price,
+            'payment_status' => $paymentStatus,
+            'is_free'       => $isFreeFlag || ($isSpecialType && $paymentStatus === 'paid'),
         ]);
 
-        \Illuminate\Support\Facades\Log::info("Service Request Created: ID {$serviceRequest->id} by User {$request->user()->id}");
+        \Illuminate\Support\Facades\Log::info("Service Request Created: ID {$serviceRequest->id} by User {$request->user()->id} | type={$service->type} | price={$price} | payment_status={$paymentStatus}");
 
         $provider = $service->provider;
 
         // Notify Provider using unified notification system
         try {
             $provider->notify(new ServiceRequestNotification([
-                'title' => 'New Service Request',
-                'body' => "{$request->user()->name} has requested your service: {$service->title}",
-                'type' => 'new_request',
+                'title'      => 'New Service Request',
+                'body'       => "{$request->user()->name} has requested your service: {$service->title}",
+                'type'       => 'new_request',
                 'request_id' => $serviceRequest->id,
                 'service_id' => $service->id,
-                'sender_id' => $request->user()->id,
-                // Pass push notification data for OneSignalChannel
+                'sender_id'  => $request->user()->id,
                 'push_title' => ['en' => 'New Service Request', 'ar' => 'طلب خدمة جديد'],
-                'push_body' => [
+                'push_body'  => [
                     'en' => "{$request->user()->name} has requested your service: {$service->title}",
                     'ar' => "قام {$request->user()->name} بطلب خدمتك: {$service->title}"
                 ]
@@ -91,19 +132,19 @@ class ServiceRequestController extends Controller
         $currentUser = $request->user();
         if ($serviceRequest->provider) {
             $serviceRequest->provider_profile = $this->getProfileData($serviceRequest->provider, false, $currentUser);
-            // Legacy support
-            $serviceRequest->provider->image = $serviceRequest->provider->profile_photo_url;
+            $serviceRequest->provider->image  = $serviceRequest->provider->profile_photo_url;
         }
         if ($serviceRequest->requester) {
             $serviceRequest->requester_profile = $this->getProfileData($serviceRequest->requester, false, $currentUser);
         }
 
         return response()->json([
-            'status' => true,
+            'status'  => true,
             'message' => 'Service requested successfully',
-            'data' => $serviceRequest
+            'data'    => $serviceRequest
         ], 201);
     }
+
 
     /**
      * List my requests.

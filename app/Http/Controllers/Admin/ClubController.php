@@ -64,16 +64,17 @@ class ClubController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'name' => 'required|array',
-            'name.en' => 'required|string',
-            'name.ar' => 'required|string',
-            'description' => 'required|array',
-            'description.en' => 'nullable|string',
-            'description.ar' => 'nullable|string',
-            'city' => 'required|string',
-            'logo' => 'nullable|image',
-            'sports' => 'array',
-            'leagues' => 'array',
+            'name'            => 'required|array',
+            'name.en'         => 'required|string',
+            'name.ar'         => 'required|string',
+            'description'     => 'required|array',
+            'description.en'  => 'nullable|string',
+            'description.ar'  => 'nullable|string',
+            'city'            => 'required|string',
+            'logo'            => 'nullable|image',
+            'sports'          => 'array',
+            'leagues'         => 'array',
+            'user_id'         => 'required|exists:users,id', // Owner is mandatory
         ]);
 
         $data = [
@@ -148,12 +149,13 @@ class ClubController extends Controller
     public function update(Request $request, Club $club)
     {
         $request->validate([
-            'name' => 'required|array',
-            'name.en' => 'required|string',
-            'name.ar' => 'required|string',
-            'description' => 'required|array',
-            'description.en' => 'nullable|string',
-            'description.ar' => 'nullable|string',
+            'name'            => 'required|array',
+            'name.en'         => 'required|string',
+            'name.ar'         => 'required|string',
+            'description'     => 'required|array',
+            'description.en'  => 'nullable|string',
+            'description.ar'  => 'nullable|string',
+            'user_id'         => 'required|exists:users,id', // Owner is mandatory
         ]);
 
         $data = [

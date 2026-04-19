@@ -12,6 +12,11 @@ class Club extends Model
 {
     use HasFactory, Translatable, HasSlug;
 
+    protected static function booted(): void
+    {
+        static::observe(\App\Observers\ClubObserver::class);
+    }
+
     protected $fillable = [
         'name',
         'name_en',
@@ -76,6 +81,11 @@ class Club extends Model
     public function requests()
     {
         return $this->hasMany(ClubRequest::class);
+    }
+
+    public function services()
+    {
+        return $this->hasMany(Service::class);
     }
 
     // Return full URLs for logo and banner
