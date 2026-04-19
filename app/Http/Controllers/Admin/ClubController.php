@@ -80,21 +80,22 @@ class ClubController extends Controller
             'sports'          => 'array',
             'leagues'         => 'array',
             'user_id'         => 'required|exists:users,id', // Owner is mandatory
+            'founded_year'    => 'nullable|integer|between:1901,2155',
         ]);
 
         $data = [
-            'name' => $request->name['en'],
-            'name_en' => $request->name['en'],
-            'name_ar' => $request->name['ar'],
-            'description' => $request->description['en'] ?? null,
+            'name'           => $request->name['en'],
+            'name_en'        => $request->name['en'],
+            'name_ar'        => $request->name['ar'],
+            'description'    => $request->description['en'] ?? null,
             'description_en' => $request->description['en'] ?? null,
             'description_ar' => $request->description['ar'] ?? null,
-            'city' => $request->city,
-            'country' => $request->country ?? 'Jordan',
-            'founded_year' => $request->founded_year,
-            'website' => $request->website,
-            'is_featured' => $request->has('is_featured'),
-            'user_id' => $request->user_id,
+            'city'           => $request->city,
+            'country'        => $request->country ?? 'Jordan',
+            'founded_year'   => $request->filled('founded_year') ? $request->founded_year : null,
+            'website'        => $request->website,
+            'is_featured'    => $request->has('is_featured'),
+            'user_id'        => $request->user_id,
         ];
 
         if ($request->hasFile('logo')) {
@@ -166,20 +167,22 @@ class ClubController extends Controller
             'description.en'  => 'nullable|string',
             'description.ar'  => 'nullable|string',
             'user_id'         => 'required|exists:users,id', // Owner is mandatory
+            'founded_year'    => 'nullable|integer|between:1901,2155',
         ]);
 
         $data = [
-            'name' => $request->name['en'],
-            'name_en' => $request->name['en'],
-            'name_ar' => $request->name['ar'],
-            'description' => $request->description['en'] ?? null,
+            'name'           => $request->name['en'],
+            'name_en'        => $request->name['en'],
+            'name_ar'        => $request->name['ar'],
+            'description'    => $request->description['en'] ?? null,
             'description_en' => $request->description['en'] ?? null,
             'description_ar' => $request->description['ar'] ?? null,
-            'city' => $request->city,
-            'country' => $request->country,
-            'website' => $request->website,
-            'is_featured' => $request->has('is_featured'),
-            'user_id' => $request->user_id,
+            'city'           => $request->city,
+            'country'        => $request->country,
+            'founded_year'   => $request->filled('founded_year') ? $request->founded_year : null,
+            'website'        => $request->website,
+            'is_featured'    => $request->has('is_featured'),
+            'user_id'        => $request->user_id,
         ];
 
         if ($request->hasFile('logo')) {
