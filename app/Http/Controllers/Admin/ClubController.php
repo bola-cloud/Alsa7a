@@ -54,7 +54,12 @@ class ClubController extends Controller
     {
         $sports = Sport::all();
         $leagues = \App\Models\League::all();
-        $owners = User::where('category_id', 3)->get(); // Club category
+        
+        $clubCategory = \App\Models\Category::where('name_en', 'Club')
+            ->orWhere('name_ar', 'نادي')
+            ->first();
+            
+        $owners = User::where('category_id', $clubCategory?->id)->get();
         return view('admin.clubs.create', compact('sports', 'leagues', 'owners'));
     }
 
@@ -139,7 +144,12 @@ class ClubController extends Controller
     {
         $sports = Sport::all();
         $leagues = \App\Models\League::all();
-        $owners = User::where('category_id', 3)->get(); // Club category
+        
+        $clubCategory = \App\Models\Category::where('name_en', 'Club')
+            ->orWhere('name_ar', 'نادي')
+            ->first();
+            
+        $owners = User::where('category_id', $clubCategory?->id)->get();
         return view('admin.clubs.edit', compact('club', 'sports', 'leagues', 'owners'));
     }
 
