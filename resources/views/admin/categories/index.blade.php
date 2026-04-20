@@ -30,15 +30,15 @@
                     @endif
 
                     {{-- Image Area --}}
-                    <div class="card-img-top-wrapper"
+                    <div class="card-img-top-wrapper d-flex align-items-center justify-content-center"
                         style="height: 140px; background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);">
                         @if($category->image)
                             <img src="{{ $category->image }}" alt="{{ $category->name }}"
-                                style="height: 80px; width: 80px; object-fit: contain; border-radius: 50%; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                                style="height: 100px; width: 100px; object-fit: contain; transition: transform 0.3s ease;"
+                                onmouseover="this.style.transform='scale(1.1)'" 
+                                onmouseout="this.style.transform='scale(1)'">
                         @else
-                            <div class="d-flex align-items-center justify-content-center h-100 w-100">
-                                <i class="la la-cube font-large-3 text-muted"></i>
-                            </div>
+                            <i class="la la-cube font-large-3 text-muted"></i>
                         @endif
                     </div>
 
