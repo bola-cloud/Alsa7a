@@ -4,7 +4,7 @@
     <div class="content-header row mb-2">
         <div class="content-header-left col-md-6 col-12 mb-2">
             <h3 class="content-header-title text-bold-700">
-                {{ __('admin.categories.index') }}
+                {{ __('admin.categories.index') }} (V2)
                 @if(isset($parentCategory))
                     <small class="text-muted"> / {{ $parentCategory->name }}</small>
                 @endif
@@ -48,12 +48,10 @@
                         </p>
 
                         <div class="card-actions d-flex flex-nowrap align-items-center justify-content-center w-100" style="gap: 5px; overflow-x: auto; padding-bottom: 5px;">
-                            @if(!$category->isProtected())
-                                <a href="{{ route('admin.categories.edit', $category->id) }}" class="btn btn-sm btn-outline-primary"
-                                    title="{{ __('admin.buttons.edit') }}">
-                                    <i class="la la-edit"></i>
-                                </a>
-                            @endif
+                            <a href="{{ route('admin.categories.edit', $category->id) }}" class="btn btn-sm btn-outline-primary"
+                                title="{{ __('admin.buttons.edit') }}">
+                                <i class="la la-edit"></i>
+                            </a>
 
                             <a href="{{ route('admin.questions.index', ['category_id' => $category->id]) }}"
                                 class="btn btn-sm btn-outline-info" title="{{ __('admin.menu.questions') }}">
