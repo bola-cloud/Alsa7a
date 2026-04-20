@@ -74,6 +74,15 @@ class SearchController extends Controller
         $query->where('is_approved', true)
             ->where('is_admin', '!=', true);
 
+        // Filter out users in "Club" category who don't have an owned club
+        $query->where(function ($q) {
+            $q->whereDoesntHave('category', function ($catQ) {
+                $catQ->whereIn('name_en', ['Club'])
+                     ->orWhereIn('name_ar', ['نادي']);
+            })
+            ->orWhereHas('ownedClub');
+        });
+
         // Eager load relationships needed for the response
         $query->with(['answers.question', 'category', 'ownedClub', 'club', 'subscription']);
 
