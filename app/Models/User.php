@@ -239,7 +239,32 @@ class User extends Authenticatable
         'cover_photo_url', // Added
         'answered_question_ids',
         'questions_complete',
+        'display_name',
     ];
+
+    public function getDisplayNameAttribute()
+    {
+        if ($this->ownedClub) {
+            return $this->ownedClub->name;
+        }
+        return $this->name;
+    }
+
+    public function getDisplayNameEnAttribute()
+    {
+        if ($this->ownedClub) {
+            return $this->ownedClub->name_en ?: $this->name;
+        }
+        return $this->name;
+    }
+
+    public function getDisplayNameArAttribute()
+    {
+        if ($this->ownedClub) {
+            return $this->ownedClub->name_ar ?: $this->name;
+        }
+        return $this->name;
+    }
 
     public function getAnsweredQuestionIdsAttribute()
     {

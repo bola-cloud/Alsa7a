@@ -26,7 +26,7 @@ class FollowNotification extends Notification
     {
         return [
             'title' => 'New Follower',
-            'body' => "{$this->follower->name} started following you.",
+            'body' => "{$this->follower->display_name} started following you.",
             'type' => 'follow',
             'follower_id' => $this->follower->id,
         ];
@@ -37,8 +37,8 @@ class FollowNotification extends Notification
         return [
             'title' => ['en' => 'New Follower', 'ar' => 'متابع جديد'],
             'message' => [
-                'en' => "{$this->follower->name} started following you.",
-                'ar' => "قام {$this->follower->name} بمتابعتك."
+                'en' => "{$this->follower->display_name_en} started following you.",
+                'ar' => "قام {$this->follower->display_name_ar} بمتابعتك."
             ],
             'data' => [
                 'type' => 'follow',

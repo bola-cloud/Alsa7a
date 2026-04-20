@@ -28,7 +28,7 @@ class RatingNotification extends Notification
     {
         return [
             'title' => 'New Rating Received',
-            'body' => "{$this->reviewer->name} rated you {$this->rating->rating} stars.",
+            'body' => "{$this->reviewer->display_name} rated you {$this->rating->rating} stars.",
             'type' => 'rating',
             'rating' => $this->rating->rating,
             'comment' => $this->rating->comment,
@@ -41,8 +41,8 @@ class RatingNotification extends Notification
         return [
             'title' => ['en' => 'New Rating Received', 'ar' => 'تقييم جديد'],
             'message' => [
-                'en' => "{$this->reviewer->name} rated you {$this->rating->rating} stars.",
-                'ar' => "قام {$this->reviewer->name} بتقييمك بـ {$this->rating->rating} نجوم."
+                'en' => "{$this->reviewer->display_name_en} rated you {$this->rating->rating} stars.",
+                'ar' => "قام {$this->reviewer->display_name_ar} بتقييمك بـ {$this->rating->rating} نجوم."
             ],
             'data' => [
                 'type' => 'rating',

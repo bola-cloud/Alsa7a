@@ -28,7 +28,7 @@ class MessageNotification extends Notification
     {
         return [
             'title' => 'New Message',
-            'body' => "{$this->sender->name}: {$this->message->body}",
+            'body' => "{$this->sender->display_name}: {$this->message->body}",
             'type' => 'message',
             'conversation_id' => $this->message->conversation_id,
             'message_id' => $this->message->id,
@@ -41,8 +41,8 @@ class MessageNotification extends Notification
         return [
             'title' => ['en' => 'New Message', 'ar' => 'رسالة جديدة'],
             'message' => [
-                'en' => "{$this->sender->name}: {$this->message->body}",
-                'ar' => "{$this->sender->name}: {$this->message->body}"
+                'en' => "{$this->sender->display_name_en}: {$this->message->body}",
+                'ar' => "{$this->sender->display_name_ar}: {$this->message->body}"
             ],
             'data' => [
                 'type' => 'message',
