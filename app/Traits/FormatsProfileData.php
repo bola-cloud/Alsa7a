@@ -138,7 +138,7 @@ trait FormatsProfileData
                 'following' => $user->following_count ?? 0,
             ],
             'is_following' => (bool) $isFollowing,
-            'is_club_account' => $user->is_club_account ?? ($user->club ? ($user->club->user_id === $user->id) : false),
+            'is_club_account' => $user->is_club_account ?? ($associatedClub ? ($associatedClub->user_id === $user->id) : false),
             'verification_status' => $user->verification_status, // Restored
             'is_verified' => $user->verification_status === 'approved', // Restored
             'is_blocked' => (bool) $user->is_blocked, // Added
