@@ -79,7 +79,7 @@ class ClubController extends Controller
             'logo'            => 'nullable|image',
             'sports'          => 'array',
             'leagues'         => 'array',
-            'user_id'         => 'required|exists:users,id', // Owner is mandatory
+            'user_id'         => 'nullable|exists:users,id', // Owner is now optional
             'founded_year'    => 'nullable|integer|between:1901,2155',
         ]);
 
@@ -166,7 +166,7 @@ class ClubController extends Controller
             'description'     => 'required|array',
             'description.en'  => 'nullable|string',
             'description.ar'  => 'nullable|string',
-            'user_id'         => 'required|exists:users,id', // Owner is mandatory
+            'user_id'         => 'nullable|exists:users,id', // Owner is now optional
             'founded_year'    => 'nullable|integer|between:1901,2155',
         ]);
 

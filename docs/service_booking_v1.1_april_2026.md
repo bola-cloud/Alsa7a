@@ -181,7 +181,7 @@ GET /services?type=default
 
 ## 🏟️ Club Default Services (Background Info)
 
-When a new club is created in the admin panel, the system **automatically** creates two services linked to that club:
+When a club is assigned an owner (user_id), the system **automatically** creates two services linked to that club:
 
 | Service | Type | Default Price |
 |---------|------|---------------|

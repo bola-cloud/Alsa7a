@@ -10,15 +10,32 @@ class ClubObserver
 {
     /**
      * When a new club is created, automatically attach the two special services
-     * (performance_experience & loan_request) owned by the club's owner.
+     * if the owner is already assigned.
      */
     public function created(Club $club): void
     {
-        // Only proceed if the club has an owner
-        if (!$club->user_id) {
-            return;
+        if ($club->user_id) {
+            $this->createDefaultServices($club);
         }
+    }
 
+    /**
+     * When a club is updated, check if the owner (user_id) was just assigned.
+     * If so, create the default services.
+     */
+    public function updated(Club $club): void
+    {
+        // If user_id was changed and is now set (not null)
+        if ($club->wasChanged('user_id') && $club->user_id) {
+            $this->createDefaultServices($club);
+        }
+    }
+
+    /**
+     * Helper to create the two mandatory services for a club.
+     */
+    private function createDefaultServices(Club $club): void
+    {
         // Get default prices from settings (fallback to 1 OMR)
         $performancePrice = (float) (setting('performance_experience_price', 1));
         $loanPrice        = (float) (setting('loan_request_price', 1));
