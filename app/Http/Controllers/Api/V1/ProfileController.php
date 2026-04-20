@@ -28,6 +28,7 @@ class ProfileController extends Controller
         $user->loadCount(['followers', 'following', 'posts']);
         $user->load([
             'club',
+            'ownedClub',
             'category',
             'answers.question', // Load answers with their questions
             'subscription'
@@ -44,6 +45,7 @@ class ProfileController extends Controller
         $user = User::withCount(['followers', 'following', 'posts'])
             ->with([
                 'club',
+                'ownedClub',
                 'category',
                 'answers.question', // Added answers
                 'subscription'

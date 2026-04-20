@@ -16,6 +16,8 @@ trait FormatsProfileData
         // Check if viewing own profile
         $isMe = $currentUser && $currentUser->id === $user->id;
 
+        $associatedClub = $user->ownedClub ?: $user->club;
+
         $data = [
             'id' => $user->id,
             'name' => $user->name,
@@ -44,14 +46,14 @@ trait FormatsProfileData
                     'image' => data_get($user->category, 'parentCategory.image') ? url('storage/' . data_get($user->category, 'parentCategory.image')) : null,
                 ] : null,
             ] : null,
-
+ 
             // Professional Details
             'professional' => [
-                'club' => data_get($user, 'club') ? [
-                    'id' => data_get($user, 'club.id'),
-                    'name' => data_get($user, 'club.name'),
-                    'logo' => data_get($user, 'club.logo_url'),
-                    'user_id' => data_get($user, 'club.user_id'),
+                'club' => $associatedClub ? [
+                    'id' => $associatedClub->id,
+                    'name' => $associatedClub->name,
+                    'logo' => $associatedClub->logo_url,
+                    'user_id' => $associatedClub->user_id,
                 ] : null,
                 'team_id' => $user->team_id,
                 'position' => $user->position,
