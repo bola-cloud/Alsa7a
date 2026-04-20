@@ -25,8 +25,11 @@ class FollowNotification extends Notification
     public function toArray($notifiable): array
     {
         return [
-            'title' => 'New Follower',
-            'body' => "{$this->follower->display_name} started following you.",
+            'title' => ['en' => 'New Follower', 'ar' => 'متابع جديد'],
+            'body' => [
+                'en' => "{$this->follower->display_name_en} started following you.",
+                'ar' => "قام {$this->follower->display_name_ar} بمتابعتك."
+            ],
             'type' => 'follow',
             'follower_id' => $this->follower->id,
         ];

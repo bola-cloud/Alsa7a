@@ -110,8 +110,11 @@ class ServiceRequestController extends Controller
         // Notify Provider using unified notification system
         try {
             $provider->notify(new ServiceRequestNotification([
-                'title'      => 'New Service Request',
-                'body'       => "{$request->user()->name} has requested your service: {$service->title}",
+                'title'      => ['en' => 'New Service Request', 'ar' => 'طلب خدمة جديد'],
+                'body'       => [
+                    'en' => "{$request->user()->name} has requested your service: {$service->title}",
+                    'ar' => "قام {$request->user()->name} بطلب خدمتك: {$service->title}"
+                ],
                 'type'       => 'new_request',
                 'request_id' => $serviceRequest->id,
                 'service_id' => $service->id,
@@ -213,8 +216,11 @@ class ServiceRequestController extends Controller
         // Notify Provider using unified notification system
         try {
             $provider->notify(new ServiceRequestNotification([
-                'title' => 'Request Canceled',
-                'body' => "{$request->user()->name} canceled their request.",
+                'title' => ['en' => 'Request Canceled', 'ar' => 'تم إلغاء الطلب'],
+                'body' => [
+                    'en' => "{$request->user()->name} canceled their request.",
+                    'ar' => "قام {$request->user()->name} بإلغاء طلبه."
+                ],
                 'type' => 'status_update',
                 'request_id' => $serviceRequest->id,
                 'service_id' => $serviceRequest->service_id,

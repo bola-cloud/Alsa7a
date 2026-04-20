@@ -27,8 +27,11 @@ class RatingNotification extends Notification
     public function toArray($notifiable): array
     {
         return [
-            'title' => 'New Rating Received',
-            'body' => "{$this->reviewer->display_name} rated you {$this->rating->rating} stars.",
+            'title' => ['en' => 'New Rating Received', 'ar' => 'تقييم جديد'],
+            'body' => [
+                'en' => "{$this->reviewer->display_name_en} rated you {$this->rating->rating} stars.",
+                'ar' => "قام {$this->reviewer->display_name_ar} بتقييمك بـ {$this->rating->rating} نجوم."
+            ],
             'type' => 'rating',
             'rating' => $this->rating->rating,
             'comment' => $this->rating->comment,

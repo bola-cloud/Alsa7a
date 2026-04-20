@@ -14,6 +14,24 @@ class NotificationController extends Controller
     public function index(Request $request)
     {
         $notifications = $request->user()->notifications()->paginate(20);
+        $locale = app()->getLocale() ?? 'en';
+
+        $notifications->getCollection()->transform(function ($n) use ($locale) {
+            $data = $n->data;
+            
+            // Handle translated titles
+            if (isset($data['title']) && is_array($data['title'])) {
+                $data['title'] = $data['title'][$locale] ?? $data['title']['en'] ?? '';
+            }
+            
+            // Handle translated bodies
+            if (isset($data['body']) && is_array($data['body'])) {
+                $data['body'] = $data['body'][$locale] ?? $data['body']['en'] ?? '';
+            }
+            
+            $n->data = $data;
+            return $n;
+        });
 
         return response()->json([
             'status' => true,

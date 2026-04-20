@@ -27,8 +27,11 @@ class MessageNotification extends Notification
     public function toArray($notifiable): array
     {
         return [
-            'title' => 'New Message',
-            'body' => "{$this->sender->display_name}: {$this->message->body}",
+            'title' => ['en' => 'New Message', 'ar' => 'رسالة جديدة'],
+            'body' => [
+                'en' => "{$this->sender->display_name_en}: {$this->message->body}",
+                'ar' => "{$this->sender->display_name_ar}: {$this->message->body}"
+            ],
             'type' => 'message',
             'conversation_id' => $this->message->conversation_id,
             'message_id' => $this->message->id,
