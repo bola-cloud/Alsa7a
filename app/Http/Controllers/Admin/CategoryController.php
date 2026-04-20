@@ -30,8 +30,6 @@ class CategoryController extends Controller
             $parentCategory = ParentCategory::find($request->parent_category_id);
         }
 
-        // Show all categories if no filter is applied, or keep the filtered list
-        $categories = $query->paginate(20);
         return view('admin.categories.index', compact('categories', 'parentCategory'));
     }
 
@@ -93,12 +91,18 @@ class CategoryController extends Controller
 
     public function edit(Category $category)
     {
+        if ($category->isProtected()) {
+            return redirect()->back()->with('swal_error', 'System categories cannot be edited.');
+        }
         $parentCategories = ParentCategory::all();
         return view('admin.categories.edit', compact('category', 'parentCategories'));
     }
 
     public function update(Request $request, Category $category)
     {
+        if ($category->isProtected()) {
+            return redirect()->back()->with('swal_error', 'System categories cannot be updated.');
+        }
         $data = $request->validate([
             'image' => 'nullable|image',
             'name' => 'required|array',
