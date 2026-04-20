@@ -30,6 +30,7 @@ class CategoryController extends Controller
             $parentCategory = ParentCategory::find($request->parent_category_id);
         }
 
+        $categories = $query->paginate(20);
         return view('admin.categories.index', compact('categories', 'parentCategory'));
     }
 
