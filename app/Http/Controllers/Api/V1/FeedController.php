@@ -22,7 +22,7 @@ class FeedController extends Controller
      */
     public function index(Request $request)
     {
-        $user = $request->user();
+        $user = $request->user('sanctum');
         $perPage = $request->input('per_page', 10);
 
         $feed = $this->feedService->getFeed($user, (int) $perPage);

@@ -348,9 +348,9 @@ The `is_liked` field in feed/post responses has been optimized to be highly accu
 ### `GET /notifications`
 
 **Locale Support:**
-The API now respects the `Accept-Language` header (or the locale prefix in the URL).
-- If the app is in Arabic, it returns the Arabic title/body.
-- If in English, it returns the English version.
+The API now respects the `X-Lang` header (as agreed for the entire project).
+- If `X-Lang: ar` is sent, it returns the Arabic title/body.
+- If `X-Lang: en` is sent, it returns the English version.
 
 **Sender Display Name:**
 When a notification is related to a **Club** (e.g., a service request from a club), the sender name will now show the **Club Name** instead of the individual owner's name.

@@ -112,8 +112,8 @@ class FeedService
                 }
 
                 // Add follow status
-                $userObj->is_following = in_array($userObj->id, $followingIds);
-                $userObj->is_follower = in_array($userObj->id, $followerIds);
+                $userObj->setAttribute('is_following', in_array($userObj->id, $followingIds));
+                $userObj->setAttribute('is_follower', in_array($userObj->id, $followerIds));
             }
         });
 
@@ -127,7 +127,7 @@ class FeedService
 
         // Add is_liked status
         $paginated->getCollection()->transform(function ($post) use ($user, $likedPostIds) {
-            $post->is_liked = in_array($post->id, $likedPostIds);
+            $post->setAttribute('is_liked', in_array($post->id, $likedPostIds));
             return $post;
         });
 

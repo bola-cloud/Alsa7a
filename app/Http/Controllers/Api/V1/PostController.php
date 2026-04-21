@@ -39,10 +39,10 @@ class PostController extends Controller
             $followerIds = $user->followers()->whereIn('follower_id', $authorIds)->pluck('follower_id')->toArray();
 
             $posts->getCollection()->each(function ($post) use ($likedPostIds, $followingIds, $followerIds) {
-                $post->is_liked = in_array($post->id, $likedPostIds);
+                $post->setAttribute('is_liked', in_array($post->id, $likedPostIds));
                 if ($post->user) {
-                    $post->user->is_following = in_array($post->user->id, $followingIds);
-                    $post->user->is_follower = in_array($post->user->id, $followerIds);
+                    $post->user->setAttribute('is_following', in_array($post->user->id, $followingIds));
+                    $post->user->setAttribute('is_follower', in_array($post->user->id, $followerIds));
                 }
             });
         }
@@ -80,10 +80,10 @@ class PostController extends Controller
             $isFollower = $user->followers()->where('follower_id', $id)->exists();
 
             $posts->getCollection()->each(function ($post) use ($likedPostIds, $isFollowing, $isFollower) {
-                $post->is_liked = in_array($post->id, $likedPostIds);
+                $post->setAttribute('is_liked', in_array($post->id, $likedPostIds));
                 if ($post->user) {
-                    $post->user->is_following = $isFollowing;
-                    $post->user->is_follower = $isFollower;
+                    $post->user->setAttribute('is_following', $isFollowing);
+                    $post->user->setAttribute('is_follower', $isFollower);
                 }
             });
         }
