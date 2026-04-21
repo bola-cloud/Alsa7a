@@ -324,6 +324,35 @@ The `questions_data` array now includes:
 - `sort_order`: `integer`
 - The entire array is sorted according to this order.
 
+### 3. Optimized Like Status
+The `is_liked` field in feed/post responses has been optimized to be highly accurate and performant (removed N+1 query issues).
+
+---
+
+## 🔔 Notifications API
+
+### `GET /notifications`
+
+**Locale Support:**
+The API now respects the `Accept-Language` header (or the locale prefix in the URL).
+- If the app is in Arabic, it returns the Arabic title/body.
+- If in English, it returns the English version.
+
+**Sender Display Name:**
+When a notification is related to a **Club** (e.g., a service request from a club), the sender name will now show the **Club Name** instead of the individual owner's name.
+
+---
+
+## 🔍 Search & Profile Fixes
+
+### 1. Search Filtering
+- **Club Category Users:** Users who have the category "Club" (نادي) but do **not** yet have an associated club profile (owned club) are now **automatically hidden** from search results. They will only appear once their club profile is created/linked.
+
+### 2. Profile Data (`GET /users/{id}/profile`)
+- **`is_club_account`**: Now correctly returns `true` for users who are club owners.
+- **`professional.club`**: Now correctly populated for club owners (it previously might have been null if they weren't "members" of their own club).
+- **`gallery`**: Now includes `video_thumbnail` for video posts.
+
 ---
 
 *For questions, contact the backend team.*
