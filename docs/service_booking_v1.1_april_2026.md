@@ -266,5 +266,65 @@ Now accepts an optional `meta` field for storing additional message details. Thi
 
 ---
 
+## 📈 Public Services Activity
+
+### `GET /services-activity`
+
+Returns a chronological feed of recent service bookings across the platform. This is intended for the public "Activity" or "Home" screen.
+
+**Auth Required:** ❌ No (Optional for follow status)
+
+**Sample Response:**
+```json
+{
+  "status": true,
+  "data": {
+    "current_page": 1,
+    "data": [
+      {
+        "id": 105,
+        "service_id": 12,
+        "requester_id": 45,
+        "provider_id": 3,
+        "status": "pending",
+        "price": "1.00",
+        "is_free": false,
+        "created_at": "2026-04-21T10:00:00Z",
+        "service": {
+          "id": 12,
+          "name": "Personal Training",
+          "featured_image": "..."
+        },
+        "provider_profile": { "id": 3, "name": "Coach Ahmed", "image": "..." },
+        "requester_profile": { "id": 45, "name": "User Name", "image": "..." }
+      }
+    ]
+  }
+}
+```
+
+---
+
+## 📱 Feed & Profile Enhancements
+
+### 1. Follow Status in Feed
+In `GET /posts` (Community Feed), each user object now includes:
+- `is_following`: `boolean` — Is the current user following this post's author?
+- `is_follower`: `boolean` — Is this author following the current user?
+
+### 2. Question Sorting System
+Questions are now ordered by a custom `sort_order` defined in the admin panel.
+
+#### `GET /questions` & `GET /search` (filterable_questions)
+- Returned questions are now sorted by `sort_order` (ascending).
+- Questions with `sort_order = 0` (unordered) appear at the end.
+
+#### `GET /users/{id}/profile`
+The `questions_data` array now includes:
+- `sort_order`: `integer`
+- The entire array is sorted according to this order.
+
+---
+
 *For questions, contact the backend team.*
 
