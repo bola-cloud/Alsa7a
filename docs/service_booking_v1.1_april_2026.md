@@ -305,6 +305,20 @@ Returns a chronological feed of recent service bookings across the platform. Thi
 
 ---
 
+## 🔒 Privacy & Activity Settings
+
+### `POST /profile/update` (or `/user/profile` update endpoint)
+
+**Auth Required:** ✅ Yes
+
+A new field has been added to control user visibility in the public activity log:
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `show_services_activity` | `boolean` | ❌ | Set to `false` to hide your service bookings from the public activity log (`/services-activity`). Default: `true`. |
+
+---
+
 ## 📱 Feed & Profile Enhancements
 
 ### 1. Follow Status in Feed
