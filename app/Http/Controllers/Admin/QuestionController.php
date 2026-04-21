@@ -14,7 +14,10 @@ class QuestionController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Question::with('category')->orderBy('sort_order', 'asc')->orderBy('id', 'desc');
+        $query = Question::with('category')
+            ->orderByRaw('CASE WHEN sort_order = 0 THEN 1 ELSE 0 END ASC')
+            ->orderBy('sort_order', 'asc')
+            ->orderBy('id', 'desc');
 
         if ($request->filled('category_id')) {
             $query->where('category_id', $request->category_id);

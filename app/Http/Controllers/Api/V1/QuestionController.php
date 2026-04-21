@@ -23,6 +23,7 @@ class QuestionController extends Controller
         }
 
         $questions = Question::where('category_id', $categoryId)
+            ->orderByRaw('CASE WHEN sort_order = 0 THEN 1 ELSE 0 END ASC')
             ->orderBy('sort_order', 'asc')
             ->orderBy('id', 'asc')
             ->get();

@@ -111,7 +111,9 @@
                                             </td>
                                             <td class="sort-order-value">{{ $question->sort_order }}</td>
                                             <td>
-                                                <i class="la la-arrows-v drag-handle" style="cursor: move; font-size: 20px;"></i>
+                                                @if(request()->filled('category_id') && request()->category_id != 'all')
+                                                    <i class="la la-arrows-v drag-handle" style="cursor: move; font-size: 20px;"></i>
+                                                @endif
                                             </td>
                                             <td>
                                                 <a href="{{ route('admin.questions.answers', $question->id) }}"
@@ -169,7 +171,9 @@
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const el = document.getElementById('sortable-questions');
-            if (el) {
+            const isFiltered = "{{ request()->filled('category_id') && request()->category_id != 'all' }}";
+            
+            if (el && isFiltered) {
                 Sortable.create(el, {
                     handle: '.drag-handle',
                     animation: 150,

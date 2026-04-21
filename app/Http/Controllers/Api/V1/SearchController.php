@@ -109,6 +109,7 @@ class SearchController extends Controller
         if ($request->has('category_id') && $request->category_id != null) {
             $filterableQuestions = Question::where('category_id', $request->category_id)
                 ->where('type', '!=', 'text') // Exclude text questions as requested
+                ->orderByRaw('CASE WHEN sort_order = 0 THEN 1 ELSE 0 END ASC')
                 ->orderBy('sort_order', 'asc')
                 ->orderBy('id', 'asc')
                 ->get()

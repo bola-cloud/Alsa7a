@@ -114,7 +114,9 @@ trait FormatsProfileData
                 if (!$item)
                     return false;
                 return $isMe || $item['is_visible'];
-            })->sortBy('sort_order')->values() : [],
+            })->sortBy(function($item) {
+                return $item['sort_order'] == 0 ? 999999 : $item['sort_order'];
+            })->values() : [],
 
             'answered_question_ids' => $user->answered_question_ids ?? [], // Restored
             'questions_complete' => (bool)($user->questions_complete ?? false), // Restored
