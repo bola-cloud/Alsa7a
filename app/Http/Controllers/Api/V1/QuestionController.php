@@ -22,7 +22,10 @@ class QuestionController extends Controller
             return response()->json(['message' => 'category_id is required'], 400);
         }
 
-        $questions = Question::where('category_id', $categoryId)->get();
+        $questions = Question::where('category_id', $categoryId)
+            ->orderBy('sort_order', 'asc')
+            ->orderBy('id', 'asc')
+            ->get();
 
         $data = $questions->map(function ($q) {
             // Handle question translation

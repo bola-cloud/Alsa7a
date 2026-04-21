@@ -103,6 +103,7 @@ trait FormatsProfileData
                     'question_en' => $questionEn,
                     'question_ar' => $questionAr,
                     'type' => $q->type ?? null,
+                    'sort_order' => $q->sort_order ?? 0,
                     'choices' => $choices,
                     'choices_en' => $choicesEn,
                     'choices_ar' => $choicesAr,
@@ -113,7 +114,7 @@ trait FormatsProfileData
                 if (!$item)
                     return false;
                 return $isMe || $item['is_visible'];
-            })->values() : [],
+            })->sortBy('sort_order')->values() : [],
 
             'answered_question_ids' => $user->answered_question_ids ?? [], // Restored
             'questions_complete' => (bool)($user->questions_complete ?? false), // Restored

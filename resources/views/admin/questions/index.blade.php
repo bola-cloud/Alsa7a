@@ -86,10 +86,11 @@
                                 <thead>
                                     <tr>
                                         <th>ID</th>
-                                        <th>Question</th>
-                                        <th>Type</th>
-                                        <th>Category</th>
-                                        <th>Actions</th>
+                                        <th>{{ __('admin.questions.question') }}</th>
+                                        <th>{{ __('admin.questions.type') }}</th>
+                                        <th>{{ __('admin.questions.category') }}</th>
+                                        <th>{{ __('admin.questions.sort_order') }}</th>
+                                        <th>{{ __('admin.buttons.actions') }}</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -107,6 +108,7 @@
                                                     -
                                                 @endif
                                             </td>
+                                            <td>{{ $question->sort_order }}</td>
                                             <td>
                                                 <a href="{{ route('admin.questions.answers', $question->id) }}"
                                                     class="btn btn-sm btn-info" title="View Answers"><i

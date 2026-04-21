@@ -212,6 +212,7 @@ return [
         ],
         'choice_en' => 'English Option',
         'choice_ar' => 'Arabic Option',
+        'sort_order' => 'Sort Order',
     ],
     'service_requests' => [
         'title' => 'Service Requests',

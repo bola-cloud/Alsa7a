@@ -212,6 +212,7 @@ return [
         ],
         'choice_en' => 'الخيار (English)',
         'choice_ar' => 'الخيار (العربية)',
+        'sort_order' => 'الترتيب',
     ],
     'service_requests' => [
         'title' => 'طلبات الخدمات',

@@ -109,6 +109,8 @@ class SearchController extends Controller
         if ($request->has('category_id') && $request->category_id != null) {
             $filterableQuestions = Question::where('category_id', $request->category_id)
                 ->where('type', '!=', 'text') // Exclude text questions as requested
+                ->orderBy('sort_order', 'asc')
+                ->orderBy('id', 'asc')
                 ->get()
                 ->map(function ($q) {
                     $qData = $q->question;

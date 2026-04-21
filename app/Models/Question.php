@@ -14,12 +14,14 @@ class Question extends Model
         'meta',
         'type', //text, multiple_choice, boolean, number only
         'choices',
+        'sort_order',
     ];
 
     protected $casts = [
         'meta' => 'array',
         'choices' => 'array',
         'question' => 'array',
+        'sort_order' => 'integer',
     ];
 
     public function category()

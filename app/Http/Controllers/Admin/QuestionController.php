@@ -14,7 +14,7 @@ class QuestionController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Question::with('category')->latest();
+        $query = Question::with('category')->orderBy('sort_order', 'asc')->orderBy('id', 'desc');
 
         if ($request->filled('category_id')) {
             $query->where('category_id', $request->category_id);
@@ -54,10 +54,11 @@ class QuestionController extends Controller
             'type' => 'required|in:text,number,boolean,rating,multiple_choice,multi_select',
             'category_id' => 'required|exists:categories,id',
             'choices' => 'nullable|string',
+            'sort_order' => 'nullable|integer',
         ]);
 
         // try-catch removed to allow debugging
-        $data = $request->only(['type', 'category_id']);
+        $data = $request->only(['type', 'category_id', 'sort_order']);
         $data['question'] = [
             'en' => $request->question_en,
             'ar' => $request->question_ar
@@ -145,6 +146,7 @@ class QuestionController extends Controller
         $question->type = $data['type'];
         $question->category_id = $data['category_id'];
         $question->choices = $data['choices'] ?? null;
+        $question->sort_order = $request->input('sort_order', 0);
         $question->save();
 
         return redirect()->route('admin.questions.index')->with('swal_success', __('admin.messages.updated_successfully'));
