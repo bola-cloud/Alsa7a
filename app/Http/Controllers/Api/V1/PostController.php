@@ -25,13 +25,26 @@ class PostController extends Controller
 
         $posts = $query->paginate(10);
 
-        // Check is_liked status
+        // Check statuses
         if ($user = $request->user('sanctum')) {
-            $updatedItems = $posts->getCollection()->map(function ($post) use ($user) {
-                $post->is_liked = $post->likes()->where('user_id', $user->id)->exists();
-                return $post;
+            $postIds = $posts->getCollection()->pluck('id')->toArray();
+            $authorIds = $posts->getCollection()->pluck('user_id')->unique()->toArray();
+            
+            $likedPostIds = \App\Models\Like::where('user_id', $user->id)
+                ->where('likeable_type', Post::class)
+                ->whereIn('likeable_id', $postIds)
+                ->pluck('likeable_id')->toArray();
+                
+            $followingIds = $user->following()->whereIn('following_id', $authorIds)->pluck('following_id')->toArray();
+            $followerIds = $user->followers()->whereIn('follower_id', $authorIds)->pluck('follower_id')->toArray();
+
+            $posts->getCollection()->each(function ($post) use ($likedPostIds, $followingIds, $followerIds) {
+                $post->is_liked = in_array($post->id, $likedPostIds);
+                if ($post->user) {
+                    $post->user->is_following = in_array($post->user->id, $followingIds);
+                    $post->user->is_follower = in_array($post->user->id, $followerIds);
+                }
             });
-            $posts->setCollection($updatedItems);
         }
 
         return response()->json([
@@ -51,15 +64,28 @@ class PostController extends Controller
             ->where('is_hidden', false)
             ->latest();
 
-        $posts = $query->paginate(9); // Pagination as requested
+        $posts = $query->paginate(9);
 
-        // Check is_liked status
+        // Check statuses
         if ($user = $request->user('sanctum')) {
-            $updatedItems = $posts->getCollection()->map(function ($post) use ($user) {
-                $post->is_liked = $post->likes()->where('user_id', $user->id)->exists();
-                return $post;
+            $postIds = $posts->getCollection()->pluck('id')->toArray();
+            $authorIds = [$id]; // Only one author for this API
+            
+            $likedPostIds = \App\Models\Like::where('user_id', $user->id)
+                ->where('likeable_type', Post::class)
+                ->whereIn('likeable_id', $postIds)
+                ->pluck('likeable_id')->toArray();
+                
+            $isFollowing = $user->following()->where('following_id', $id)->exists();
+            $isFollower = $user->followers()->where('follower_id', $id)->exists();
+
+            $posts->getCollection()->each(function ($post) use ($likedPostIds, $isFollowing, $isFollower) {
+                $post->is_liked = in_array($post->id, $likedPostIds);
+                if ($post->user) {
+                    $post->user->is_following = $isFollowing;
+                    $post->user->is_follower = $isFollower;
+                }
             });
-            $posts->setCollection($updatedItems);
         }
 
         return response()->json([
@@ -206,6 +232,10 @@ class PostController extends Controller
 
         if ($user = $request->user('sanctum')) {
             $post->is_liked = $post->likes()->where('user_id', $user->id)->exists();
+            if ($post->user) {
+                $post->user->is_following = $user->following()->where('following_id', $post->user_id)->exists();
+                $post->user->is_follower = $user->followers()->where('follower_id', $post->user_id)->exists();
+            }
         }
 
         return response()->json([

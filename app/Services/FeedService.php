@@ -89,7 +89,11 @@ class FeedService
             if ($post->user) $usersToProcess->put($post->user->id, $post->user);
         }
 
-        $usersToProcess->each(function ($userObj) use ($user) {
+        // Pre-fetch following/follower data for the current page users
+        $followingIds = $user ? $user->following()->whereIn('following_id', $usersToProcess->keys())->pluck('following_id')->toArray() : [];
+        $followerIds = $user ? $user->followers()->whereIn('follower_id', $usersToProcess->keys())->pluck('follower_id')->toArray() : [];
+        
+        $usersToProcess->each(function ($userObj) use ($user, $followingIds, $followerIds) {
             if (is_object($userObj)) {
                 // Ensure legacy fields match requested format
                 $userObj->image = $userObj->profile_photo_url;
@@ -106,12 +110,24 @@ class FeedService
                         $userObj->{$key} = $value;
                     }
                 }
+
+                // Add follow status
+                $userObj->is_following = in_array($userObj->id, $followingIds);
+                $userObj->is_follower = in_array($userObj->id, $followerIds);
             }
         });
 
+        // Pre-fetch liked posts IDs for this collection to avoid N+1 and potential false negatives
+        $postIdsInPage = $paginated->getCollection()->pluck('id')->toArray();
+        $likedPostIds = $user ? \App\Models\Like::where('user_id', $user->id)
+            ->where('likeable_type', Post::class)
+            ->whereIn('likeable_id', $postIdsInPage)
+            ->pluck('likeable_id')
+            ->toArray() : [];
+
         // Add is_liked status
-        $paginated->getCollection()->transform(function ($post) use ($user) {
-            $post->is_liked = $user ? $post->likes()->where('user_id', $user->id)->exists() : false;
+        $paginated->getCollection()->transform(function ($post) use ($user, $likedPostIds) {
+            $post->is_liked = in_array($post->id, $likedPostIds);
             return $post;
         });
 
