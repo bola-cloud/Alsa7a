@@ -90,12 +90,13 @@
                                         <th>{{ __('admin.questions.type') }}</th>
                                         <th>{{ __('admin.questions.category') }}</th>
                                         <th>{{ __('admin.questions.sort_order') }}</th>
+                                        <th style="width: 50px;"></th>
                                         <th>{{ __('admin.buttons.actions') }}</th>
                                     </tr>
                                 </thead>
-                                <tbody>
+                                <tbody id="sortable-questions">
                                     @forelse($questions as $question)
-                                        <tr>
+                                        <tr data-id="{{ $question->id }}">
                                             <td>{{ $question->id }}</td>
                                             <td>{{ $question->getTranslation('question', app()->getLocale()) }}</td>
                                             <td><span
@@ -108,7 +109,10 @@
                                                     -
                                                 @endif
                                             </td>
-                                            <td>{{ $question->sort_order }}</td>
+                                            <td class="sort-order-value">{{ $question->sort_order }}</td>
+                                            <td>
+                                                <i class="la la-arrows-v drag-handle" style="cursor: move; font-size: 20px;"></i>
+                                            </td>
                                             <td>
                                                 <a href="{{ route('admin.questions.answers', $question->id) }}"
                                                     class="btn btn-sm btn-info" title="View Answers"><i
@@ -143,4 +147,67 @@
             </div>
         </div>
     </div>
+    @push('css')
+        <style>
+            .drag-handle {
+                color: #ccc;
+                transition: color 0.2s;
+            }
+            .drag-handle:hover {
+                color: #333;
+            }
+            .sortable-ghost {
+                opacity: 0.4;
+                background-color: #f4f5fa !important;
+            }
+        </style>
+    @endpush
 @endsection
+
+@push('js')
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const el = document.getElementById('sortable-questions');
+            if (el) {
+                Sortable.create(el, {
+                    handle: '.drag-handle',
+                    animation: 150,
+                    onEnd: function() {
+                        let order = [];
+                        document.querySelectorAll('#sortable-questions tr').forEach((tr, index) => {
+                            order.push({
+                                id: tr.getAttribute('data-id'),
+                                sort_order: index + 1
+                            });
+                        });
+
+                        // Send AJAX to update order
+                        fetch("{{ route('admin.questions.reorder') }}", {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                            },
+                            body: JSON.stringify({ order: order })
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.status) {
+                                // Update visual order numbers if needed
+                                document.querySelectorAll('#sortable-questions tr').forEach((tr, index) => {
+                                    tr.querySelector('.sort-order-value').innerText = index + 1;
+                                });
+                                toastr.success('{{ __("admin.messages.updated_successfully") }}');
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            toastr.error('Something went wrong');
+                        });
+                    }
+                });
+            }
+        });
+    </script>
+@endpush

@@ -78,11 +78,6 @@
                                     @error('type') <span class="text-danger">{{ $message }}</span> @enderror
                                 </div>
 
-                                <div class="form-group">
-                                    <label>{{ __('admin.questions.sort_order') }}</label>
-                                    <input type="number" class="form-control" name="sort_order" value="{{ old('sort_order', $question->sort_order) }}">
-                                    @error('sort_order') <span class="text-danger">{{ $message }}</span> @enderror
-                                </div>
 
                                 <div class="form-group" id="choicesGroup" style="display: none;">
                                     <label>{{ __('admin.questions.choices') }}</label>

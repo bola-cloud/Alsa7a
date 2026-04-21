@@ -54,11 +54,13 @@ class QuestionController extends Controller
             'type' => 'required|in:text,number,boolean,rating,multiple_choice,multi_select',
             'category_id' => 'required|exists:categories,id',
             'choices' => 'nullable|string',
-            'sort_order' => 'nullable|integer',
         ]);
 
+        $maxSort = Question::where('category_id', $request->category_id)->max('sort_order') ?? 0;
+
         // try-catch removed to allow debugging
-        $data = $request->only(['type', 'category_id', 'sort_order']);
+        $data = $request->only(['type', 'category_id']);
+        $data['sort_order'] = $maxSort + 1;
         $data['question'] = [
             'en' => $request->question_en,
             'ar' => $request->question_ar
@@ -146,7 +148,6 @@ class QuestionController extends Controller
         $question->type = $data['type'];
         $question->category_id = $data['category_id'];
         $question->choices = $data['choices'] ?? null;
-        $question->sort_order = $request->input('sort_order', 0);
         $question->save();
 
         return redirect()->route('admin.questions.index')->with('swal_success', __('admin.messages.updated_successfully'));
@@ -173,5 +174,22 @@ class QuestionController extends Controller
             ->paginate(20);
 
         return view('admin.questions.answers', compact('question', 'answers'));
+    }
+
+    /**
+     * Reorder questions via AJAX.
+     */
+    public function reorder(Request $request)
+    {
+        $order = $request->input('order');
+        if (is_array($order)) {
+            \Illuminate\Support\Facades\DB::transaction(function () use ($order) {
+                foreach ($order as $item) {
+                    Question::where('id', $item['id'])->update(['sort_order' => $item['sort_order']]);
+                }
+            });
+            return response()->json(['status' => true, 'message' => 'Order updated']);
+        }
+        return response()->json(['status' => false, 'message' => 'Invalid data'], 400);
     }
 }
