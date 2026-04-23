@@ -14,6 +14,7 @@
 3. **New field `is_free`** in the Book Service API for club-invited free sessions
 4. **`is_free` field returned** in all service request responses
 5. **Chat Meta:** New `meta` (JSON) field added to messages for custom data (included in POST and GET)
+6. **Unread Messages:** Added `unread_count` for each conversation and `total_unread_count` overall. Messages are marked as read when the chat is opened.
 
 ---
 
@@ -220,32 +221,51 @@ payment_status == "paid" → "Player invited successfully!"
 
 ---
 
-## 💬 Chat Message Meta
+---
 
-### `POST /chat/conversations/{id}/messages`
+## 💬 Chat & Unread Messages
+
+### `GET /chat/conversations`
 
 **Auth Required:** ✅ Yes
 
-Now accepts an optional `meta` field for storing additional message details. This field is also **returned in all GET requests** (conversation messages list).
+Returns a list of conversations for the current user, including unread message counts.
 
-**Request Body (POST):**
+**Sample Response:**
 
 ```json
 {
-  "body": "مرحبا بك",
-  "meta": {
-    "type": "custom_type",
-    "details": "any extra data here"
-  }
+  "status": true,
+  "total_unread_count": 5,
+  "data": [
+    {
+      "id": 1,
+      "other_user": { "id": 5, "name": "..." },
+      "last_message": { "id": 100, "body": "...", "read_at": null },
+      "unread_count": 3,
+      "updated_at": "..."
+    }
+  ],
+  "message": "Conversations retrieved"
 }
 ```
 
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| `body` | `string` | ✅ | The message text |
-| `meta` | `object` | ❌ | JSON object for any extra metadata |
+| Field | Type | Description |
+|-------|------|-------------|
+| `total_unread_count` | `integer` | Total number of unread messages across **all** conversations for this user. |
+| `unread_count` | `integer` | Number of unread messages in **this specific** conversation. |
 
-**Sample Response (GET /chat/conversations/{id}):**
+---
+
+### `GET /chat/conversations/{id}`
+
+**Auth Required:** ✅ Yes
+
+Fetches messages for a conversation. 
+
+> **💡 Automatic Read Status:** When this endpoint is called, all messages in this conversation sent by the **other user** are automatically marked as read (`read_at` is set to the current time).
+
+**Sample Response:**
 
 ```json
 {
@@ -257,9 +277,28 @@ Now accepts an optional `meta` field for storing additional message details. Thi
         "body": "مرحبا بك",
         "meta": { "type": "image", "url": "..." },
         "sender_id": 5,
+        "read_at": "2026-04-23 10:00:00",
         "created_at": "..."
       }
     ]
+  }
+}
+```
+
+### `POST /chat/conversations/{id}/messages`
+
+**Auth Required:** ✅ Yes
+
+Now accepts an optional `meta` field for storing additional message details. 
+
+**Request Body (POST):**
+
+```json
+{
+  "body": "مرحبا بك",
+  "meta": {
+    "type": "custom_type",
+    "details": "any extra data here"
   }
 }
 ```
