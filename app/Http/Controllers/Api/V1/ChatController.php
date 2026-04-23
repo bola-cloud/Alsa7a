@@ -59,10 +59,17 @@ class ChatController extends Controller
         $chats = $conversations->map(function ($chat) use ($userId) {
             $otherUser = ($chat->user_one_id == $userId) ? $chat->userTwo : $chat->userOne;
 
+            // Calculate unread count for this conversation
+            $unreadCount = $chat->messages()
+                ->where('sender_id', '!=', $userId)
+                ->whereNull('read_at')
+                ->count();
+
             return [
                 'id' => $chat->id,
                 'other_user' => $otherUser, // Frontend can just use this
                 'last_message' => $chat->messages()->latest()->first(),
+                'unread_count' => $unreadCount,
                 'updated_at' => $chat->updated_at,
                 'user_one' => $chat->userOne,
                 'user_two' => $chat->userTwo,
@@ -70,9 +77,18 @@ class ChatController extends Controller
             ];
         });
 
+        // Calculate total unread messages for the user
+        $totalUnread = Message::whereHas('conversation', function ($q) use ($userId) {
+            $q->where('user_one_id', $userId)->orWhere('user_two_id', $userId);
+        })
+            ->where('sender_id', '!=', $userId)
+            ->whereNull('read_at')
+            ->count();
+
         return response()->json([
             'status' => true,
             'data' => $chats,
+            'total_unread_count' => $totalUnread,
             'message' => 'Conversations retrieved'
         ]);
     }
@@ -136,6 +152,12 @@ class ChatController extends Controller
         if ($conversation->user_one_id !== $userId && $conversation->user_two_id !== $userId) {
             return response()->json(['status' => false, 'message' => 'Unauthorized'], 403);
         }
+
+        // Mark messages as read
+        $conversation->messages()
+            ->where('sender_id', '!=', $userId)
+            ->whereNull('read_at')
+            ->update(['read_at' => now()]);
 
         $messages = $conversation->messages()
             ->with([
