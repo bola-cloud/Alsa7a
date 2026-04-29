@@ -33,8 +33,8 @@ class FeedService
             $followingIds = $user->following()->pluck('following_id')->toArray();
             $baseUnseenUser = (clone $baseUnseen)->whereNotIn('id', $viewedPostIds);
 
-            // 1. Get Unseen posts from Followed users
-            $followedUnseen = (clone $baseUnseenUser)->whereIn('user_id', $followingIds);
+            // 1. Get Unseen posts from Followed users and Self
+            $followedUnseen = (clone $baseUnseenUser)->whereIn('user_id', array_merge($followingIds, [$user->id]));
 
             // 2. Get Unseen posts from non-followed (Suggestions)
             $suggestedUnseen = (clone $baseUnseenUser)->whereNotIn('user_id', array_merge($followingIds, [$user->id]));
@@ -44,10 +44,10 @@ class FeedService
 
             // 3. Fallback: If results are few, add seen posts back with priority
             if ($results->count() < $perPage) {
-                // Seen posts from followed users (Latest)
+                // Seen posts from followed users and Self (Latest)
                 $seenFollowed = Post::with(['user.category', 'user.club', 'user.ownedClub', 'comments'])
                     ->withCount(['likes', 'comments'])
-                    ->whereIn('user_id', $followingIds)
+                    ->whereIn('user_id', array_merge($followingIds, [$user->id]))
                     ->whereIn('id', $viewedPostIds)
                     ->where('is_hidden', false)
                     ->latest()
