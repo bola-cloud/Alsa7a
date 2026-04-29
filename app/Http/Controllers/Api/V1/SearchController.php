@@ -57,12 +57,12 @@ class SearchController extends Controller
                         // 4. Legacy nested JSON array (answer->value contains "val")
                         $q->where(function ($subQ) use ($answerValue) {
                             $values = is_array($answerValue) ? $answerValue : [$answerValue];
-                            
+
                             foreach ($values as $val) {
                                 $subQ->orWhere('answer', $val)
-                                     ->orWhereJsonContains('answer', $val)
-                                     ->orWhere('answer->value', $val)
-                                     ->orWhereJsonContains('answer->value', $val);
+                                    ->orWhereJsonContains('answer', $val)
+                                    ->orWhere('answer->value', $val)
+                                    ->orWhereJsonContains('answer->value', $val);
                             }
                         });
                     });
@@ -78,9 +78,9 @@ class SearchController extends Controller
         $query->where(function ($q) {
             $q->whereDoesntHave('category', function ($catQ) {
                 $catQ->whereIn('name_en', ['Club'])
-                     ->orWhereIn('name_ar', ['نادي']);
+                    ->orWhereIn('name_ar', ['نادي']);
             })
-            ->orWhereHas('ownedClub');
+                ->orWhereHas('ownedClub');
         });
 
         // Eager load relationships needed for the response
@@ -97,10 +97,10 @@ class SearchController extends Controller
             foreach ($profileData as $key => $value) {
                 $user->{$key} = $value;
             }
-            
+
             // Note: We avoid adding properties directly to $user that might shadow relationships (like subscription)
             // as this was causing 500 errors in models like User::isSubscribed().
-            
+
             return $user;
         });
 
@@ -146,13 +146,14 @@ class SearchController extends Controller
         $clubs = collect();
         if ($request->has('search') && $request->search != null) {
             $search = $request->search;
-            $clubs = \App\Models\Club::where(function ($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%")
-                    ->orWhere('name_en', 'like', "%{$search}%")
-                    ->orWhere('name_ar', 'like', "%{$search}%")
-                    ->orWhere('city', 'like', "%{$search}%")
-                    ->orWhere('country', 'like', "%{$search}%");
-            })
+            $clubs = \App\Models\Club::whereNotNull('user_id')
+                ->where(function ($q) use ($search) {
+                    $q->where('name', 'like', "%{$search}%")
+                        ->orWhere('name_en', 'like', "%{$search}%")
+                        ->orWhere('name_ar', 'like', "%{$search}%")
+                        ->orWhere('city', 'like', "%{$search}%")
+                        ->orWhere('country', 'like', "%{$search}%");
+                })
                 ->with('sports')
                 ->latest()
                 ->get()
