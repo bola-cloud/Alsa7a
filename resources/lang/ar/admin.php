@@ -39,6 +39,10 @@ return [
         'send_btn' => 'إرسال للجميع',
         'success' => 'تم إرسال الإشعار بنجاح!',
         'error' => 'فشل إرسال الإشعار.',
+        'unread' => 'جديد',
+        'mark_all_read' => 'تحديد الكل كمقروء',
+        'no_new' => 'لا توجد إشعارات جديدة',
+        'registered' => 'قام بالتسجيل',
     ],
     'buttons' => [
         'add_new' => 'إضافة جديد',
@@ -60,6 +64,7 @@ return [
         'select' => 'اختر',
         'manage' => 'إدارة',
         'currency' => 'ريال عماني',
+        'apply' => 'تطبيق',
     ],
     'community_posts' => [
         'title' => 'منشورات المجتمع',
@@ -275,6 +280,8 @@ return [
         'subscription_activated_successfully' => 'تم تفعيل الاشتراك بنجاح',
         'subscription_deactivated_successfully' => 'تم إلغاء تفعيل الاشتراك بنجاح',
         'subscription_cancelled_successfully' => 'تم إلغاء الاشتراك بنجاح',
+        'select_at_least_one' => 'يرجى اختيار عنصر واحد على الأقل.',
+        'confirm_delete_selected' => 'هل أنت متأكد أنك تريد حذف العناصر المختارة؟',
     ],
     'modal' => [
         'success' => 'تم بنجاح!',
@@ -338,6 +345,7 @@ return [
         'activate_subscription' => 'تفعيل الاشتراك',
         'cancel_subscription' => 'إلغاء الاشتراك',
         'confirm_cancel_subscription' => 'هل أنت متأكد أنك تريد إلغاء اشتراك هذا المستخدم؟',
+        'bulk_actions' => 'العمليات الجماعية',
     ],
     'status' => [
         'pending' => 'قيد الانتظار',

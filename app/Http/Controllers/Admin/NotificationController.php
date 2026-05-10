@@ -16,7 +16,9 @@ class NotificationController extends Controller
             'notifications' => $notifications->map(function($n) {
                 return [
                     'id' => $n->id,
-                    'data' => $n->data,
+                    'data' => array_merge($n->data, [
+                        'registered_text' => __('admin.notifications.registered')
+                    ]),
                     'created_at' => $n->created_at->diffForHumans(),
                 ];
             })

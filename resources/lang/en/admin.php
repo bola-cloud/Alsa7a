@@ -39,6 +39,10 @@ return [
         'send_btn' => 'Send to All Users',
         'success' => 'Notification sent successfully!',
         'error' => 'Failed to send notification.',
+        'unread' => 'New',
+        'mark_all_read' => 'Mark all as read',
+        'no_new' => 'No new notifications',
+        'registered' => 'registered',
     ],
     'buttons' => [
         'add_new' => 'Add New',
@@ -60,6 +64,7 @@ return [
         'select' => 'Select',
         'manage' => 'Manage',
         'currency' => 'OMR',
+        'apply' => 'Apply',
     ],
     'community_posts' => [
         'title' => 'Community Posts',
@@ -274,6 +279,8 @@ return [
         'subscription_activated_successfully' => 'Subscription activated successfully',
         'subscription_deactivated_successfully' => 'Subscription deactivated successfully',
         'subscription_cancelled_successfully' => 'Subscription cancelled successfully',
+        'select_at_least_one' => 'Please select at least one item.',
+        'confirm_delete_selected' => 'Are you sure you want to delete selected items?',
     ],
     'modal' => [
         'success' => 'Success!',
@@ -337,6 +344,7 @@ return [
         'activate_subscription' => 'Activate Subscription',
         'cancel_subscription' => 'Cancel Subscription',
         'confirm_cancel_subscription' => 'Are you sure you want to cancel this user\'s subscription?',
+        'bulk_actions' => 'Bulk Actions',
     ],
     'status' => [
         'pending' => 'Pending',

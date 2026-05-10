@@ -146,15 +146,15 @@
                             <ul class="dropdown-menu dropdown-menu-media dropdown-menu-right">
                                 <li class="dropdown-menu-header">
                                     <h6 class="dropdown-header m-0">
-                                        <span class="grey darken-2">{{ App::getLocale() == 'ar' ? 'الإشعارات' : 'Notifications' }}</span>
+                                        <span class="grey darken-2">{{ __('admin.notifications.title') }}</span>
                                     </h6>
-                                    <span class="notification-tag badge badge-danger float-right m-0"><span id="unread-text">0</span> {{ App::getLocale() == 'ar' ? 'جديد' : 'New' }}</span>
+                                    <span class="notification-tag badge badge-danger float-right m-0"><span id="unread-text">0</span> {{ __('admin.notifications.unread') }}</span>
                                 </li>
                                 <li class="scrollable-container media-list w-100" id="notification-list" style="max-height: 300px; overflow-y: auto;">
                                     <!-- Notifications will be injected here -->
                                 </li>
                                 <li class="dropdown-menu-footer">
-                                    <a class="dropdown-item text-muted text-center" href="javascript:void(0)" id="mark-all-read">{{ App::getLocale() == 'ar' ? 'تحديد الكل كمقروء' : 'Mark all as read' }}</a>
+                                    <a class="dropdown-item text-muted text-center" href="javascript:void(0)" id="mark-all-read">{{ __('admin.notifications.mark_all_read') }}</a>
                                 </li>
                             </ul>
                         </li>
@@ -664,7 +664,7 @@
                                 <div class="media">
                                     <div class="media-left align-self-center mr-2"><i class="ft-user-plus icon-bg-circle bg-cyan"></i></div>
                                     <div class="media-body">
-                                        <h6 class="media-heading font-small-3 text-bold-600 mb-0">${n.data.user_name}</h6>
+                                        <h6 class="media-heading font-small-3 text-bold-600 mb-0">${n.data.user_name} ${n.data.registered_text || 'registered'}</h6>
                                         <p class="notification-text font-small-2 text-muted mb-0">${n.data.message}</p>
                                         <small><time class="media-meta text-muted" style="font-size: 10px;">${n.created_at}</time></small>
                                     </div>
@@ -676,7 +676,7 @@
                 } else {
                     $('#notification-count').hide();
                     $('#unread-text').text(0);
-                    $('#notification-list').html('<div class="p-3 text-center text-muted">{{ App::getLocale() == 'ar' ? 'لا توجد إشعارات جديدة' : 'No new notifications' }}</div>');
+                    $('#notification-list').html('<div class="p-3 text-center text-muted">{{ __('admin.notifications.no_new') }}</div>');
                 }
             });
         }
