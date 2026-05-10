@@ -84,7 +84,8 @@ class HomeController extends Controller
         // Unique providers processing
         $providersToProcess = collect();
         foreach ($featuredServices as $service) {
-            if ($service->provider) $providersToProcess->put($service->provider->id, $service->provider);
+            if ($service->provider)
+                $providersToProcess->put($service->provider->id, $service->provider);
         }
 
         $providersToProcess->each(function ($provider) use ($currentUser) {

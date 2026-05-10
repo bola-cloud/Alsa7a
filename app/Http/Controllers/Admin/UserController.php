@@ -306,4 +306,55 @@ class UserController extends Controller
 
         return redirect()->back()->with('swal_success', __('admin.messages.subscription_cancelled_successfully'));
     }
+
+    /**
+     * Bulk Actions
+     */
+    public function bulk(Request $request)
+    {
+        $request->validate([
+            'ids' => 'required|array',
+            'ids.*' => 'exists:users,id',
+            'action' => 'required|in:delete,approve,block,unblock,activate_subscription,cancel_subscription',
+        ]);
+
+        $ids = collect($request->ids)->reject(function ($id) {
+            $user = User::find($id);
+            return $user && $user->email === 'admin@alsa7a.com';
+        });
+
+        $action = $request->action;
+
+        if ($action === 'delete') {
+            User::whereIn('id', $ids)->delete();
+            $message = __('admin.messages.deleted_successfully');
+        } elseif ($action === 'approve') {
+            User::whereIn('id', $ids)->update(['is_approved' => true]);
+            $message = __('admin.messages.approve_successfully');
+        } elseif ($action === 'block') {
+            User::whereIn('id', $ids)->update(['is_blocked' => true]);
+            $message = __('admin.messages.blocked_successfully');
+        } elseif ($action === 'unblock') {
+            User::whereIn('id', $ids)->update(['is_blocked' => false]);
+            $message = __('admin.messages.unblocked_successfully');
+        } elseif ($action === 'activate_subscription') {
+            foreach ($ids as $id) {
+                $user = User::find($id);
+                if ($user) {
+                    $this->activateSubscription($user);
+                }
+            }
+            $message = __('admin.messages.subscription_activated_successfully');
+        } elseif ($action === 'cancel_subscription') {
+            foreach ($ids as $id) {
+                $user = User::find($id);
+                if ($user) {
+                    $this->cancelSubscription($user);
+                }
+            }
+            $message = __('admin.messages.subscription_cancelled_successfully');
+        }
+
+        return redirect()->back()->with('swal_success', $message);
+    }
 }
