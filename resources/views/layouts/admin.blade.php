@@ -665,12 +665,18 @@
                     
                     let html = '';
                     data.notifications.forEach(n => {
+                        const isRead = n.read_at !== null;
+                        const bgClass = isRead ? 'bg-light' : '';
+                        const iconClass = isRead ? 'bg-grey bg-lighten-1' : 'bg-cyan';
+                        const opacityStyle = isRead ? 'opacity: 0.6;' : '';
+                        const textWeight = isRead ? '' : 'text-bold-600';
+
                         html += `
-                            <a href="${n.data.url}" class="dropdown-item border-bottom notification-link" data-id="${n.id}">
+                            <a href="${n.data.url}" class="dropdown-item border-bottom notification-link ${bgClass}" data-id="${n.id}" style="${opacityStyle}">
                                 <div class="media">
-                                    <div class="media-left align-self-center mr-2"><i class="ft-user-plus icon-bg-circle bg-cyan"></i></div>
+                                    <div class="media-left align-self-center mr-2"><i class="ft-user-plus icon-bg-circle ${iconClass}"></i></div>
                                     <div class="media-body">
-                                        <h6 class="media-heading font-small-3 text-bold-600 mb-0">${n.data.user_name} ${n.data.registered_text || 'registered'}</h6>
+                                        <h6 class="media-heading font-small-3 ${textWeight} mb-0">${n.data.user_name} ${n.data.registered_text || 'registered'}</h6>
                                         <p class="notification-text font-small-2 text-muted mb-0">${n.data.message}</p>
                                         <small><time class="media-meta text-muted" style="font-size: 10px;">${n.created_at}</time></small>
                                     </div>

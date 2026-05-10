@@ -281,6 +281,7 @@ return [
         'subscription_cancelled_successfully' => 'Subscription cancelled successfully',
         'select_at_least_one' => 'Please select at least one item.',
         'confirm_delete_selected' => 'Are you sure you want to delete selected items?',
+        'user_not_found' => 'User not found or has been deleted.',
     ],
     'modal' => [
         'success' => 'Success!',

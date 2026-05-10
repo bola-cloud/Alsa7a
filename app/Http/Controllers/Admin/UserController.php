@@ -62,8 +62,14 @@ class UserController extends Controller
         return view('admin.users.index', compact('users', 'categories'));
     }
 
-    public function show(User $user)
+    public function show($id)
     {
+        $user = User::find($id);
+        
+        if (!$user) {
+            return redirect()->route('admin.users.index')->with('swal_error', __('admin.messages.user_not_found'));
+        }
+
         $user->load('category', 'answers'); // Eager load
 
         $questions = collect();

@@ -277,11 +277,10 @@ return [
         'featured_activated' => 'تم تعيين الخدمة كمميزة بنجاح',
         'featured_deactivated' => 'تمت إزالة التمييز عن الخدمة بنجاح',
         'hello' => 'مرحبا',
-        'subscription_activated_successfully' => 'تم تفعيل الاشتراك بنجاح',
-        'subscription_deactivated_successfully' => 'تم إلغاء تفعيل الاشتراك بنجاح',
         'subscription_cancelled_successfully' => 'تم إلغاء الاشتراك بنجاح',
         'select_at_least_one' => 'يرجى اختيار عنصر واحد على الأقل.',
         'confirm_delete_selected' => 'هل أنت متأكد أنك تريد حذف العناصر المختارة؟',
+        'user_not_found' => 'المستخدم غير موجود أو تم حذف الحساب.',
     ],
     'modal' => [
         'success' => 'تم بنجاح!',

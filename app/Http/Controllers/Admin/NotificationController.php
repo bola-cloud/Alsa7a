@@ -9,13 +9,16 @@ class NotificationController extends Controller
 {
     public function index()
     {
-        $notifications = auth()->user()->unreadNotifications;
+        $user = auth()->user();
+        $notifications = $user->notifications()->take(10)->get();
+        $unreadCount = $user->unreadNotifications->count();
         
         return response()->json([
-            'count' => $notifications->count(),
+            'count' => $unreadCount,
             'notifications' => $notifications->map(function($n) {
                 return [
                     'id' => $n->id,
+                    'read_at' => $n->read_at,
                     'data' => array_merge($n->data, [
                         'registered_text' => __('admin.notifications.registered')
                     ]),
