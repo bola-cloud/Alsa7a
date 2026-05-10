@@ -34,5 +34,7 @@ class AppServiceProvider extends ServiceProvider
             config(['app.url' => 'https://saha.wasl-x.com']);
             \Illuminate\Support\Facades\URL::forceScheme('https');
         }
+
+        \App\Models\User::observe(\App\Observers\UserObserver::class);
     }
 }

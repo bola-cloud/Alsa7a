@@ -101,6 +101,8 @@ Route::group([
         Route::resource('tickets', \App\Http\Controllers\Admin\TicketController::class)->only(['index', 'show', 'update']);
 
         // Notifications
+        Route::get('notifications/fetch', [\App\Http\Controllers\Admin\NotificationController::class, 'index'])->name('notifications.fetch');
+        Route::post('notifications/mark-read', [\App\Http\Controllers\Admin\NotificationController::class, 'markAsRead'])->name('notifications.mark_read');
         Route::get('notifications', [\App\Http\Controllers\Admin\NotificationController::class, 'create'])->name('notifications.create');
         Route::post('notifications', [\App\Http\Controllers\Admin\NotificationController::class, 'store'])->name('notifications.store');
     });

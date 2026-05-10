@@ -138,6 +138,27 @@
                             </a>
                         </li>
 
+                        <li class="dropdown dropdown-notification nav-item">
+                            <a class="nav-link nav-link-label" href="#" data-toggle="dropdown">
+                                <i class="ficon ft-bell text-white"></i>
+                                <span class="badge badge-pill badge-danger badge-up badge-glow" id="notification-count" style="display:none; position: absolute; top: 10px; right: 5px; font-size: 10px; padding: 2px 5px;">0</span>
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-media dropdown-menu-right">
+                                <li class="dropdown-menu-header">
+                                    <h6 class="dropdown-header m-0">
+                                        <span class="grey darken-2">{{ App::getLocale() == 'ar' ? 'الإشعارات' : 'Notifications' }}</span>
+                                    </h6>
+                                    <span class="notification-tag badge badge-danger float-right m-0"><span id="unread-text">0</span> {{ App::getLocale() == 'ar' ? 'جديد' : 'New' }}</span>
+                                </li>
+                                <li class="scrollable-container media-list w-100" id="notification-list" style="max-height: 300px; overflow-y: auto;">
+                                    <!-- Notifications will be injected here -->
+                                </li>
+                                <li class="dropdown-menu-footer">
+                                    <a class="dropdown-item text-muted text-center" href="javascript:void(0)" id="mark-all-read">{{ App::getLocale() == 'ar' ? 'تحديد الكل كمقروء' : 'Mark all as read' }}</a>
+                                </li>
+                            </ul>
+                        </li>
+
                         <li class="dropdown dropdown-user nav-item">
                             <a class="dropdown-toggle nav-link dropdown-user-link" href="#" data-toggle="dropdown">
                                 @auth
@@ -617,7 +638,63 @@
             });
         });
     </script>
-@stack('js')
+    <script>
+        let lastCount = 0;
+        // Using a reliable public notification sound
+        const notificationAudio = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3');
+
+        function fetchNotifications() {
+            $.get('{{ route('admin.notifications.fetch') }}', function(data) {
+                if (data.count > lastCount) {
+                    // Only play sound if it's not the first load and count increased
+                    if (lastCount !== 0 || data.count > 0) {
+                         notificationAudio.play().catch(e => console.log('Audio play failed (interaction required):', e));
+                    }
+                }
+                lastCount = data.count;
+
+                if (data.count > 0) {
+                    $('#notification-count').text(data.count).show();
+                    $('#unread-text').text(data.count);
+                    
+                    let html = '';
+                    data.notifications.forEach(n => {
+                        html += `
+                            <a href="${n.data.url}" class="dropdown-item border-bottom">
+                                <div class="media">
+                                    <div class="media-left align-self-center mr-2"><i class="ft-user-plus icon-bg-circle bg-cyan"></i></div>
+                                    <div class="media-body">
+                                        <h6 class="media-heading font-small-3 text-bold-600 mb-0">${n.data.user_name}</h6>
+                                        <p class="notification-text font-small-2 text-muted mb-0">${n.data.message}</p>
+                                        <small><time class="media-meta text-muted" style="font-size: 10px;">${n.created_at}</time></small>
+                                    </div>
+                                </div>
+                            </a>
+                        `;
+                    });
+                    $('#notification-list').html(html);
+                } else {
+                    $('#notification-count').hide();
+                    $('#unread-text').text(0);
+                    $('#notification-list').html('<div class="p-3 text-center text-muted">{{ App::getLocale() == 'ar' ? 'لا توجد إشعارات جديدة' : 'No new notifications' }}</div>');
+                }
+            });
+        }
+
+        $(document).ready(function() {
+            fetchNotifications();
+            setInterval(fetchNotifications, 10000); // Poll every 10 seconds
+
+            $('#mark-all-read').on('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                $.post('{{ route('admin.notifications.mark_read') }}', { _token: '{{ csrf_token() }}' }, function() {
+                    fetchNotifications();
+                });
+            });
+        });
+    </script>
+    @stack('js')
 
 </body>
 

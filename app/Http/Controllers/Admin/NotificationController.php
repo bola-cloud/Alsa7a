@@ -4,48 +4,28 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Services\OneSignalService;
 
 class NotificationController extends Controller
 {
-    protected $oneSignal;
-
-    public function __construct(OneSignalService $oneSignal)
+    public function index()
     {
-        $this->oneSignal = $oneSignal;
-    }
-
-    /**
-     * Show the form for creating a new notification.
-     */
-    public function create()
-    {
-        return view('admin.notifications.create');
-    }
-
-    /**
-     * Store and send the notification.
-     */
-    public function store(Request $request)
-    {
-        $request->validate([
-            'title' => 'required|string|max:190',
-            'message' => 'required|string',
+        $notifications = auth()->user()->unreadNotifications;
+        
+        return response()->json([
+            'count' => $notifications->count(),
+            'notifications' => $notifications->map(function($n) {
+                return [
+                    'id' => $n->id,
+                    'data' => $n->data,
+                    'created_at' => $n->created_at->diffForHumans(),
+                ];
+            })
         ]);
+    }
 
-        $title = $request->input('title');
-        $message = $request->input('message');
-
-        // Send Broadcast to All Users
-        $result = $this->oneSignal->sendBroadcast($title, $message);
-
-        if ($result['status']) {
-            return redirect()->route('admin.notifications.create')
-                ->with('success', __('admin.notifications.success'));
-        } else {
-            return redirect()->back()
-                ->with('error', __('admin.notifications.error'))
-                ->withInput();
-        }
+    public function markAsRead(Request $request)
+    {
+        auth()->user()->unreadNotifications->markAsRead();
+        return response()->json(['success' => true]);
     }
 }
