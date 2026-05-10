@@ -103,6 +103,7 @@ Route::group([
         // Notifications
         Route::get('notifications/fetch', [\App\Http\Controllers\Admin\NotificationController::class, 'index'])->name('notifications.fetch');
         Route::post('notifications/mark-read', [\App\Http\Controllers\Admin\NotificationController::class, 'markAsRead'])->name('notifications.mark_read');
+        Route::post('notifications/mark-read/{id}', [\App\Http\Controllers\Admin\NotificationController::class, 'markSingleAsRead'])->name('notifications.mark_single_read');
         Route::get('notifications', [\App\Http\Controllers\Admin\NotificationController::class, 'create'])->name('notifications.create');
         Route::post('notifications', [\App\Http\Controllers\Admin\NotificationController::class, 'store'])->name('notifications.store');
     });

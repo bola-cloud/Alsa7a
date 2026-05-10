@@ -154,7 +154,10 @@
                                     <!-- Notifications will be injected here -->
                                 </li>
                                 <li class="dropdown-menu-footer">
-                                    <a class="dropdown-item text-muted text-center" href="javascript:void(0)" id="mark-all-read">{{ __('admin.notifications.mark_all_read') }}</a>
+                                    <div class="d-flex justify-content-between px-2 py-1">
+                                        <a class="text-muted font-small-3" href="javascript:void(0)" id="mark-all-read">{{ __('admin.notifications.mark_all_read') }}</a>
+                                        <a class="text-info font-small-3" href="javascript:void(0)" id="test-notification-sound"><i class="la la-volume-up"></i> {{ App::getLocale() == 'ar' ? 'تجربة الصوت' : 'Test Sound' }}</a>
+                                    </div>
                                 </li>
                             </ul>
                         </li>
@@ -640,15 +643,18 @@
     </script>
     <script>
         let lastCount = 0;
-        // Using a reliable public notification sound
-        const notificationAudio = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3');
+        let audioEnabled = false;
+        // Using a more robust notification sound link
+        const notificationAudio = new Audio('https://notifications-sounds.com/storage/sounds/pizzicato.mp3');
 
         function fetchNotifications() {
             $.get('{{ route('admin.notifications.fetch') }}', function(data) {
                 if (data.count > lastCount) {
-                    // Only play sound if it's not the first load and count increased
-                    if (lastCount !== 0 || data.count > 0) {
-                         notificationAudio.play().catch(e => console.log('Audio play failed (interaction required):', e));
+                    // Only play sound if count increased
+                    if (data.count > 0) {
+                         notificationAudio.play().catch(e => {
+                             console.log('Autoplay blocked. Sound will play after first interaction.');
+                         });
                     }
                 }
                 lastCount = data.count;
@@ -660,7 +666,7 @@
                     let html = '';
                     data.notifications.forEach(n => {
                         html += `
-                            <a href="${n.data.url}" class="dropdown-item border-bottom">
+                            <a href="${n.data.url}" class="dropdown-item border-bottom notification-link" data-id="${n.id}">
                                 <div class="media">
                                     <div class="media-left align-self-center mr-2"><i class="ft-user-plus icon-bg-circle bg-cyan"></i></div>
                                     <div class="media-body">
@@ -684,6 +690,36 @@
         $(document).ready(function() {
             fetchNotifications();
             setInterval(fetchNotifications, 10000); // Poll every 10 seconds
+
+            // Enable audio on first click anywhere
+            $(document).one('click', function() {
+                audioEnabled = true;
+                console.log('Audio enabled by user interaction');
+            });
+
+            $('#test-notification-sound').on('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                notificationAudio.play();
+                Swal.fire({
+                    title: '{{ App::getLocale() == "ar" ? "تم تفعيل الصوت" : "Sound Enabled" }}',
+                    text: '{{ App::getLocale() == "ar" ? "ستسمع هذا التنبيه عند تسجيل مستخدم جديد" : "You will hear this alert when a new user registers" }}',
+                    icon: 'success',
+                    timer: 2000,
+                    showConfirmButton: false
+                });
+            });
+
+            $(document).on('click', '.notification-link', function(e) {
+                e.preventDefault();
+                let url = $(this).attr('href');
+                let id = $(this).data('id');
+                let markUrl = '{{ route('admin.notifications.mark_single_read', ':id') }}'.replace(':id', id);
+
+                $.post(markUrl, { _token: '{{ csrf_token() }}' }, function() {
+                    window.location.href = url;
+                });
+            });
 
             $('#mark-all-read').on('click', function(e) {
                 e.preventDefault();
