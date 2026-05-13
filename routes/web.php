@@ -53,6 +53,7 @@ Route::group([
         Route::resource('sports', SportController::class);
         Route::resource('sliders', SliderController::class);
         Route::resource('leagues', LeagueController::class);
+        Route::post('events/{event}/approve', [EventController::class, 'approve'])->name('events.approve');
         Route::resource('events', EventController::class);
 
         // Club Management

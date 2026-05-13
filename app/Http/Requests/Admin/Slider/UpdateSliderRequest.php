@@ -26,6 +26,7 @@ class UpdateSliderRequest extends FormRequest
             'title.en' => 'nullable|string|max:255',
             'title.ar' => 'nullable|string|max:255',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'link' => 'nullable|string|max:1000',
         ];
     }
 }

@@ -86,10 +86,24 @@
                                     </div>
                                 </div>
 
-                                <div class="form-group">
-                                    <label>{{ __('admin.events.capacity') }}</label>
-                                    <input type="number" name="capacity" class="form-control"
-                                        value="{{ old('capacity', $event->capacity) }}">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label>{{ __('admin.events.capacity') }}</label>
+                                            <input type="number" name="capacity" class="form-control"
+                                                value="{{ old('capacity', $event->capacity) }}">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label>{{ __('admin.events.status') }}</label>
+                                            <select name="status" class="form-control">
+                                                <option value="pending" {{ $event->status == 'pending' ? 'selected' : '' }}>{{ __('admin.status.pending') }}</option>
+                                                <option value="approved" {{ $event->status == 'approved' ? 'selected' : '' }}>{{ __('admin.status.approved') }}</option>
+                                                <option value="rejected" {{ $event->status == 'rejected' ? 'selected' : '' }}>{{ __('admin.status.rejected') }}</option>
+                                            </select>
+                                        </div>
+                                    </div>
                                 </div>
 
                                 <div class="form-group">

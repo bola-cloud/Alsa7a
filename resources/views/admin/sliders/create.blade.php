@@ -63,6 +63,15 @@
                                 </div>
                             </div>
 
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label>{{ __('admin.sliders.link') }}</label>
+                                    <input type="text" name="link" class="form-control"
+                                        placeholder="https://example.com" value="{{ old('link') }}">
+                                        <small class="text-muted">Optional: Link to an internal page or external URL</small>
+                                </div>
+                            </div>
+
                             <div class="col-12 mt-4 mb-3">
                                 <hr>
                                 <h6 class="text-muted text-uppercase font-weight-bold mb-3"><i class="la la-image"></i>

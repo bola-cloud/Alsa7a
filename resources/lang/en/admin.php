@@ -155,6 +155,7 @@ return [
         'price' => 'Price',
         'venue' => 'Venue',
         'capacity' => 'Capacity',
+        'status' => 'Status',
     ],
     'news' => [
         'index' => 'News',

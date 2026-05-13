@@ -28,6 +28,7 @@ class UpdateEventRequest extends FormRequest
             'price' => 'nullable|numeric|min:0',
             'capacity' => 'nullable|integer|min:0',
             'featured_image' => 'nullable|image|max:2048',
+            'status' => 'nullable|string|in:pending,approved,rejected',
         ];
     }
 }

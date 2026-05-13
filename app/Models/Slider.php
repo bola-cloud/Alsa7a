@@ -12,7 +12,7 @@ class Slider extends Model
 
     protected $table = 'sliders';
 
-    protected $fillable = ['title', 'title_en', 'title_ar', 'image'];
+    protected $fillable = ['title', 'title_en', 'title_ar', 'image', 'link'];
 
     // Append computed full image URL
     protected $appends = ['image_url'];

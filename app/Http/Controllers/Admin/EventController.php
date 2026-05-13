@@ -134,4 +134,11 @@ class EventController extends Controller
         $this->flashSuccess(__('admin.messages.deleted'));
         return redirect()->route('admin.events.index');
     }
+
+    public function approve(Event $event)
+    {
+        $event->update(['status' => 'approved']);
+        $this->flashSuccess(__('admin.messages.updated'));
+        return redirect()->back();
+    }
 }

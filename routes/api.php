@@ -115,6 +115,10 @@ Route::prefix('v1')->middleware('set.api.locale')->group(function () {
         Route::get('clubs', [App\Http\Controllers\Api\V1\ClubController::class, 'index']);
         Route::get('clubs/{id}', [App\Http\Controllers\Api\V1\ClubController::class, 'show']);
         Route::post('clubs/{id}/leagues', [App\Http\Controllers\Api\V1\ClubController::class, 'updateLeagues']);
+        
+        // Club Events
+        Route::get('club/events', [App\Http\Controllers\Api\V1\ClubEventController::class, 'index']);
+        Route::post('club/events', [App\Http\Controllers\Api\V1\ClubEventController::class, 'store']);
 
         // Team Management
         Route::get('clubs/{club_id}/teams', [App\Http\Controllers\Api\V1\TeamController::class, 'index']);

@@ -87,28 +87,50 @@
                             </p>
                         </div>
 
-                        <div class="card-actions">
-                            <a href="{{ route('admin.events.show', $event->id) }}" class="btn btn-sm btn-outline-info round"
-                                title="{{ __('admin.buttons.view') }}">
-                                <i class="la la-eye"></i> {{ __('admin.buttons.view') }}
-                            </a>
+                        <div class="card-actions d-flex flex-column gap-2 mt-2">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                @php
+                                    $statusColor = match($event->status) {
+                                        'approved' => 'success',
+                                        'rejected' => 'danger',
+                                        default => 'warning'
+                                    };
+                                @endphp
+                                <span class="badge badge-{{ $statusColor }}">{{ __('admin.status.'.$event->status) }}</span>
 
-                            <div class="btn-group">
-                                <a href="{{ route('admin.events.edit', $event->id) }}"
-                                    class="btn btn-sm btn-outline-primary round" title="{{ __('admin.buttons.edit') }}">
-                                    <i class="la la-edit"></i>
+                                @if($event->status === 'pending')
+                                    <form action="{{ route('admin.events.approve', $event->id) }}" method="POST">
+                                        @csrf
+                                        <button type="submit" class="btn btn-sm btn-success round py-0 px-2" style="font-size: 11px;">
+                                            <i class="la la-check"></i> {{ __('admin.users.approve') }}
+                                        </button>
+                                    </form>
+                                @endif
+                            </div>
+
+                            <div class="d-flex justify-content-between align-items-center">
+                                <a href="{{ route('admin.events.show', $event->id) }}" class="btn btn-sm btn-outline-info round"
+                                    title="{{ __('admin.buttons.view') }}">
+                                    <i class="la la-eye"></i> {{ __('admin.buttons.view') }}
                                 </a>
 
-                                <form action="{{ route('admin.events.destroy', $event->id) }}" method="POST"
-                                    onsubmit="return confirm('{{ __('admin.buttons.confirm_delete') }}');"
-                                    style="display:inline-block;">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="btn btn-sm btn-outline-danger round border-0 ml-1"
-                                        title="{{ __('admin.buttons.delete') }}">
-                                        <i class="la la-trash font-medium-3"></i>
-                                    </button>
-                                </form>
+                                <div class="btn-group">
+                                    <a href="{{ route('admin.events.edit', $event->id) }}"
+                                        class="btn btn-sm btn-outline-primary round" title="{{ __('admin.buttons.edit') }}">
+                                        <i class="la la-edit"></i>
+                                    </a>
+
+                                    <form action="{{ route('admin.events.destroy', $event->id) }}" method="POST"
+                                        onsubmit="return confirm('{{ __('admin.buttons.confirm_delete') }}');"
+                                        style="display:inline-block;">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn btn-sm btn-outline-danger round border-0 ml-1"
+                                            title="{{ __('admin.buttons.delete') }}">
+                                            <i class="la la-trash font-medium-3"></i>
+                                        </button>
+                                    </form>
+                                </div>
                             </div>
                         </div>
                     </div>

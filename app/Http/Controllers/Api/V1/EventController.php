@@ -16,7 +16,8 @@ class EventController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Event::with(['club.owner.subscription', 'club.owner.category', 'sport']);
+        $query = Event::with(['club.owner.subscription', 'club.owner.category', 'sport'])
+            ->where('status', 'approved');
 
         // 1. Time Filtering (Support both 'time' and legacy 'type')
         $time = $request->input('time', $request->input('type'));
@@ -71,7 +72,9 @@ class EventController extends Controller
      */
     public function show($id)
     {
-        $event = Event::with(['club.owner.subscription', 'club.owner.category', 'sport', 'media'])->find($id);
+        $event = Event::with(['club.owner.subscription', 'club.owner.category', 'sport', 'media'])
+            ->where('status', 'approved')
+            ->find($id);
 
         if (!$event) {
             return response()->json(['status' => false, 'message' => 'Event not found'], 404);
