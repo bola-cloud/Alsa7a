@@ -62,6 +62,7 @@ Route::prefix('v1')->middleware('set.api.locale')->group(function () {
     Route::get('posts', [App\Http\Controllers\Api\V1\PostController::class, 'index']); // Public Feed of Profile Posts
     Route::get('reels', [App\Http\Controllers\Api\V1\PostController::class, 'reels']); // Public Reels Feed (Videos only)
     Route::get('posts/{id}', [App\Http\Controllers\Api\V1\PostController::class, 'show']);
+    Route::post('posts/{id}/view', [App\Http\Controllers\Api\V1\PostController::class, 'incrementView']); // Increment View Count (Public)
 
     // Community Blogs (Categorized)
     Route::get('community/categories', [App\Http\Controllers\Api\V1\CommunityController::class, 'getCategories']);

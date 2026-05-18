@@ -17,11 +17,13 @@ class Post extends Model
         'is_hidden',
         'type',
         'hls_url',
-        'processing_status'
+        'processing_status',
+        'views_count'
     ];
 
     protected $casts = [
         'is_hidden' => 'boolean',
+        'views_count' => 'integer',
     ];
 
     public function user()

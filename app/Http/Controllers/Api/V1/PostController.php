@@ -424,4 +424,24 @@ class PostController extends Controller
             'message' => 'Reels retrieved successfully'
         ]);
     }
+
+    /**
+     * Increment view count for a Reel / Post.
+     */
+    public function incrementView($id)
+    {
+        $post = Post::find($id);
+
+        if (!$post) {
+            return response()->json(['status' => false, 'message' => 'Post not found'], 404);
+        }
+
+        $post->increment('views_count');
+
+        return response()->json([
+            'status' => true,
+            'message' => 'View incremented successfully',
+            'views_count' => $post->views_count
+        ]);
+    }
 }
