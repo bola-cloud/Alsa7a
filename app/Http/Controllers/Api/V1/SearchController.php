@@ -24,6 +24,15 @@ class SearchController extends Controller
                     ->orWhere('email', 'like', "%{$search}%")
                     ->orWhere('phone', 'like', "%{$search}%")
                     ->orWhere('profile_title', 'like', "%{$search}%");
+                
+                // Support searching by mathematical alsa7a_id
+                if (is_numeric($search)) {
+                    $numericVal = (int) $search;
+                    if ($numericVal > 100000 && ($numericVal - 100000) % 10 === 0) {
+                        $realId = ($numericVal - 100000) / 10;
+                        $q->orWhere('id', $realId);
+                    }
+                }
             });
         }
 
