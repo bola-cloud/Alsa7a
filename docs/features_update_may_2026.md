@@ -144,3 +144,123 @@ Ensuring users have control over their social interactions.
     2. The owner of the post where the comment resides.
 
 ---
+
+## 5. Reels Video & HLS System (FFmpeg Integration)
+
+To optimize storage space on our 50GB VPS and provide a smooth, buffering-free streaming experience like TikTok or Instagram, Alsa7a implements a server-side video compression and **HLS (HTTP Live Streaming)** adaptive chunking pipeline.
+
+### Architectural Workflow
+1. **Upload**: User uploads a video (`.mp4`, `.mov`, etc.) via the standard post endpoint. The post is temporarily marked as `processing_status = "pending"`.
+2. **Background Processing**: A background queue job `ProcessReelVideo` processes the raw video asynchronously using **FFmpeg**:
+   - Compresses the video into three adaptive bitrates: Low (500 Kbps), Medium (1500 Kbps), and High (3000 Kbps).
+   - Segments the video into small `.ts` chunks.
+   - Generates a master `.m3u8` HLS playlist referencing these segments.
+3. **Storage Preservation**: Once chunking is complete, the original heavy raw `.mp4` file is safely deleted from the server disk to save space.
+4. **Publish**: The post is marked as `processing_status = "completed"`, immediately making it visible in feeds.
+
+### Database Schema Changes
+- **Table**: `posts` & `community_posts`
+  - `hls_url` (String, Nullable): URL to the `.m3u8` playlist.
+  - `processing_status` (Enum: `completed`, `pending`, `processing`, `failed`): Tracks FFmpeg queue state. Defaults to `completed`.
+- **Table**: `posts` only
+  - `views_count` (Unsigned Integer): Tracks views. Defaults to `0`.
+
+---
+
+### API Endpoints
+
+#### **POST `/api/v1/posts`** (Upload Reel Video)
+Submits a new standard video post to the processing pipeline.
+- **Authentication**: Required (Sanctum).
+- **Payload (Multipart Form-Data)**:
+  - `content` (String, Optional): Post description.
+  - `video` (File, Required): High-resolution MP4/MOV video up to 50MB.
+  - `video_thumbnail` (File, Optional): Preview thumbnail image.
+- **Response (201 Created)**:
+```json
+{
+  "status": true,
+  "message": "Post created successfully",
+  "data": {
+    "id": 105,
+    "user_id": 12,
+    "content": "فيديو ريلز تجريبي⚽️",
+    "image": "posts/videos/temp_name.mp4",
+    "video_thumbnail": "storage/posts/thumbnails/preview.jpg",
+    "type": "video",
+    "processing_status": "pending",
+    "views_count": 0,
+    "hls_url": null
+  }
+}
+```
+
+#### **GET `/api/v1/reels`** (Reels Feed)
+Retrieves a paginated list of fully-processed profile videos.
+- **Filter Applied**: Automatically excludes posts with `processing_status != "completed"` or `type != "video"`.
+- **Authentication**: Optional (providing Sanctum Bearer token populates `is_liked` & `is_following` statuses).
+- **Response (200 OK)**:
+```json
+{
+  "status": true,
+  "data": {
+    "current_page": 1,
+    "data": [
+      {
+        "id": 105,
+        "user_id": 12,
+        "content": "فيديو ريلز تجريبي⚽️",
+        "video_thumbnail": "https://alsaha.tech/storage/posts/thumbnails/preview.jpg",
+        "type": "video",
+        "hls_url": "https://alsaha.tech/storage/reels/105_xYZaBc12/playlist.m3u8",
+        "processing_status": "completed",
+        "views_count": 421,
+        "likes_count": 15,
+        "comments_count": 3,
+        "is_liked": false,
+        "user": {
+          "id": 12,
+          "name": "Alex",
+          "is_following": true
+        }
+      }
+    ]
+  },
+  "message": "Reels retrieved successfully"
+}
+```
+
+#### **POST `/api/v1/posts/{id}/view`** (Increment View Count)
+Increments the `views_count` for a post/reel. 
+- **Authentication**: Optional (supports anonymous guest views to ensure accurate engagement tracking).
+- **Response (200 OK)**:
+```json
+{
+  "status": true,
+  "message": "View incremented successfully",
+  "views_count": 422
+}
+```
+
+---
+
+## 6. Unique User Identifier (`alsa7a_id`)
+
+For enhanced security and a more professional presentation, real database IDs (`id`) are visually masked across the platform.
+
+### Implementation
+A new dynamic accessor has been added to the `User` model, which generates a padded, branded unique identifier on-the-fly. This identifier is automatically appended to all User objects in every API response.
+
+- **Format**: Numeric (e.g., `100150` for User ID 15 via the formula `100000 + (ID * 10)`).
+- **Attribute Name**: `alsa7a_id`
+
+### API Impact
+All endpoints returning user data (Login, Profile, Feed, Comments, Reels, etc.) will now include the `alsa7a_id` alongside standard user fields:
+```json
+{
+  "id": 15,
+  "alsa7a_id": 100150,
+  "name": "Ahmed",
+  "profile_photo_url": "https://alsaha.tech/storage/..."
+}
+```

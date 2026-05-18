@@ -240,7 +240,13 @@ class User extends Authenticatable
         'answered_question_ids',
         'questions_complete',
         'display_name',
+        'alsa7a_id',
     ];
+
+    public function getAlsa7aIdAttribute()
+    {
+        return 100000 + ($this->id * 10);
+    }
 
     public function getDisplayNameAttribute()
     {
