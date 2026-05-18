@@ -60,6 +60,7 @@ Route::prefix('v1')->middleware('set.api.locale')->group(function () {
     Route::get('news', [App\Http\Controllers\Api\V1\NewsController::class, 'index']);
     Route::get('news/{id}', [App\Http\Controllers\Api\V1\NewsController::class, 'show']);
     Route::get('posts', [App\Http\Controllers\Api\V1\PostController::class, 'index']); // Public Feed of Profile Posts
+    Route::get('reels', [App\Http\Controllers\Api\V1\PostController::class, 'reels']); // Public Reels Feed (Videos only)
     Route::get('posts/{id}', [App\Http\Controllers\Api\V1\PostController::class, 'show']);
 
     // Community Blogs (Categorized)

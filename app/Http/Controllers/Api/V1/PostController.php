@@ -382,4 +382,46 @@ class PostController extends Controller
             'data' => $comment->load('user')
         ], 201);
     }
+
+    /**
+     * Get Reels Feed (Only videos, completed processing).
+     */
+    public function reels(Request $request)
+    {
+        $query = Post::with(['user', 'comments'])
+            ->withCount(['likes', 'comments'])
+            ->where('is_hidden', false)
+            ->where('type', 'video')
+            ->where('processing_status', 'completed')
+            ->latest();
+
+        $posts = $query->paginate(10);
+
+        if ($user = $request->user('sanctum')) {
+            $postIds = $posts->getCollection()->pluck('id')->toArray();
+            $authorIds = $posts->getCollection()->pluck('user_id')->unique()->toArray();
+            
+            $likedPostIds = \App\Models\Like::where('user_id', $user->id)
+                ->where('likeable_type', Post::class)
+                ->whereIn('likeable_id', $postIds)
+                ->pluck('likeable_id')->toArray();
+                
+            $followingIds = $user->following()->whereIn('following_id', $authorIds)->pluck('following_id')->toArray();
+            $followerIds = $user->followers()->whereIn('follower_id', $authorIds)->pluck('follower_id')->toArray();
+
+            $posts->getCollection()->each(function ($post) use ($likedPostIds, $followingIds, $followerIds) {
+                $post->setAttribute('is_liked', in_array($post->id, $likedPostIds));
+                if ($post->user) {
+                    $post->user->setAttribute('is_following', in_array($post->user->id, $followingIds));
+                    $post->user->setAttribute('is_follower', in_array($post->user->id, $followerIds));
+                }
+            });
+        }
+
+        return response()->json([
+            'status' => true,
+            'data' => $posts,
+            'message' => 'Reels retrieved successfully'
+        ]);
+    }
 }

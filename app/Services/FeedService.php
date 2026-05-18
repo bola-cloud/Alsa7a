@@ -26,6 +26,7 @@ class FeedService
         $baseUnseen = Post::with(['user.category', 'user.club', 'user.ownedClub', 'comments'])
             ->withCount(['likes', 'comments'])
             ->where('is_hidden', false)
+            ->where('processing_status', 'completed')
             ->latest();
 
         if ($user) {
