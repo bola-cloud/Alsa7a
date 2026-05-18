@@ -15,7 +15,9 @@ class Post extends Model
         'image',
         'video_thumbnail',
         'is_hidden',
-        'type'
+        'type',
+        'hls_url',
+        'processing_status'
     ];
 
     protected $casts = [
@@ -58,5 +60,14 @@ class Post extends Model
         if (preg_match('#^https?://#i', $value))
             return $value;
         return asset($value); // Thumbnails already include 'storage/' prefix in DB
+    }
+
+    public function getHlsUrlAttribute($value)
+    {
+        if (!$value)
+            return null;
+        if (preg_match('#^https?://#i', $value))
+            return $value;
+        return asset('storage/' . $value);
     }
 }

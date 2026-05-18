@@ -50,6 +50,15 @@ Allows a club owner to submit a new event for review.
 }
 ```
 
+- **Error Response (403 Forbidden)**:
+If the authenticated user does not own a club.
+```json
+{
+  "status": false,
+  "message": "User does not own a club"
+}
+```
+
 #### **GET `/api/v1/club/events`**
 Returns a list of events owned by the authenticated club, including their current status.
 
@@ -135,9 +144,3 @@ Ensuring users have control over their social interactions.
     2. The owner of the post where the comment resides.
 
 ---
-
-## Technical Summary
-- **Zero-Downtime Migration**: Database changes were added as non-breaking columns.
-- **Legacy Support**: Public APIs were updated to filter `status: approved` without changing the response structure for existing app versions.
-- **Admin Panel**: Fully integrated with the new `link` and `status` fields, including localized translations (Arabic/English).
-

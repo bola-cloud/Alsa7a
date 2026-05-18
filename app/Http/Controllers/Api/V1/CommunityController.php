@@ -45,6 +45,7 @@ class CommunityController extends Controller
         $query = CommunityPost::with(['user.category', 'user.club', 'user.ownedClub', 'category'])
             ->withCount(['comments', 'likes'])
             ->where('is_hidden', false)
+            ->where('processing_status', 'completed')
             ->latest();
 
         if ($request->has('category_id')) {
@@ -131,7 +132,12 @@ class CommunityController extends Controller
             'image' => $path,
             'video_thumbnail' => $thumbnailPath,
             'is_hidden' => false,
+            'processing_status' => $request->hasFile('video') ? 'pending' : 'completed',
         ]);
+
+        if ($request->hasFile('video')) {
+            \App\Jobs\ProcessReelVideo::dispatch($post, 'community');
+        }
 
         return response()->json([
             'status' => true,
@@ -150,6 +156,7 @@ class CommunityController extends Controller
         $post = CommunityPost::with(['user', 'category'])
             ->withCount(['comments', 'likes'])
             ->where('is_hidden', false)
+            ->where('processing_status', 'completed')
             ->find($id);
 
         if (!$post)

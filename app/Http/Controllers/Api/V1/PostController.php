@@ -21,6 +21,7 @@ class PostController extends Controller
         $query = Post::with(['user', 'comments']) // can limit comments or just load count + latest
             ->withCount(['likes', 'comments'])
             ->where('is_hidden', false)
+            ->where('processing_status', 'completed')
             ->latest();
 
         $posts = $query->paginate(10);
@@ -62,6 +63,7 @@ class PostController extends Controller
         $query = Post::where('user_id', $id)
             ->withCount(['likes', 'comments'])
             ->where('is_hidden', false)
+            ->where('processing_status', 'completed')
             ->latest();
 
         $posts = $query->paginate(9);
@@ -140,7 +142,12 @@ class PostController extends Controller
             'video_thumbnail' => $thumbnailPath ?? null,
             'type' => $type,
             'is_hidden' => false,
+            'processing_status' => $type === 'video' ? 'pending' : 'completed',
         ]);
+
+        if ($type === 'video') {
+            \App\Jobs\ProcessReelVideo::dispatch($post, 'post');
+        }
 
         return response()->json([
             'status' => true,
@@ -224,6 +231,7 @@ class PostController extends Controller
         $post = Post::with(['user', 'comments.user'])
             ->withCount(['likes', 'comments'])
             ->where('is_hidden', false)
+            ->where('processing_status', 'completed')
             ->find($id);
 
         if (!$post) {

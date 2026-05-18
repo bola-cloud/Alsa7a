@@ -9,7 +9,7 @@ class CommunityPost extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['user_id', 'community_category_id', 'content', 'image', 'video_thumbnail', 'is_hidden'];
+    protected $fillable = ['user_id', 'community_category_id', 'content', 'image', 'video_thumbnail', 'is_hidden', 'hls_url', 'processing_status'];
 
     protected $casts = [
         'is_hidden' => 'boolean',
@@ -51,5 +51,14 @@ class CommunityPost extends Model
         if (preg_match('#^https?://#i', $value))
             return $value;
         return asset($value); // Thumbnails already include 'storage/' prefix in DB
+    }
+
+    public function getHlsUrlAttribute($value)
+    {
+        if (!$value)
+            return null;
+        if (preg_match('#^https?://#i', $value))
+            return $value;
+        return asset('storage/' . $value);
     }
 }
