@@ -20,6 +20,7 @@ trait FormatsProfileData
 
         $data = [
             'id' => $user->id,
+            'alsa7a_id' => $user->alsa7a_id,
             'name' => $user->name,
             'username' => $user->email,
             'email' => $user->email,
