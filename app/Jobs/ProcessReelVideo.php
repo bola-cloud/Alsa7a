@@ -47,15 +47,12 @@ class ProcessReelVideo implements ShouldQueue
                 return;
             }
 
-            // Create HLS format with optimized encoding speed (superfast preset)
+            // Create HLS format with extreme compression to save space
             $lowBitrate = (new X264('aac', 'libx264'))->setKiloBitrate(500)
-                ->setAdditionalParameters(['-preset', 'superfast']);
+                ->setAdditionalParameters(['-preset', 'superfast', '-crf', '28']);
                 
             $midBitrate = (new X264('aac', 'libx264'))->setKiloBitrate(1500)
-                ->setAdditionalParameters(['-preset', 'superfast']);
-                
-            $highBitrate = (new X264('aac', 'libx264'))->setKiloBitrate(3000)
-                ->setAdditionalParameters(['-preset', 'superfast']);
+                ->setAdditionalParameters(['-preset', 'superfast', '-crf', '28']);
 
             $randomHash = Str::random(10);
             $outputDir = 'reels/' . $this->post->id . '_' . $randomHash;
@@ -66,7 +63,6 @@ class ProcessReelVideo implements ShouldQueue
                 ->exportForHLS()
                 ->addFormat($lowBitrate)
                 ->addFormat($midBitrate)
-                ->addFormat($highBitrate)
                 ->onProgress(function ($percentage) {
                     // Could broadcast progress via Reverb/WebSockets here if needed
                 })
