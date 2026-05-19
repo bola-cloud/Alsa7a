@@ -47,10 +47,15 @@ class ProcessReelVideo implements ShouldQueue
                 return;
             }
 
-            // Create HLS format (Adaptive bitrate can be added here)
-            $lowBitrate = (new X264('aac', 'libx264'))->setKiloBitrate(500);
-            $midBitrate = (new X264('aac', 'libx264'))->setKiloBitrate(1500);
-            $highBitrate = (new X264('aac', 'libx264'))->setKiloBitrate(3000);
+            // Create HLS format with optimized encoding speed (superfast preset)
+            $lowBitrate = (new X264('aac', 'libx264'))->setKiloBitrate(500)
+                ->setAdditionalParameters(['-preset', 'superfast']);
+                
+            $midBitrate = (new X264('aac', 'libx264'))->setKiloBitrate(1500)
+                ->setAdditionalParameters(['-preset', 'superfast']);
+                
+            $highBitrate = (new X264('aac', 'libx264'))->setKiloBitrate(3000)
+                ->setAdditionalParameters(['-preset', 'superfast']);
 
             $randomHash = Str::random(10);
             $outputDir = 'reels/' . $this->post->id . '_' . $randomHash;
