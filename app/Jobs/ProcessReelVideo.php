@@ -47,11 +47,8 @@ class ProcessReelVideo implements ShouldQueue
                 return;
             }
 
-            // Create HLS format with extreme compression to save space
-            $lowBitrate = (new X264('aac', 'libx264'))->setKiloBitrate(500)
-                ->setAdditionalParameters(['-preset', 'superfast', '-crf', '28']);
-                
-            $midBitrate = (new X264('aac', 'libx264'))->setKiloBitrate(1500)
+            // Create ONE single highly compressed HLS format to save maximum space
+            $singleBitrate = (new X264('aac', 'libx264'))->setKiloBitrate(750)
                 ->setAdditionalParameters(['-preset', 'superfast', '-crf', '28']);
 
             $randomHash = Str::random(10);
@@ -61,8 +58,7 @@ class ProcessReelVideo implements ShouldQueue
             FFMpeg::fromDisk('public')
                 ->open($rawPath)
                 ->exportForHLS()
-                ->addFormat($lowBitrate)
-                ->addFormat($midBitrate)
+                ->addFormat($singleBitrate)
                 ->onProgress(function ($percentage) {
                     // Could broadcast progress via Reverb/WebSockets here if needed
                 })
