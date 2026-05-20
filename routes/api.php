@@ -117,6 +117,9 @@ Route::prefix('v1')->middleware('set.api.locale')->group(function () {
         Route::get('clubs', [App\Http\Controllers\Api\V1\ClubController::class, 'index']);
         Route::get('clubs/{id}', [App\Http\Controllers\Api\V1\ClubController::class, 'show']);
         Route::post('clubs/{id}/leagues', [App\Http\Controllers\Api\V1\ClubController::class, 'updateLeagues']);
+        Route::get('clubs/{club_id}/members', [App\Http\Controllers\Api\V1\ClubController::class, 'getMembers']);
+        Route::post('clubs/{club_id}/members/{user_id}', [App\Http\Controllers\Api\V1\ClubController::class, 'updateMember']);
+        Route::delete('clubs/{club_id}/members/{user_id}', [App\Http\Controllers\Api\V1\ClubController::class, 'removeMember']);
         
         // Club Events
         Route::get('club/events', [App\Http\Controllers\Api\V1\ClubEventController::class, 'index']);
