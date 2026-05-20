@@ -123,6 +123,16 @@ class ClubController extends Controller
             return response()->json(['status' => false, 'message' => 'Member not found in this club'], 404);
         }
 
+        // Safety Check: Cannot modify the club owner
+        if ($member->id === $club->user_id) {
+            return response()->json(['status' => false, 'message' => 'Cannot modify the club owner.'], 400);
+        }
+
+        // Safety Check: Cannot modify other club accounts
+        if ($member->category && $member->category->isProtected()) {
+            return response()->json(['status' => false, 'message' => 'Cannot modify a club account.'], 400);
+        }
+
         $validator = \Illuminate\Support\Facades\Validator::make($request->all(), [
             'team_id' => 'nullable|exists:teams,id',
             'position' => 'nullable|string|max:100',
@@ -180,6 +190,16 @@ class ClubController extends Controller
         $member = \App\Models\User::where('club_id', $club_id)->where('id', $user_id)->first();
         if (!$member) {
             return response()->json(['status' => false, 'message' => 'Member not found in this club'], 404);
+        }
+
+        // Safety Check: Cannot remove the club owner
+        if ($member->id === $club->user_id) {
+            return response()->json(['status' => false, 'message' => 'Cannot remove the club owner.'], 400);
+        }
+
+        // Safety Check: Cannot remove other club accounts
+        if ($member->category && $member->category->isProtected()) {
+            return response()->json(['status' => false, 'message' => 'Cannot remove a club account from the club roster.'], 400);
         }
 
         // Reset club and team association
