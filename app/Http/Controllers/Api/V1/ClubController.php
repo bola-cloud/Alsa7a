@@ -113,9 +113,10 @@ class ClubController extends Controller
             return response()->json(['status' => false, 'message' => 'Club not found'], 404);
         }
 
-        // Authorization: Only the club owner can manage members
-        if ($club->user_id !== $request->user()->id) {
-            return response()->json(['status' => false, 'message' => 'Unauthorized. Only the club owner can manage members.'], 403);
+        // Authorization: Only the club owner or system admin can manage members
+        $currentUser = $request->user();
+        if ($club->user_id !== $currentUser->id && !$currentUser->is_admin) {
+            return response()->json(['status' => false, 'message' => 'Unauthorized. Only the club owner or system admin can manage members.'], 403);
         }
 
         $member = \App\Models\User::where('club_id', $club_id)->where('id', $user_id)->first();
@@ -182,9 +183,10 @@ class ClubController extends Controller
             return response()->json(['status' => false, 'message' => 'Club not found'], 404);
         }
 
-        // Authorization: Only the club owner can manage members
-        if ($club->user_id !== $request->user()->id) {
-            return response()->json(['status' => false, 'message' => 'Unauthorized. Only the club owner can manage members.'], 403);
+        // Authorization: Only the club owner or system admin can manage members
+        $currentUser = $request->user();
+        if ($club->user_id !== $currentUser->id && !$currentUser->is_admin) {
+            return response()->json(['status' => false, 'message' => 'Unauthorized. Only the club owner or system admin can manage members.'], 403);
         }
 
         $member = \App\Models\User::where('club_id', $club_id)->where('id', $user_id)->first();
