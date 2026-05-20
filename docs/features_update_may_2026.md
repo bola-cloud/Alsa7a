@@ -264,3 +264,88 @@ All endpoints returning user data (Login, Profile, Feed, Comments, Reels, etc.) 
   "profile_photo_url": "https://alsaha.tech/storage/..."
 }
 ```
+
+---
+
+## 7. Club Member Management APIs
+
+Three new endpoints have been introduced to allow Club Owners to manage club members (players, coaches, staff) directly through the mobile application.
+
+### Authorization & Safety Guards
+- **Strictly Owner-Only**: Only the owner of the club (`club.user_id === auth_user.id`) can perform update or delete actions.
+- **Admin Panel Control**: System administrators are barred from executing these actions through these APIs; they must use the Filament admin dashboard.
+- **Protected Accounts**: Club owners cannot remove themselves, nor can they delete or modify any other accounts belonging to the "Club" category (`isProtected()`).
+- **No Player Access**: Regular players or non-owner members will receive a `403 Forbidden` error if they try to access update/delete endpoints.
+
+---
+
+### **7.1 GET `/api/v1/clubs/{club_id}/members`** (List Members)
+Retrieves a paginated list of users belonging to the club.
+- **Authentication**: Required (`auth:sanctum`).
+- **Query Parameters**:
+  - `search` (string, optional): Search by user name, email, or `alsa7a_id` (fully supports reverse-math lookup).
+  - `team_id` (string/integer, optional): Filter members by team. Pass `'none'` to fetch members not assigned to any team.
+- **Response (200 OK)**:
+```json
+{
+  "status": true,
+  "data": {
+    "current_page": 1,
+    "data": [
+      {
+        "id": 28,
+        "alsa7a_id": 100280,
+        "name": "Youssef Player",
+        "email": "player@alsa7a.com",
+        "position": "Forward",
+        "number": 10,
+        "team_id": 4,
+        "team": {
+          "id": 4,
+          "name": "Under 18 Team"
+        }
+      }
+    ],
+    "total": 1
+  },
+  "message": "Club members retrieved successfully"
+}
+```
+
+---
+
+### **7.2 POST `/api/v1/clubs/{club_id}/members/{user_id}`** (Update Member/Transfer)
+Updates the player's team association, position, or jersey number.
+- **Authentication**: Required (`auth:sanctum` - Club Owner only).
+- **Body Parameters (form-data/json)**:
+  - `team_id` (integer/null, optional): The ID of the team to transfer the user to. Must belong to the same club. Pass `null` to remove from all teams.
+  - `position` (string, optional): The player's position (e.g., `"Forward"`, `"Goalkeeper"`).
+  - `number` (integer, optional): The player's jersey number.
+- **Response (200 OK)**:
+```json
+{
+  "status": true,
+  "data": {
+    "id": 28,
+    "alsa7a_id": 100280,
+    "name": "Youssef Player",
+    "team_id": 5,
+    "position": "Midfielder",
+    "number": 8
+  },
+  "message": "Member updated successfully"
+}
+```
+
+---
+
+### **7.3 DELETE `/api/v1/clubs/{club_id}/members/{user_id}`** (Remove Member)
+Completely removes the member from the club roster, setting their `club_id` and `team_id` to `null`.
+- **Authentication**: Required (`auth:sanctum` - Club Owner only).
+- **Response (200 OK)**:
+```json
+{
+  "status": true,
+  "message": "Member removed from club successfully"
+}
+```
