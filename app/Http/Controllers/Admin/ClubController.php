@@ -41,7 +41,12 @@ class ClubController extends Controller
             });
         }
 
-        $clubs = $query->paginate(10)->withQueryString();
+        $perPage = $request->integer('per_page', 10);
+        if (!in_array($perPage, [10, 25, 50, 100, 250])) {
+            $perPage = 10;
+        }
+
+        $clubs = $query->paginate($perPage)->withQueryString();
         $sports = Sport::all();
 
         return view('admin.clubs.index', compact('clubs', 'sports'));

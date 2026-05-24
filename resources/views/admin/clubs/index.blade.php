@@ -25,7 +25,7 @@
         <div class="card-body p-3">
             <form action="{{ route('admin.clubs.index') }}" method="GET">
                 <div class="row align-items-end">
-                    <div class="col-md-5 mb-2 mb-md-0">
+                    <div class="col-md-4 mb-2 mb-md-0">
                         <label class="text-muted small mb-1">{{ __('admin.categories.search') }}</label>
                         <div class="position-relative">
                             <input type="text" name="search" class="form-control pl-4"
@@ -33,13 +33,23 @@
                             <i class="la la-search position-absolute" style="top: 10px; left: 10px; color: #b0afb5;"></i>
                         </div>
                     </div>
-                    <div class="col-md-4 mb-2 mb-md-0">
+                    <div class="col-md-3 mb-2 mb-md-0">
                         <label class="text-muted small mb-1">{{ __('admin.sports.title') }}</label>
                         <select name="sport_id" class="form-control select2">
                             <option value="">{{ __('admin.categories.all') }}</option>
                             @foreach($sports as $sport)
                                 <option value="{{ $sport->id }}" {{ request('sport_id') == $sport->id ? 'selected' : '' }}>
                                     {{ $sport->name }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-md-2 mb-2 mb-md-0">
+                        <label class="text-muted small mb-1">{{ __('admin.users.per_page') ?? 'Rows' }}</label>
+                        <select name="per_page" class="form-control">
+                            @foreach([10, 25, 50, 100, 250] as $size)
+                                <option value="{{ $size }}" {{ request('per_page', 10) == $size ? 'selected' : '' }}>
+                                    {{ $size }}
                                 </option>
                             @endforeach
                         </select>

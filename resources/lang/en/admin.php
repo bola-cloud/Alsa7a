@@ -347,6 +347,7 @@ return [
         'cancel_subscription' => 'Cancel Subscription',
         'confirm_cancel_subscription' => 'Are you sure you want to cancel this user\'s subscription?',
         'bulk_actions' => 'Bulk Actions',
+        'per_page' => 'Rows Per Page',
     ],
     'status' => [
         'pending' => 'Pending',

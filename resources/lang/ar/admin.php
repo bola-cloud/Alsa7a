@@ -347,6 +347,7 @@ return [
         'cancel_subscription' => 'إلغاء الاشتراك',
         'confirm_cancel_subscription' => 'هل أنت متأكد أنك تريد إلغاء اشتراك هذا المستخدم؟',
         'bulk_actions' => 'العمليات الجماعية',
+        'per_page' => 'عدد الصفوف لكل صفحة',
     ],
     'status' => [
         'pending' => 'قيد الانتظار',
