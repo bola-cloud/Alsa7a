@@ -290,12 +290,16 @@ class PostController extends Controller
             // Notify Post Owner
             try {
                 if ($post->user_id !== $user->id) {
+                    $displayName = $user->display_name;
+                    $displayNameEn = $user->display_name_en;
+                    $displayNameAr = $user->display_name_ar;
+
                     $post->user->notify(new PostInteractionNotification($post, [
                         'title' => 'New Like',
-                        'body' => "{$user->name} liked your post.",
+                        'body' => "{$displayName} liked your post.",
                         'interaction_type' => 'like',
                         'push_title' => ['en' => 'New Like', 'ar' => 'إعجاب جديد'],
-                        'push_body' => ['en' => "{$user->name} liked your post.", 'ar' => "قام {$user->name} بالإعجاب بمنشورك."]
+                        'push_body' => ['en' => "{$displayNameEn} liked your post.", 'ar' => "قام {$displayNameAr} بالإعجاب بمنشورك."]
                     ]));
                 }
             } catch (\Exception $e) {
@@ -364,12 +368,16 @@ class PostController extends Controller
         try {
             $user = $request->user();
             if ($post->user_id !== $user->id) {
+                $displayName = $user->display_name;
+                $displayNameEn = $user->display_name_en;
+                $displayNameAr = $user->display_name_ar;
+
                 $post->user->notify(new PostInteractionNotification($post, [
                     'title' => 'New Comment',
-                    'body' => "{$user->name} commented on your post.",
+                    'body' => "{$displayName} commented on your post.",
                     'interaction_type' => 'comment',
                     'push_title' => ['en' => 'New Comment', 'ar' => 'تعليق جديد'],
-                    'push_body' => ['en' => "{$user->name} commented on your post.", 'ar' => "قام {$user->name} بالتعليق على منشورك."]
+                    'push_body' => ['en' => "{$displayNameEn} commented on your post.", 'ar' => "قام {$displayNameAr} بالتعليق على منشورك."]
                 ]));
             }
         } catch (\Exception $e) {

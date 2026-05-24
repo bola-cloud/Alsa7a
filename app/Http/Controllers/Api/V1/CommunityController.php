@@ -267,12 +267,16 @@ class CommunityController extends Controller
             // Notify Post Owner
             try {
                 if ($post->user_id !== $user->id) {
+                    $displayName = $user->display_name;
+                    $displayNameEn = $user->display_name_en;
+                    $displayNameAr = $user->display_name_ar;
+
                     $post->user->notify(new PostInteractionNotification($post, [
                         'title' => 'New Like',
-                        'body' => "{$user->name} liked your community post.",
+                        'body' => "{$displayName} liked your community post.",
                         'interaction_type' => 'like',
                         'push_title' => ['en' => 'New Like', 'ar' => 'إعجاب جديد'],
-                        'push_body' => ['en' => "{$user->name} liked your community post.", 'ar' => "قام {$user->name} بالإعجاب بمنشورك في المجتمع."]
+                        'push_body' => ['en' => "{$displayNameEn} liked your community post.", 'ar' => "قام {$displayNameAr} بالإعجاب بمنشورك في المجتمع."]
                     ]));
                 }
             } catch (\Exception $e) {
@@ -352,12 +356,16 @@ class CommunityController extends Controller
         try {
             $user = $request->user();
             if ($post->user_id !== $user->id) {
+                $displayName = $user->display_name;
+                $displayNameEn = $user->display_name_en;
+                $displayNameAr = $user->display_name_ar;
+
                 $post->user->notify(new PostInteractionNotification($post, [
                     'title' => 'New Comment',
-                    'body' => "{$user->name} commented on your community post.",
+                    'body' => "{$displayName} commented on your community post.",
                     'interaction_type' => 'comment',
                     'push_title' => ['en' => 'New Comment', 'ar' => 'تعليق جديد'],
-                    'push_body' => ['en' => "{$user->name} commented on your community post.", 'ar' => "قام {$user->name} بالتعليق على منشورك في المجتمع."]
+                    'push_body' => ['en' => "{$displayNameEn} commented on your community post.", 'ar' => "قام {$displayNameAr} بالتعليق على منشورك في المجتمع."]
                 ]));
             }
         } catch (\Exception $e) {
