@@ -57,6 +57,7 @@ Route::group([
         Route::resource('events', EventController::class);
 
         // Club Management
+        Route::post('clubs/bulk', [\App\Http\Controllers\Admin\ClubController::class, 'bulk'])->name('clubs.bulk');
         Route::resource('clubs', \App\Http\Controllers\Admin\ClubController::class);
         Route::resource('clubs.teams', \App\Http\Controllers\Admin\TeamController::class);
         Route::post('clubs/{club}/teams/{team}/add-member', [\App\Http\Controllers\Admin\TeamController::class, 'addMember'])->name('clubs.teams.add_member');

@@ -227,4 +227,35 @@ class ClubController extends Controller
         $this->flashSuccess('Club deleted successfully');
         return redirect()->route('admin.clubs.index');
     }
+
+    /**
+     * Bulk Actions
+     */
+    public function bulk(Request $request)
+    {
+        $request->validate([
+            'ids' => 'required|array',
+            'ids.*' => 'exists:clubs,id',
+            'action' => 'required|in:delete',
+        ]);
+
+        $ids = $request->ids;
+        $action = $request->action;
+
+        if ($action === 'delete') {
+            $clubs = Club::whereIn('id', $ids)->get();
+            foreach ($clubs as $club) {
+                if ($club->logo_url) {
+                    $this->imageService->delete($club->logo_url);
+                }
+                if ($club->banner_url) {
+                    $this->imageService->delete($club->banner_url);
+                }
+                $club->delete();
+            }
+            $this->flashSuccess(__('admin.messages.deleted_successfully'));
+        }
+
+        return redirect()->back();
+    }
 }
