@@ -24,8 +24,9 @@ class FeedController extends Controller
     {
         $user = $request->user('sanctum');
         $perPage = $request->input('per_page', 10);
+        $type = $request->input('type');
 
-        $feed = $this->feedService->getFeed($user, (int) $perPage);
+        $feed = $this->feedService->getFeed($user, (int) $perPage, $type);
 
         return response()->json([
             'status' => true,

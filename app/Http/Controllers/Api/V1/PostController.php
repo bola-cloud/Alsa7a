@@ -21,8 +21,13 @@ class PostController extends Controller
         $query = Post::with(['user', 'comments']) // can limit comments or just load count + latest
             ->withCount(['likes', 'comments'])
             ->where('is_hidden', false)
-            ->where('processing_status', 'completed')
-            ->latest();
+            ->where('processing_status', 'completed');
+
+        if ($request->has('type') && in_array($request->type, ['image', 'video'])) {
+            $query->where('type', $request->type);
+        }
+
+        $query->latest();
 
         $posts = $query->paginate(10);
 
@@ -63,8 +68,13 @@ class PostController extends Controller
         $query = Post::where('user_id', $id)
             ->withCount(['likes', 'comments'])
             ->where('is_hidden', false)
-            ->where('processing_status', 'completed')
-            ->latest();
+            ->where('processing_status', 'completed');
+
+        if ($request->has('type') && in_array($request->type, ['image', 'video'])) {
+            $query->where('type', $request->type);
+        }
+
+        $query->latest();
 
         $posts = $query->paginate(9);
 

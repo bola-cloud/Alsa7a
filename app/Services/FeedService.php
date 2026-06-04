@@ -20,68 +20,34 @@ class FeedService
      * 2. Unseen posts from non-followed users (Suggestions)
      * 3. Fallback to seen posts if all content is exhausted.
      */
-    public function getFeed(?User $user = null, int $perPage = 10)
+    public function getFeed(?User $user = null, int $perPage = 10, ?string $type = null)
     {
-        // Base unseen query for both authenticated and guests
-        $baseUnseen = Post::with(['user.category', 'user.club', 'user.ownedClub', 'comments'])
+        $baseQuery = Post::with(['user.category', 'user.club', 'user.ownedClub', 'comments'])
             ->withCount(['likes', 'comments'])
             ->where('is_hidden', false)
-            ->where('processing_status', 'completed')
-            ->latest();
+            ->where('processing_status', 'completed');
+
+        if ($type && in_array($type, ['image', 'video'])) {
+            $baseQuery->where('type', $type);
+        }
 
         if ($user) {
-            $viewedPostIds = $user->viewedPosts()->pluck('post_id')->toArray();
             $followingIds = $user->following()->pluck('following_id')->toArray();
-            $baseUnseenUser = (clone $baseUnseen)->whereNotIn('id', $viewedPostIds);
+            $followingIds[] = $user->id; // Include self
+            $followingIdsStr = implode(',', $followingIds);
+            $userId = $user->id;
 
-            // 1. Get Unseen posts from Followed users and Self
-            $followedUnseen = (clone $baseUnseenUser)->whereIn('user_id', array_merge($followingIds, [$user->id]));
+            $baseQuery->select('posts.*')
+                ->selectRaw("EXISTS(SELECT 1 FROM post_views WHERE post_views.post_id = posts.id AND post_views.user_id = ?) as is_seen", [$userId])
+                ->selectRaw("IF(posts.user_id IN ($followingIdsStr), 1, 0) as is_following_or_self")
+                ->orderBy('is_seen', 'asc') // Unseen first (0), then seen (1)
+                ->orderBy('is_following_or_self', 'desc') // Followed first (1), then suggestions (0)
+                ->latest('posts.created_at');
 
-            // 2. Get Unseen posts from non-followed (Suggestions)
-            $suggestedUnseen = (clone $baseUnseenUser)->whereNotIn('user_id', array_merge($followingIds, [$user->id]));
-
-            // Combine using Union or separate queries depending on count
-            $results = $followedUnseen->get()->merge($suggestedUnseen->get());
-
-            // 3. Fallback: If results are few, add seen posts back with priority
-            if ($results->count() < $perPage) {
-                // Seen posts from followed users and Self (Latest)
-                $seenFollowed = Post::with(['user.category', 'user.club', 'user.ownedClub', 'comments'])
-                    ->withCount(['likes', 'comments'])
-                    ->whereIn('user_id', array_merge($followingIds, [$user->id]))
-                    ->whereIn('id', $viewedPostIds)
-                    ->where('is_hidden', false)
-                    ->latest()
-                    ->limit($perPage)
-                    ->get();
-
-                // Seen posts from others (Suggestions)
-                $seenSuggested = Post::with(['user.category', 'user.club', 'user.ownedClub', 'comments'])
-                    ->withCount(['likes', 'comments'])
-                    ->whereNotIn('user_id', array_merge($followingIds, [$user->id]))
-                    ->whereIn('id', $viewedPostIds)
-                    ->where('is_hidden', false)
-                    ->latest()
-                    ->limit($perPage)
-                    ->get();
-
-                $results = $results->merge($seenFollowed)->merge($seenSuggested)->unique('id');
-            }
-
-            // Manual Pagination for memory collections
-            $currentPage = LengthAwarePaginator::resolveCurrentPage();
-            $currentItems = $results->slice(($currentPage - 1) * $perPage, $perPage)->values()->all();
-
-            $paginated = new LengthAwarePaginator(
-                $currentItems,
-                $results->count(),
-                $perPage,
-                $currentPage,
-                ['path' => LengthAwarePaginator::resolveCurrentPath()]
-            );
+            $paginated = $baseQuery->paginate($perPage);
         } else {
             // Guest Feed Logic: Native pagination on latest posts (order of posting)
-            $paginated = $baseUnseen->paginate($perPage);
+            $paginated = $baseQuery->latest()->paginate($perPage);
         }
 
         // Unique users processing to avoid redundant work and errors
