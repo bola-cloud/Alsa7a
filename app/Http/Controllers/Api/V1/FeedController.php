@@ -24,7 +24,7 @@ class FeedController extends Controller
     {
         $user = $request->user('sanctum');
         $perPage = $request->input('per_page', 10);
-        $type = $request->input('type');
+        $type = $request->input('type', 'image');
 
         $feed = $this->feedService->getFeed($user, (int) $perPage, $type);
 
