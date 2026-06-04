@@ -643,13 +643,14 @@
     </script>
     <script>
         let lastCount = 0;
+        let isFirstLoad = true;
         let audioEnabled = false;
         // Using a more robust notification sound link
         const notificationAudio = new Audio('https://notifications-sounds.com/storage/sounds/pizzicato.mp3');
 
         function fetchNotifications() {
             $.get('{{ route('admin.notifications.fetch') }}', function(data) {
-                if (data.count > lastCount) {
+                if (!isFirstLoad && data.count > lastCount) {
                     // Only play sound if count increased
                     if (data.count > 0) {
                          notificationAudio.play().catch(e => {
@@ -657,6 +658,7 @@
                          });
                     }
                 }
+                isFirstLoad = false;
                 lastCount = data.count;
 
                 if (data.count > 0) {

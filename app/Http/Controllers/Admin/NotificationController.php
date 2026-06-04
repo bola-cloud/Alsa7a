@@ -7,6 +7,30 @@ use Illuminate\Http\Request;
 
 class NotificationController extends Controller
 {
+    public function create()
+    {
+        return view('admin.notifications.create');
+    }
+
+    public function store(Request $request)
+    {
+        $request->validate([
+            'title' => 'required|string|max:255',
+            'message' => 'required|string',
+        ]);
+
+        // Send push notification via OneSignal
+        // We will broadcast it to all users using the OneSignal channel.
+        // We can create an anonymous notification or iterate over users.
+        
+        // Let's create an AdminGeneralNotification class first or use the OneSignal API directly.
+        // Actually, since we use OneSignalChannel, we can just use the facade or a custom notification class.
+        $users = \App\Models\User::whereNotNull('onesignal_subscription')->get();
+        \Illuminate\Support\Facades\Notification::send($users, new \App\Notifications\AdminGeneralNotification($request->title, $request->message));
+
+        return redirect()->route('admin.notifications.create')->with('success', __('admin.notifications.sent_success'));
+    }
+
     public function index()
     {
         $user = auth()->user();
