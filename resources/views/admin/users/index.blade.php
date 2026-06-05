@@ -21,7 +21,7 @@
             <div class="card-body p-3">
                 <form action="{{ route('admin.users.index') }}" method="GET">
                     <div class="row align-items-end">
-                        <div class="col-md-5 mb-2 mb-md-0">
+                        <div class="col-md-4 mb-2 mb-md-0">
                             <label class="text-muted small mb-1">{{ __('admin.buttons.search') }}</label>
                             <div class="position-relative">
                                 <input type="text" name="search" class="form-control pl-4" placeholder="{{ __('admin.users.search_placeholder') }}" value="{{ request('search') }}">
@@ -30,7 +30,7 @@
                                 </button>
                             </div>
                         </div>
-                        <div class="col-md-3 mb-2 mb-md-0">
+                        <div class="col-md-2 mb-2 mb-md-0">
                             <label class="text-muted small mb-1">{{ __('admin.users.role_category') }}</label>
                             <select name="category_id" class="form-control">
                                 <option value="">{{ __('admin.users.all_roles') }}</option>
@@ -56,7 +56,7 @@
                                 <option value="oldest" {{ request('sort') == 'oldest' ? 'selected' : '' }}>{{ __('admin.users.sort_oldest') }}</option>
                             </select>
                         </div>
-                        <div class="col-md-2">
+                        <div class="col-md-2 mb-2 mb-md-0">
                             <button type="submit" class="btn btn-primary btn-block">
                                 <i class="la la-filter"></i> {{ __('admin.users.filter') }}
                             </button>
