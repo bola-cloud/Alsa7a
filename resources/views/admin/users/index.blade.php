@@ -49,6 +49,13 @@
                                 <option value="unsubscribed" {{ request('subscription_status') == 'unsubscribed' ? 'selected' : '' }}>{{ __('admin.users.not_subscribed') }}</option>
                             </select>
                         </div>
+                        <div class="col-md-2 mb-2 mb-md-0">
+                            <label class="text-muted small mb-1">{{ __('admin.users.sort_by') }}</label>
+                            <select name="sort" class="form-control">
+                                <option value="latest" {{ request('sort') == 'latest' ? 'selected' : '' }}>{{ __('admin.users.sort_latest') }}</option>
+                                <option value="oldest" {{ request('sort') == 'oldest' ? 'selected' : '' }}>{{ __('admin.users.sort_oldest') }}</option>
+                            </select>
+                        </div>
                         <div class="col-md-2">
                             <button type="submit" class="btn btn-primary btn-block">
                                 <i class="la la-filter"></i> {{ __('admin.users.filter') }}
@@ -94,6 +101,7 @@
                                     <th>{{ __('admin.users.role') }}</th>
                                     <th>{{ __('admin.users.status') }}</th>
                                     <th>{{ __('admin.users.verification') }}</th>
+                                    <th>{{ __('admin.users.join_date') }}</th>
                                     <th>{{ __('admin.users.actions') }}</th>
                                 </tr>
                             </thead>
@@ -136,6 +144,9 @@
                                             @else
                                                 <span class="badge badge-secondary">{{ ucfirst($user->verification_status) }}</span>
                                             @endif
+                                        </td>
+                                        <td>
+                                            {{ $user->created_at ? $user->created_at->format('Y-m-d') : '-' }}
                                         </td>
                                         <td>
                                             <a href="{{ route('admin.users.show', $user->id) }}"

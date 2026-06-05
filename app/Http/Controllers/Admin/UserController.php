@@ -10,7 +10,7 @@ class UserController extends Controller
 {
     public function index(Request $request)
     {
-        $query = User::with('category', 'subscription')->latest();
+        $query = User::with('category', 'subscription');
 
         // General Search (Name, Email, Phone)
         if ($request->filled('search')) {
@@ -52,6 +52,12 @@ class UserController extends Controller
                       });
                 });
             }
+        }
+
+        if ($request->input('sort') === 'oldest') {
+            $query->oldest();
+        } else {
+            $query->latest();
         }
 
         $users = $query->paginate(15)->withQueryString();
