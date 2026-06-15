@@ -1,0 +1,14 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.alsaha.alsaha",
+      "sha256_cert_fingerprints": [
+        "4A:EC:6B:C0:C7:38:DB:74:BC:7F:70:2B:EA:83:F1:95:7A:88:BA:75:BD:C9:26:A6:8D:36:38:E8:2F:D9:4D:9A",
+        "4D:90:DB:55:70:E7:57:08:03:9C:50:63:E7:22:D3:22:9D:EE:0B:B3:78:21:6C:12:88:F0:D8:F4:EB:3B:2B:66",
+        "CF:8E:7D:EF:6D:A9:E9:ED:3E:2F:60:29:88:93:89:AB:E2:50:52:C1:3B:E0:32:C0:DF:2E:0F:C9:5E:49:AD:5E"
+      ]
+    }
+  }
+]

@@ -120,3 +120,10 @@ Route::get('/payment/cancel', [\App\Http\Controllers\Api\V1\PaymentController::c
 Route::get('/chat-test', function () {
     return view('chat-test');
 });
+
+// Deep Link Fallback (App Links / Universal Links)
+Route::prefix('app')->group(function () {
+    Route::get('{any?}', function() {
+        return view('app_fallback');
+    })->where('any', '.*');
+});
