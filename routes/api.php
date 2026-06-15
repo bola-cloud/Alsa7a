@@ -24,6 +24,7 @@ Route::prefix('v1')->middleware('set.api.locale')->group(function () {
     Route::prefix('auth')->group(function () {
         Route::post('register', [AuthController::class, 'register']);
         Route::post('login', [AuthController::class, 'login']);
+        Route::post('parent-login', [AuthController::class, 'parentLogin']);
         Route::post('verify-otp', [AuthController::class, 'verifyOtp']);
         Route::post('send-otp', [AuthController::class, 'sendOtp']);
         Route::post('forgot-password', [AuthController::class, 'forgotPassword']);
@@ -63,6 +64,7 @@ Route::prefix('v1')->middleware('set.api.locale')->group(function () {
     Route::get('reels', [App\Http\Controllers\Api\V1\PostController::class, 'reels']); // Public Reels Feed (Videos only)
     Route::get('posts/{id}', [App\Http\Controllers\Api\V1\PostController::class, 'show']);
     Route::post('posts/{id}/view', [App\Http\Controllers\Api\V1\PostController::class, 'incrementView']); // Increment View Count (Public)
+    Route::get('posts/{id}/likes', [App\Http\Controllers\Api\V1\PostController::class, 'likers']); // Get Post Likers
 
     // Community Blogs (Categorized)
     Route::get('community/categories', [App\Http\Controllers\Api\V1\CommunityController::class, 'getCategories']);
@@ -86,6 +88,7 @@ Route::prefix('v1')->middleware('set.api.locale')->group(function () {
         });
 
         Route::get('my-profile', [App\Http\Controllers\Api\V1\ProfileController::class, 'me']);
+        Route::get('profile/visitors', [App\Http\Controllers\Api\V1\ProfileController::class, 'visitors']);
 
         // Logout route under /api/v1/auth/logout
         Route::post('auth/logout', [AuthController::class, 'logout']);

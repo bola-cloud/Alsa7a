@@ -60,6 +60,7 @@ class User extends Authenticatable
         'show_services_activity',
         'rejection_reason',
         'onesignal_subscription',
+        'parent_code',
     ];
 
 

@@ -172,6 +172,32 @@ class AuthController extends Controller
         ]);
     }
 
+    public function parentLogin(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'parent_code' => 'required|string',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json($validator->errors(), 422);
+        }
+
+        $user = User::where('parent_code', $request->parent_code)->first();
+
+        if (!$user) {
+            return response()->json(['message' => 'Invalid parent code'], 401);
+        }
+
+        // Generate token with view-only ability
+        $token = $user->createToken('parent-token', ['view-only'])->plainTextToken;
+
+        return response()->json([
+            'user' => $user,
+            'token' => $token,
+            'is_parent_view' => true,
+        ]);
+    }
+
     public function logout(Request $request)
     {
         $user = $request->user();

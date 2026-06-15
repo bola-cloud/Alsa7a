@@ -64,9 +64,45 @@ class ProfileController extends Controller
         $isFollowing = false;
         if ($currentUser) {
             $isFollowing = $currentUser->following()->where('following_id', $user->id)->exists();
+            
+            // Track Profile Visit
+            if ($currentUser->id !== $user->id) {
+                $recentVisit = \App\Models\ProfileVisit::where('visitor_id', $currentUser->id)
+                    ->where('visited_id', $user->id)
+                    ->where('updated_at', '>=', now()->subHours(24))
+                    ->first();
+
+                if ($recentVisit) {
+                    $recentVisit->touch();
+                } else {
+                    \App\Models\ProfileVisit::create([
+                        'visitor_id' => $currentUser->id,
+                        'visited_id' => $user->id,
+                    ]);
+                }
+            }
         }
 
         return $this->formatProfileResponse($user, $isFollowing, $currentUser);
+    }
+
+    /**
+     * Get list of users who visited my profile.
+     */
+    public function visitors(Request $request)
+    {
+        $user = $request->user();
+
+        $visits = \App\Models\ProfileVisit::with('visitor:id,name,email,avatar,phone')
+            ->where('visited_id', $user->id)
+            ->latest('updated_at')
+            ->paginate(15);
+
+        return response()->json([
+            'status' => true,
+            'data' => $visits,
+            'message' => 'Profile visitors retrieved successfully'
+        ]);
     }
 
     /**

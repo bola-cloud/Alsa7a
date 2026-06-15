@@ -18,7 +18,7 @@ class PostController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Post::with(['user', 'comments']) // can limit comments or just load count + latest
+        $query = Post::with(['user', 'comments', 'mentions:id,name,avatar']) // can limit comments or just load count + latest
             ->withCount(['likes', 'comments'])
             ->where('is_hidden', false)
             ->where('processing_status', 'completed');
@@ -61,11 +61,38 @@ class PostController extends Controller
     }
 
     /**
+     * Get users who liked a post.
+     */
+    public function likers(Request $request, $id)
+    {
+        $post = Post::findOrFail($id);
+
+        $likers = $post->likes()
+            ->with('user:id,name,email,avatar,phone')
+            ->latest()
+            ->paginate(15);
+
+        // Format response to return the users directly
+        $users = $likers->getCollection()->map(function ($like) {
+            return $like->user;
+        });
+        
+        $likers->setCollection($users);
+
+        return response()->json([
+            'status' => true,
+            'data' => $likers,
+            'message' => 'Post likers retrieved successfully'
+        ]);
+    }
+
+    /**
      * List posts by a specific user (Public).
      */
     public function userPosts(Request $request, $id)
     {
         $query = Post::where('user_id', $id)
+            ->with(['user', 'comments', 'mentions:id,name,avatar'])
             ->withCount(['likes', 'comments'])
             ->where('is_hidden', false)
             ->where('processing_status', 'completed');
@@ -120,6 +147,8 @@ class PostController extends Controller
             'image' => 'nullable|image|max:10240', // 10MB
             'video' => 'nullable|mimetypes:video/avi,video/mpeg,video/quicktime,video/mp4|max:51200', // 50MB
             'video_thumbnail' => 'nullable|image|max:5120',
+            'mentions' => 'nullable|array',
+            'mentions.*' => 'exists:users,id',
         ]);
 
         if ($validator->fails()) {
@@ -157,6 +186,19 @@ class PostController extends Controller
 
         if ($type === 'video') {
             \App\Jobs\ProcessReelVideo::dispatch($post, 'post');
+        }
+
+        // Handle Mentions
+        if ($request->has('mentions') && is_array($request->mentions)) {
+            $post->mentions()->sync($request->mentions);
+            
+            // Send notifications
+            $mentionedUsers = \App\Models\User::whereIn('id', $request->mentions)->get();
+            foreach ($mentionedUsers as $mentionedUser) {
+                if ($mentionedUser->id !== $request->user()->id) {
+                    $mentionedUser->notify(new \App\Notifications\PostMentionNotification($post, $request->user()));
+                }
+            }
         }
 
         return response()->json([
@@ -238,7 +280,7 @@ class PostController extends Controller
      */
     public function show(Request $request, $id)
     {
-        $post = Post::with(['user', 'comments.user'])
+        $post = Post::with(['user', 'comments.user', 'mentions:id,name,avatar'])
             ->withCount(['likes', 'comments'])
             ->where('is_hidden', false)
             ->where('processing_status', 'completed')
@@ -406,7 +448,7 @@ class PostController extends Controller
      */
     public function reels(Request $request)
     {
-        $query = Post::with(['user', 'comments'])
+        $query = Post::with(['user', 'comments', 'mentions:id,name,avatar'])
             ->withCount(['likes', 'comments'])
             ->where('is_hidden', false)
             ->where('type', 'video')

@@ -41,6 +41,11 @@ class Post extends Model
         return $this->morphMany(Comment::class, 'commentable');
     }
 
+    public function mentions()
+    {
+        return $this->belongsToMany(User::class, 'post_mentions')->withTimestamps();
+    }
+
     public function views()
     {
         return $this->hasMany(PostView::class);

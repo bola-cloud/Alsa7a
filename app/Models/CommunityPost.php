@@ -35,6 +35,11 @@ class CommunityPost extends Model
         return $this->morphMany(Comment::class, 'commentable');
     }
 
+    public function mentions()
+    {
+        return $this->belongsToMany(User::class, 'community_post_mentions')->withTimestamps();
+    }
+
     public function getImageAttribute($value)
     {
         if (!$value)

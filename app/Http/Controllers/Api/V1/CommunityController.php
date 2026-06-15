@@ -42,7 +42,7 @@ class CommunityController extends Controller
     {
         $user = $request->user('sanctum');
 
-        $query = CommunityPost::with(['user.category', 'user.club', 'user.ownedClub', 'category'])
+        $query = CommunityPost::with(['user.category', 'user.club', 'user.ownedClub', 'category', 'mentions:id,name,avatar'])
             ->withCount(['comments', 'likes'])
             ->where('is_hidden', false)
             ->where('processing_status', 'completed')
@@ -107,6 +107,8 @@ class CommunityController extends Controller
             'image' => 'nullable|image|max:10240',
             'video' => 'nullable|mimetypes:video/avi,video/mpeg,video/quicktime,video/mp4|max:51200',
             'video_thumbnail' => 'nullable|image|max:5120',
+            'mentions' => 'nullable|array',
+            'mentions.*' => 'exists:users,id',
         ]);
 
         if ($validator->fails()) {
@@ -139,6 +141,19 @@ class CommunityController extends Controller
             \App\Jobs\ProcessReelVideo::dispatch($post, 'community');
         }
 
+        // Handle Mentions
+        if ($request->has('mentions') && is_array($request->mentions)) {
+            $post->mentions()->sync($request->mentions);
+            
+            // Send notifications
+            $mentionedUsers = \App\Models\User::whereIn('id', $request->mentions)->get();
+            foreach ($mentionedUsers as $mentionedUser) {
+                if ($mentionedUser->id !== $request->user()->id) {
+                    $mentionedUser->notify(new \App\Notifications\PostMentionNotification($post, $request->user()));
+                }
+            }
+        }
+
         return response()->json([
             'status' => true,
             'message' => 'Post created successfully',
@@ -153,7 +168,7 @@ class CommunityController extends Controller
     {
         $user = $request->user('sanctum');
 
-        $post = CommunityPost::with(['user', 'category'])
+        $post = CommunityPost::with(['user', 'category', 'mentions:id,name,avatar'])
             ->withCount(['comments', 'likes'])
             ->where('is_hidden', false)
             ->where('processing_status', 'completed')
