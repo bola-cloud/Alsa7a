@@ -18,7 +18,7 @@ class PostController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Post::with(['user', 'comments', 'mentions:id,name,avatar']) // can limit comments or just load count + latest
+        $query = Post::with(['user', 'comments', 'mentions:id,name,avatar', 'images']) // can limit comments or just load count + latest
             ->withCount(['likes', 'comments'])
             ->where('is_hidden', false)
             ->where('processing_status', 'completed');
@@ -92,7 +92,7 @@ class PostController extends Controller
     public function userPosts(Request $request, $id)
     {
         $query = Post::where('user_id', $id)
-            ->with(['user', 'comments', 'mentions:id,name,avatar'])
+            ->with(['user', 'comments', 'mentions:id,name,avatar', 'images'])
             ->withCount(['likes', 'comments'])
             ->where('is_hidden', false)
             ->where('processing_status', 'completed');
@@ -144,7 +144,9 @@ class PostController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'content' => 'nullable|string|max:1000',
-            'image' => 'nullable|image|max:10240', // 10MB
+            'image' => 'nullable|image|max:10240', // Legacy single image
+            'images' => 'nullable|array',
+            'images.*' => 'image|max:10240', // Multiple images
             'video' => 'nullable|mimetypes:video/avi,video/mpeg,video/quicktime,video/mp4|max:51200', // 50MB
             'video_thumbnail' => 'nullable|image|max:5120',
             'mentions' => 'nullable|array',
@@ -155,16 +157,24 @@ class PostController extends Controller
             return response()->json(['status' => false, 'errors' => $validator->errors()], 422);
         }
 
-        if (!$request->filled('content') && !$request->hasFile('image') && !$request->hasFile('video')) {
+        if (!$request->filled('content') && !$request->hasFile('image') && !$request->hasFile('images') && !$request->hasFile('video')) {
             return response()->json(['status' => false, 'message' => 'Post cannot be empty'], 422);
         }
 
         $type = 'text';
         $path = null;
+        $imagesPaths = [];
 
-        if ($request->hasFile('image')) {
+        if ($request->hasFile('images')) {
+            $type = 'image';
+            foreach ($request->file('images') as $img) {
+                $imagesPaths[] = $img->store('posts', 'public');
+            }
+            $path = $imagesPaths[0]; // Set first as main image for backward compatibility
+        } elseif ($request->hasFile('image')) {
             $type = 'image';
             $path = $request->file('image')->store('posts', 'public');
+            $imagesPaths[] = $path;
         } elseif ($request->hasFile('video')) {
             $type = 'video';
             $path = $request->file('video')->store('posts/videos', 'public');
@@ -183,6 +193,12 @@ class PostController extends Controller
             'is_hidden' => false,
             'processing_status' => $type === 'video' ? 'pending' : 'completed',
         ]);
+
+        if (!empty($imagesPaths)) {
+            foreach ($imagesPaths as $imgPath) {
+                $post->images()->create(['image_path' => $imgPath]);
+            }
+        }
 
         if ($type === 'video') {
             \App\Jobs\ProcessReelVideo::dispatch($post, 'post');
@@ -280,7 +296,7 @@ class PostController extends Controller
      */
     public function show(Request $request, $id)
     {
-        $post = Post::with(['user', 'comments.user', 'mentions:id,name,avatar'])
+        $post = Post::with(['user', 'comments.user', 'mentions:id,name,avatar', 'images'])
             ->withCount(['likes', 'comments'])
             ->where('is_hidden', false)
             ->where('processing_status', 'completed')
@@ -448,7 +464,7 @@ class PostController extends Controller
      */
     public function reels(Request $request)
     {
-        $query = Post::with(['user', 'comments', 'mentions:id,name,avatar'])
+        $query = Post::with(['user', 'comments', 'mentions:id,name,avatar', 'images'])
             ->withCount(['likes', 'comments'])
             ->where('is_hidden', false)
             ->where('type', 'video')

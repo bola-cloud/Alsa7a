@@ -40,6 +40,11 @@ class CommunityPost extends Model
         return $this->belongsToMany(User::class, 'community_post_mentions')->withTimestamps();
     }
 
+    public function images()
+    {
+        return $this->hasMany(CommunityPostImage::class, 'community_post_id');
+    }
+
     public function getImageAttribute($value)
     {
         if (!$value)

@@ -51,6 +51,11 @@ class Post extends Model
         return $this->hasMany(PostView::class);
     }
 
+    public function images()
+    {
+        return $this->hasMany(PostImage::class);
+    }
+
     public function getImageAttribute($value)
     {
         if (!$value)

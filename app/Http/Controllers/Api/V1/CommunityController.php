@@ -42,7 +42,7 @@ class CommunityController extends Controller
     {
         $user = $request->user('sanctum');
 
-        $query = CommunityPost::with(['user.category', 'user.club', 'user.ownedClub', 'category', 'mentions:id,name,avatar'])
+        $query = CommunityPost::with(['user.category', 'user.club', 'user.ownedClub', 'category', 'mentions:id,name,avatar', 'images'])
             ->withCount(['comments', 'likes'])
             ->where('is_hidden', false)
             ->where('processing_status', 'completed')
@@ -105,6 +105,8 @@ class CommunityController extends Controller
             'community_category_id' => 'required|exists:community_categories,id',
             'content' => 'required|string',
             'image' => 'nullable|image|max:10240',
+            'images' => 'nullable|array',
+            'images.*' => 'image|max:10240',
             'video' => 'nullable|mimetypes:video/avi,video/mpeg,video/quicktime,video/mp4|max:51200',
             'video_thumbnail' => 'nullable|image|max:5120',
             'mentions' => 'nullable|array',
@@ -117,8 +119,16 @@ class CommunityController extends Controller
 
         $path = null;
         $thumbnailPath = null;
-        if ($request->hasFile('image')) {
+        $imagesPaths = [];
+
+        if ($request->hasFile('images')) {
+            foreach ($request->file('images') as $img) {
+                $imagesPaths[] = $img->store('community', 'public');
+            }
+            $path = $imagesPaths[0]; // Legacy fallback
+        } elseif ($request->hasFile('image')) {
             $path = $request->file('image')->store('community', 'public');
+            $imagesPaths[] = $path;
         } elseif ($request->hasFile('video')) {
             $path = $request->file('video')->store('community/videos', 'public');
 
@@ -136,6 +146,12 @@ class CommunityController extends Controller
             'is_hidden' => false,
             'processing_status' => $request->hasFile('video') ? 'pending' : 'completed',
         ]);
+
+        if (!empty($imagesPaths)) {
+            foreach ($imagesPaths as $imgPath) {
+                $post->images()->create(['image_path' => $imgPath]);
+            }
+        }
 
         if ($request->hasFile('video')) {
             \App\Jobs\ProcessReelVideo::dispatch($post, 'community');
@@ -168,7 +184,7 @@ class CommunityController extends Controller
     {
         $user = $request->user('sanctum');
 
-        $post = CommunityPost::with(['user', 'category', 'mentions:id,name,avatar'])
+        $post = CommunityPost::with(['user', 'category', 'mentions:id,name,avatar', 'images'])
             ->withCount(['comments', 'likes'])
             ->where('is_hidden', false)
             ->where('processing_status', 'completed')
