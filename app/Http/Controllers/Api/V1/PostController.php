@@ -18,7 +18,7 @@ class PostController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Post::with(['user', 'comments', 'mentions:id,name,avatar', 'images']) // can limit comments or just load count + latest
+        $query = Post::with(['user', 'comments', 'mentions:id,name,profile_photo_path', 'images']) // can limit comments or just load count + latest
             ->withCount(['likes', 'comments'])
             ->where('is_hidden', false)
             ->where('processing_status', 'completed');
@@ -68,7 +68,7 @@ class PostController extends Controller
         $post = Post::findOrFail($id);
 
         $likers = $post->likes()
-            ->with('user:id,name,email,avatar,phone')
+            ->with('user:id,name,email,profile_photo_path,phone')
             ->latest()
             ->paginate(15);
 
@@ -92,7 +92,7 @@ class PostController extends Controller
     public function userPosts(Request $request, $id)
     {
         $query = Post::where('user_id', $id)
-            ->with(['user', 'comments', 'mentions:id,name,avatar', 'images'])
+            ->with(['user', 'comments', 'mentions:id,name,profile_photo_path', 'images'])
             ->withCount(['likes', 'comments'])
             ->where('is_hidden', false)
             ->where('processing_status', 'completed');
@@ -296,7 +296,7 @@ class PostController extends Controller
      */
     public function show(Request $request, $id)
     {
-        $post = Post::with(['user', 'comments.user', 'mentions:id,name,avatar', 'images'])
+        $post = Post::with(['user', 'comments.user', 'mentions:id,name,profile_photo_path', 'images'])
             ->withCount(['likes', 'comments'])
             ->where('is_hidden', false)
             ->where('processing_status', 'completed')
@@ -464,7 +464,7 @@ class PostController extends Controller
      */
     public function reels(Request $request)
     {
-        $query = Post::with(['user', 'comments', 'mentions:id,name,avatar', 'images'])
+        $query = Post::with(['user', 'comments', 'mentions:id,name,profile_photo_path', 'images'])
             ->withCount(['likes', 'comments'])
             ->where('is_hidden', false)
             ->where('type', 'video')
