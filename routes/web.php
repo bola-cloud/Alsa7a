@@ -122,7 +122,7 @@ Route::get('/chat-test', function () {
 });
 
 // Deep Link Fallback (App Links / Universal Links)
-Route::prefix('app')->group(function () {
+Route::prefix('share')->group(function () {
     Route::get('{any?}', function() {
         return view('app_fallback');
     })->where('any', '.*');

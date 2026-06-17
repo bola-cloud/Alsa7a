@@ -5,7 +5,7 @@
       {
         "appIDs": ["X78PQ2MU22.com.alsaha.alsaha"],
         "components": [
-          { "/": "/app/*", "comment": "All mobile app deep links live under /app/" }
+          { "/": "/share/*", "comment": "All mobile app deep links live under /share/" }
         ]
       }
     ]
