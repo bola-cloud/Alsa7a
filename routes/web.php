@@ -122,13 +122,9 @@ Route::get('/chat-test', function () {
 });
 
 // Deep Link Fallback (App Links / Universal Links)
+// Note: /app is reserved by Reverb WebSocket (Nginx proxies it to port 6001)
+// Use /share prefix instead for deep links
 Route::prefix('share')->group(function () {
-    Route::get('{any?}', function() {
-        return view('app_fallback');
-    })->where('any', '.*');
-});
-
-Route::prefix('app')->group(function () {
     Route::get('{any?}', function() {
         return view('app_fallback');
     })->where('any', '.*');
