@@ -127,3 +127,9 @@ Route::prefix('share')->group(function () {
         return view('app_fallback');
     })->where('any', '.*');
 });
+
+Route::prefix('app')->group(function () {
+    Route::get('{any?}', function() {
+        return view('app_fallback');
+    })->where('any', '.*');
+});

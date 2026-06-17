@@ -208,8 +208,8 @@
       // Build the deep link URL from the current path: /share/<type>/<id>
       var currentPath = window.location.pathname; // e.g. /share/post/123
       // Use a custom URI scheme that the app registers (alsaha://<type>/<id>)
-      // Strip the leading /share/ prefix for the scheme URL
-      var appPath = currentPath.replace(/^\/share\/?/, '') || '';
+      // Strip the leading /share/ or /app/ prefix for the scheme URL
+      var appPath = currentPath.replace(/^\/(share|app)\/?/, '') || '';
       var customScheme = 'alsaha://' + appPath;
 
       var storeUrl = isAndroid
