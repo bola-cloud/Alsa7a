@@ -173,7 +173,7 @@ class CommunityController extends Controller
         return response()->json([
             'status' => true,
             'message' => 'Post created successfully',
-            'data' => $post->load('user', 'category')
+            'data' => $post->load(['user', 'category', 'images', 'mentions:id,name,profile_photo_path'])
         ], 201);
     }
 

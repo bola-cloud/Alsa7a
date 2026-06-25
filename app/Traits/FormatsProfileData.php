@@ -152,6 +152,7 @@ trait FormatsProfileData
             'city' => $user->city, // Added
             'country' => $user->country, // Added
             'currency' => $user->currency, // Added (if exists on user)
+            'parent_code' => $user->parent_code ?? null,
 
             'role_in_club' => (function () use ($user) {
                 if (!$user->club_id && !$user->ownedClub)
