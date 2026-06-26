@@ -93,7 +93,7 @@ class ProfileController extends Controller
     {
         $user = $request->user();
 
-        $visits = \App\Models\ProfileVisit::with('visitor:id,name,email,avatar,phone')
+        $visits = \App\Models\ProfileVisit::with('visitor:id,name,email,profile_photo_path,phone')
             ->where('visited_id', $user->id)
             ->latest('updated_at')
             ->paginate(15);
