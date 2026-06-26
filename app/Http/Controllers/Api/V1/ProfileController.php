@@ -31,7 +31,14 @@ class ProfileController extends Controller
             'ownedClub',
             'category',
             'answers.question', // Load answers with their questions
-            'subscription'
+            'subscription',
+            'posts' => function ($query) {
+                $query->where('is_hidden', false)
+                      ->where('processing_status', 'completed')
+                      ->with(['images', 'mentions:id,name,profile_photo_path'])
+                      ->latest()
+                      ->take(10);
+            }
         ]);
 
         return $this->formatProfileResponse($user, true, $user);
@@ -48,7 +55,14 @@ class ProfileController extends Controller
                 'ownedClub',
                 'category',
                 'answers.question', // Added answers
-                'subscription'
+                'subscription',
+                'posts' => function ($query) {
+                    $query->where('is_hidden', false)
+                          ->where('processing_status', 'completed')
+                          ->with(['images', 'mentions:id,name,profile_photo_path'])
+                          ->latest()
+                          ->take(10);
+                }
             ])
             ->find($id);
 

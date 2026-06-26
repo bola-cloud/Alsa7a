@@ -128,6 +128,19 @@ trait FormatsProfileData
                     'image' => (strpos($post->image, 'http') === 0) ? $post->image : url('storage/' . $post->image),
                     'video_thumbnail' => $post->video_thumbnail ? url('storage/' . $post->video_thumbnail) : null, // Added
                     'content' => $post->content,
+                    'images' => $post->images ? $post->images->map(function ($img) {
+                        return [
+                            'id' => $img->id,
+                            'url' => $img->url,
+                        ];
+                    }) : [],
+                    'mentions' => $post->mentions ? $post->mentions->map(function ($m) {
+                        return [
+                            'id' => $m->id,
+                            'name' => $m->name,
+                            'profile_photo_path' => $m->profile_photo_path,
+                        ];
+                    }) : [],
                 ];
             }) : [],
 
