@@ -238,26 +238,58 @@ class PostController extends Controller
         $validator = Validator::make($request->all(), [
             'content' => 'nullable|string|max:1000',
             'image' => 'nullable|image|max:10240',
+            'images' => 'nullable|array',
+            'images.*' => 'image|max:10240',
             'video' => 'nullable|mimetypes:video/avi,video/mpeg,video/quicktime,video/mp4|max:51200',
             'video_thumbnail' => 'nullable|image|max:5120',
+            'mentions' => 'nullable|array',
+            'mentions.*' => 'exists:users,id',
         ]);
 
         if ($validator->fails()) {
             return response()->json(['status' => false, 'errors' => $validator->errors()], 422);
         }
 
-        if ($request->hasFile('image')) {
+        if ($request->hasFile('images')) {
+            // Delete old main file
+            if ($post->image && strpos($post->image, 'http') === false) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($post->image);
+            }
+            // Delete old multiple images
+            foreach ($post->images as $oldImg) {
+                if ($oldImg->image_path && strpos($oldImg->image_path, 'http') === false) {
+                    \Illuminate\Support\Facades\Storage::disk('public')->delete($oldImg->image_path);
+                }
+            }
+            $post->images()->delete(); // Remove old from DB
+
+            $imagesPaths = [];
+            foreach ($request->file('images') as $img) {
+                $imagesPaths[] = $img->store('posts', 'public');
+            }
+            $post->image = $imagesPaths[0]; // main image fallback
+            $post->type = 'image';
+            
+            foreach ($imagesPaths as $imgPath) {
+                $post->images()->create(['image_path' => $imgPath]);
+            }
+        } elseif ($request->hasFile('image')) {
             // Delete old file
             if ($post->image) {
                 \Illuminate\Support\Facades\Storage::disk('public')->delete($post->image);
             }
+            $post->images()->delete(); // Remove old multiple images if switching to single
+
             $post->image = $request->file('image')->store('posts', 'public');
             $post->type = 'image';
+            $post->images()->create(['image_path' => $post->image]); // ensure it exists in images too
         } elseif ($request->hasFile('video')) {
             // Delete old file
             if ($post->image) {
                 \Illuminate\Support\Facades\Storage::disk('public')->delete($post->image);
             }
+            $post->images()->delete(); // Remove old multiple images if switching to video
+
             if ($post->video_thumbnail) {
                 $thumbPath = str_replace('storage/', '', $post->video_thumbnail);
                 \Illuminate\Support\Facades\Storage::disk('public')->delete($thumbPath);
@@ -284,10 +316,14 @@ class PostController extends Controller
 
         $post->save();
 
+        if ($request->has('mentions') && is_array($request->mentions)) {
+            $post->mentions()->sync($request->mentions);
+        }
+
         return response()->json([
             'status' => true,
             'message' => 'Post updated successfully',
-            'data' => $post->load('user')
+            'data' => $post->load(['user', 'images', 'mentions:id,name,profile_photo_path'])
         ]);
     }
 
