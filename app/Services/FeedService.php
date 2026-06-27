@@ -22,7 +22,11 @@ class FeedService
      */
     public function getFeed(?User $user = null, int $perPage = 10, ?string $type = null)
     {
-        $baseQuery = Post::with(['user.category', 'user.club', 'user.ownedClub', 'comments'])
+        $baseQuery = Post::with([
+                'user.category', 'user.club', 'user.ownedClub', 'comments',
+                'images',
+                'mentions:id,name,profile_photo_path', // Only load safe fields for mentions
+            ])
             ->withCount(['likes', 'comments'])
             ->where('is_hidden', false)
             ->where('processing_status', 'completed');
