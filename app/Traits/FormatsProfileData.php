@@ -122,26 +122,10 @@ trait FormatsProfileData
             'answered_question_ids' => $user->answered_question_ids ?? [], // Restored
             'questions_complete' => (bool)($user->questions_complete ?? false), // Restored
             
-            'gallery' => $user->posts ? $user->posts->map(function ($post) { // Restored
-                return [
-                    'id' => $post->id,
-                    'image' => (strpos($post->image, 'http') === 0) ? $post->image : url('storage/' . $post->image),
-                    'video_thumbnail' => $post->video_thumbnail ? url('storage/' . $post->video_thumbnail) : null, // Added
-                    'content' => $post->content,
-                    'images' => $post->images ? $post->images->map(function ($img) {
-                        return [
-                            'id' => $img->id,
-                            'url' => $img->url,
-                        ];
-                    }) : [],
-                    'mentions' => $post->mentions ? $post->mentions->map(function ($m) {
-                        return [
-                            'id' => $m->id,
-                            'name' => $m->name,
-                            'profile_photo_path' => $m->profile_photo_path,
-                        ];
-                    }) : [],
-                ];
+            'gallery' => $user->posts ? $user->posts->map(function ($post) use ($currentUser) {
+                $post->is_liked = $currentUser ? $post->likes->where('user_id', $currentUser->id)->isNotEmpty() : false;
+                $post->unsetRelation('likes'); // Free memory
+                return $post->toArray();
             }) : [],
 
             'rating_data' => [
@@ -165,7 +149,7 @@ trait FormatsProfileData
             'city' => $user->city, // Added
             'country' => $user->country, // Added
             'currency' => $user->currency, // Added (if exists on user)
-            'parent_code' => $user->parent_code ?? null,
+            'parent_code' => $isMe ? ($user->parent_code ?? null) : null,
 
             'role_in_club' => (function () use ($user) {
                 if (!$user->club_id && !$user->ownedClub)

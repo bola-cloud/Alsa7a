@@ -35,7 +35,10 @@ class ProfileController extends Controller
             'posts' => function ($query) {
                 $query->where('is_hidden', false)
                       ->where('processing_status', 'completed')
-                      ->with(['images', 'mentions:id,name,profile_photo_path'])
+                      ->with(['images', 'mentions:id,name,profile_photo_path', 'user', 'likes' => function ($q) {
+                          $q->where('user_id', auth()->id());
+                      }])
+                      ->withCount(['likes', 'comments'])
                       ->latest()
                       ->take(10);
             }
@@ -59,7 +62,10 @@ class ProfileController extends Controller
                 'posts' => function ($query) {
                     $query->where('is_hidden', false)
                           ->where('processing_status', 'completed')
-                          ->with(['images', 'mentions:id,name,profile_photo_path'])
+                          ->with(['images', 'mentions:id,name,profile_photo_path', 'user', 'likes' => function ($q) {
+                              $q->where('user_id', auth()->id());
+                          }])
+                          ->withCount(['likes', 'comments'])
                           ->latest()
                           ->take(10);
                 }

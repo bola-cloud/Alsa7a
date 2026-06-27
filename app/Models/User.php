@@ -63,6 +63,23 @@ class User extends Authenticatable
         'parent_code',
     ];
 
+    /**
+     * The attributes that should be hidden for serialization.
+     *
+     * @var array<int, string>
+     */
+    protected $hidden = [
+        'password',
+        'remember_token',
+        'two_factor_secret',
+        'two_factor_recovery_codes',
+        'two_factor_confirmed_at',
+        'phone_verification_code',
+        'parent_code',
+        'verification_documents',
+        'profile_photo_path',
+        'cover_photo_path',
+    ];
 
     public function services()
     {
@@ -196,20 +213,6 @@ class User extends Authenticatable
         return $this->belongsToMany(Post::class, 'post_views', 'user_id', 'post_id')
             ->withTimestamps();
     }
-
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var array<int, string>
-     */
-    protected $hidden = [
-        'password',
-        'remember_token',
-        'two_factor_recovery_codes',
-        'two_factor_secret',
-        'profile_photo_path',
-        'cover_photo_path', // Added to hidden
-    ];
 
     /**
      * The attributes that should be cast.
