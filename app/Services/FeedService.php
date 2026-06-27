@@ -41,7 +41,7 @@ class FeedService
             $followingIdsStr = implode(',', $followingIds);
             $userId = $user->id;
 
-            $baseQuery->select('posts.*')
+            $baseQuery->addSelect('posts.*')
                 ->selectRaw("EXISTS(SELECT 1 FROM post_views WHERE post_views.post_id = posts.id AND post_views.user_id = ?) as is_seen", [$userId])
                 ->selectRaw("IF(posts.user_id IN ($followingIdsStr), 1, 0) as is_following_or_self")
                 ->orderBy('is_seen', 'asc') // Unseen first (0), then seen (1)
