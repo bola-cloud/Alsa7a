@@ -96,6 +96,7 @@ class AuthController extends Controller
             'password' => Hash::make($data['password']),
             'is_approved' => $autoApprove,
             'onesignal_subscription' => $subscription,
+            'parent_code' => 'P-' . strtoupper(substr(md5(uniqid(rand(), true)), 0, 8)),
         ]);
 
         // Use helper to generate and send
