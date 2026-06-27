@@ -360,6 +360,32 @@ class CommunityController extends Controller
     }
 
     /**
+     * Get users who liked a community post.
+     */
+    public function likers(Request $request, $id)
+    {
+        $post = CommunityPost::findOrFail($id);
+
+        $likers = $post->likes()
+            ->with('user:id,name,email,profile_photo_path,phone')
+            ->latest()
+            ->paginate(15);
+
+        // Format response to return the users directly
+        $users = $likers->getCollection()->map(function ($like) {
+            return $like->user;
+        });
+        
+        $likers->setCollection($users);
+
+        return response()->json([
+            'status' => true,
+            'data' => $likers,
+            'message' => 'Community post likers retrieved successfully'
+        ]);
+    }
+
+    /**
      * Get Comments for Community Post
      */
     public function getComments(Request $request, $id)

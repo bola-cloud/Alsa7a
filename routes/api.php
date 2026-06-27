@@ -70,6 +70,7 @@ Route::prefix('v1')->middleware('set.api.locale')->group(function () {
     Route::get('community/categories', [App\Http\Controllers\Api\V1\CommunityController::class, 'getCategories']);
     Route::get('community/posts', [App\Http\Controllers\Api\V1\CommunityController::class, 'index']);
     Route::get('community/posts/{id}', [App\Http\Controllers\Api\V1\CommunityController::class, 'show']);
+    Route::get('community/posts/{id}/likes', [App\Http\Controllers\Api\V1\CommunityController::class, 'likers']);
 
     // --- Search ---
     Route::get('search', [SearchController::class, 'index']);
