@@ -84,8 +84,16 @@ class CommunityController extends Controller
             }
         });
 
-        $posts->getCollection()->transform(function ($post) use ($user) {
-            $post->is_liked = $user ? $post->likes()->where('user_id', $user->id)->exists() : false;
+        // Bulk is_liked check (single query instead of N+1)
+        $postIdsInPage = $posts->getCollection()->pluck('id')->toArray();
+        $likedPostIds = $user ? \App\Models\Like::where('user_id', $user->id)
+            ->where('likeable_type', CommunityPost::class)
+            ->whereIn('likeable_id', $postIdsInPage)
+            ->pluck('likeable_id')
+            ->toArray() : [];
+
+        $posts->getCollection()->transform(function ($post) use ($likedPostIds) {
+            $post->is_liked = in_array($post->id, $likedPostIds);
             return $post;
         });
 
@@ -95,6 +103,7 @@ class CommunityController extends Controller
             'message' => 'Community posts retrieved successfully'
         ]);
     }
+
 
     /**
      * Create Community Post (Protected).
