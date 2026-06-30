@@ -191,10 +191,18 @@ Route::prefix('v1')->middleware('set.api.locale')->group(function () {
         Route::post('subscriptions/checkout', [App\Http\Controllers\Api\V1\SubscriptionController::class, 'checkout']);
         Route::get('subscriptions/status', [App\Http\Controllers\Api\V1\SubscriptionController::class, 'status']);
 
-        // --- Notifications ---
+        // Notifications
         Route::get('notifications', [App\Http\Controllers\Api\V1\NotificationController::class, 'index']);
-        Route::post('notifications/{id}/read', [App\Http\Controllers\Api\V1\NotificationController::class, 'markAsRead']);
-        Route::post('notifications/read-all', [App\Http\Controllers\Api\V1\NotificationController::class, 'markAllAsRead']);
+        Route::post('notifications/mark-read', [App\Http\Controllers\Api\V1\NotificationController::class, 'markAllRead']);
+        Route::post('notifications/send', [App\Http\Controllers\Api\V1\NotificationController::class, 'sendTestNotification']);
+
+        // Stories
+        Route::get('stories', [App\Http\Controllers\Api\V1\StoryController::class, 'index']);
+        Route::post('stories', [App\Http\Controllers\Api\V1\StoryController::class, 'store']);
+        Route::delete('stories/{id}', [App\Http\Controllers\Api\V1\StoryController::class, 'destroy']);
+        Route::post('stories/{id}/seen', [App\Http\Controllers\Api\V1\StoryController::class, 'markSeen']);
+        Route::get('stories/{id}/views', [App\Http\Controllers\Api\V1\StoryController::class, 'viewers']);
+
         Route::delete('notifications/{id}', [App\Http\Controllers\Api\V1\NotificationController::class, 'destroy']);
 
         // --- Verification ---

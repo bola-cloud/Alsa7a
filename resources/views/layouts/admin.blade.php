@@ -312,6 +312,12 @@
                                 <span class="menu-title">{{ __('admin.community_posts.title') }}</span>
                             </a>
                         </li>
+                        <li class="nav-item {{ request()->routeIs('admin.stories.*') ? 'active' : '' }}">
+                            <a href="{{ route('admin.stories.index') }}">
+                                <i class="la la-play-circle-o"></i>
+                                <span class="menu-title">{{ __('admin.menu.stories') ?? 'Stories' }}</span>
+                            </a>
+                        </li>
                         <li class="nav-item {{ Route::is('admin.sliders.*') ? 'active' : '' }}">
                             <a href="{{ route('admin.sliders.index') }}">
                                 <i class="la la-image"></i>

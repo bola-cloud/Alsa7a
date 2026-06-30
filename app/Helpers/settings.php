@@ -10,7 +10,7 @@ if (!function_exists('setting')) {
             $grouped = [];
             foreach ($settings as $setting) {
                 // Add select options logic if needed
-                if ($setting->type === 'select' && $setting->key === 'manual_user_approval') {
+                if ($setting->type === 'select' && in_array($setting->key, ['manual_user_approval', 'mandatory_service_verification'])) {
                     $setting->options = [0 => 'admin.categories.no', 1 => 'admin.categories.yes'];
                 }
 

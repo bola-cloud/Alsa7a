@@ -21,6 +21,7 @@ class SettingController extends Controller
             'site_logo' => $siteLogo ? $siteLogo->image_url : asset('app-assets/images/logo.jpeg'),
             'site_icon' => $siteIcon ? $siteIcon->image_url : asset('app-assets/images/ico/apple-icon-120.png'),
             'service_commission' => $settings['service_commission'] ?? 10,
+            'mandatory_service_verification' => (bool) ($settings['mandatory_service_verification'] ?? false),
             'currency' => 'OMR', // Fixed to OMR for all project
         ];
 

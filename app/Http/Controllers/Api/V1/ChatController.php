@@ -216,7 +216,8 @@ class ChatController extends Controller
         // Since conversation is created after payment, we act as if it's allowed.
 
         $validator = Validator::make($request->all(), [
-            'body' => 'required|string',
+            'body' => 'required_without:voice_note|string|nullable',
+            'voice_note' => 'nullable|file|mimes:audio/mpeg,mpga,mp3,wav,ogg,m4a,aac|max:20480',
             'meta' => 'nullable|array',
         ]);
 
@@ -224,10 +225,17 @@ class ChatController extends Controller
             return response()->json(['status' => false, 'errors' => $validator->errors()], 422);
         }
 
+        $filePath = null;
+        if ($request->hasFile('voice_note')) {
+            $path = $request->file('voice_note')->store('chat/voices', 'public');
+            $filePath = 'storage/' . $path;
+        }
+
         $message = $conversation->messages()->create([
             'sender_id' => $userId,
-            'body'      => $request->body,
+            'body'      => $request->body ?? 'Voice Note',
             'meta'      => $request->meta,
+            'file_path' => $filePath,
         ]);
 
         $conversation->touch(); // Update updated_at

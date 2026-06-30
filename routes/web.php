@@ -94,6 +94,10 @@ Route::group([
         Route::post('community_posts/{id}/toggle', [\App\Http\Controllers\Admin\CommunityPostController::class, 'toggle'])->name('community_posts.toggle');
         Route::resource('community_categories', \App\Http\Controllers\Admin\CommunityCategoryController::class);
 
+        // Stories
+        Route::get('stories', [\App\Http\Controllers\Admin\StoryController::class, 'index'])->name('stories.index');
+        Route::delete('stories/{id}', [\App\Http\Controllers\Admin\StoryController::class, 'destroy'])->name('stories.destroy');
+
         // Services & Tickets
         Route::resource('services', \App\Http\Controllers\Admin\ServiceController::class)->only(['index', 'show', 'destroy']);
         Route::post('services/{service}/toggle', [\App\Http\Controllers\Admin\ServiceController::class, 'toggle'])->name('services.toggle');
