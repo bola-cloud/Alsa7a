@@ -104,6 +104,7 @@ return [
         'all' => 'الكل',
         'search' => 'بحث',
         'requires_verification' => 'يتطلب توثيق',
+        'mandatory_service_verification' => 'التوثيق إجباري لإنشاء خدمة',
         'verification_settings' => 'إعدادات التوثيق',
         'verification_requirements' => 'متطلبات التوثيق',
         'verification_fields' => 'حقول التوثيق المخصصة',

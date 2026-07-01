@@ -21,6 +21,7 @@ class Category extends Model
         'description_ar',
         'is_service_provider',
         'requires_verification',
+        'mandatory_service_verification',
         'verification_requirements_en',
         'verification_requirements_ar',
         'verification_fields',
@@ -29,6 +30,7 @@ class Category extends Model
     protected $casts = [
         'is_service_provider' => 'boolean',
         'requires_verification' => 'boolean',
+        'mandatory_service_verification' => 'boolean',
         'verification_fields' => 'array',
     ];
 

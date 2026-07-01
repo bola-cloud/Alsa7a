@@ -113,6 +113,7 @@ class VerificationController extends Controller
                     });
                 })(),
                 'requires_verification' => $category ? (bool) $category->requires_verification : false,
+                'mandatory_service_verification' => $category ? (bool) $category->mandatory_service_verification : false,
                 'verification_requirements_en' => $category ? $category->verification_requirements_en : null,
                 'verification_requirements_ar' => $category ? $category->verification_requirements_ar : null,
                 'verification_fields' => $category ? $category->verification_fields : [],

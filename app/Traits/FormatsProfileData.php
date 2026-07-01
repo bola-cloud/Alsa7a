@@ -37,6 +37,7 @@ trait FormatsProfileData
                 'name_ar' => data_get($user->category, 'name_ar'), // Restored
                 'is_service_provider' => data_get($user->category, 'is_service_provider'),
                 'requires_verification' => (bool) data_get($user->category, 'requires_verification'),
+                'mandatory_service_verification' => (bool) data_get($user->category, 'mandatory_service_verification'),
                 'verification_requirements_en' => data_get($user->category, 'verification_requirements_en'),
                 'verification_requirements_ar' => data_get($user->category, 'verification_requirements_ar'),
                 'verification_fields' => data_get($user->category, 'verification_fields'),

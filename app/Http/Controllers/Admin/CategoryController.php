@@ -54,6 +54,7 @@ class CategoryController extends Controller
             'description.ar' => 'nullable|string',
             'parent_category_id' => 'required|exists:parent_categories,id',
             'requires_verification' => 'nullable|boolean',
+            'mandatory_service_verification' => 'nullable|boolean',
             'verification_requirements' => 'nullable|array',
             'verification_requirements.en' => 'nullable|string',
             'verification_requirements.ar' => 'nullable|string',
@@ -70,6 +71,7 @@ class CategoryController extends Controller
             'description_ar' => $data['description']['ar'] ?? null,
             'is_service_provider' => $request->has('is_service_provider') ? 1 : 0,
             'requires_verification' => $request->has('requires_verification') ? 1 : 0,
+            'mandatory_service_verification' => $request->has('mandatory_service_verification') ? 1 : 0,
             'verification_requirements_en' => $data['verification_requirements']['en'] ?? null,
             'verification_requirements_ar' => $data['verification_requirements']['ar'] ?? null,
             'verification_fields' => $data['verification_fields'] ?? null,
@@ -115,6 +117,7 @@ class CategoryController extends Controller
             'description.ar' => 'nullable|string',
             'parent_category_id' => 'required|exists:parent_categories,id',
             'requires_verification' => 'nullable|boolean',
+            'mandatory_service_verification' => 'nullable|boolean',
             'verification_requirements' => 'nullable|array',
             'verification_requirements.en' => 'nullable|string',
             'verification_requirements.ar' => 'nullable|string',
@@ -131,6 +134,7 @@ class CategoryController extends Controller
             'description_ar' => $data['description']['ar'] ?? null,
             'is_service_provider' => $request->has('is_service_provider') ? 1 : 0,
             'requires_verification' => $request->has('requires_verification') ? 1 : 0,
+            'mandatory_service_verification' => $request->has('mandatory_service_verification') ? 1 : 0,
             'verification_requirements_en' => $data['verification_requirements']['en'] ?? null,
             'verification_requirements_ar' => $data['verification_requirements']['ar'] ?? null,
             'verification_fields' => $data['verification_fields'] ?? null,
@@ -172,6 +176,7 @@ class CategoryController extends Controller
     {
         $data = $request->validate([
             'requires_verification' => 'nullable|boolean',
+            'mandatory_service_verification' => 'nullable|boolean',
             'verification_requirements' => 'nullable|array',
             'verification_requirements.en' => 'nullable|string',
             'verification_requirements.ar' => 'nullable|string',
@@ -180,6 +185,7 @@ class CategoryController extends Controller
 
         $category->update([
             'requires_verification' => $request->has('requires_verification') ? 1 : 0,
+            'mandatory_service_verification' => $request->has('mandatory_service_verification') ? 1 : 0,
             'verification_requirements_en' => $data['verification_requirements']['en'] ?? null,
             'verification_requirements_ar' => $data['verification_requirements']['ar'] ?? null,
             'verification_fields' => $data['verification_fields'] ?? null,

@@ -157,7 +157,10 @@ class ServiceController extends Controller
     {
         $user = $request->user();
 
-        if (setting('mandatory_service_verification', false)) {
+        $category = $user->category;
+        $isMandatory = $category ? (bool) $category->mandatory_service_verification : false;
+
+        if ($isMandatory || setting('mandatory_service_verification', false)) {
             if ($user->verification_status !== 'approved') {
                 return response()->json(['status' => false, 'message' => 'You must verify your profile before creating a service.'], 403);
             }

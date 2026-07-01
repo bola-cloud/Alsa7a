@@ -104,6 +104,7 @@ return [
         'all' => 'All',
         'search' => 'Search',
         'requires_verification' => 'Requires Verification',
+        'mandatory_service_verification' => 'Mandatory Service Verification',
         'verification_settings' => 'Verification Settings',
         'verification_requirements' => 'Verification Requirements',
         'verification_fields' => 'Specific Verification Fields',

@@ -91,7 +91,7 @@
                                 </div>
 
                                 <div class="row">
-                                    <div class="col-md-12">
+                                    <div class="col-md-6">
                                         <div class="form-group">
                                             <fieldset>
                                                 <div class="custom-control custom-checkbox">
@@ -100,6 +100,18 @@
                                                         onchange="toggleVerificationRequirements(this)">
                                                     <label class="custom-control-label"
                                                         for="requires_verification">{{ __('admin.categories.requires_verification') }}</label>
+                                                </div>
+                                            </fieldset>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <fieldset>
+                                                <div class="custom-control custom-checkbox">
+                                                    <input type="checkbox" class="custom-control-input"
+                                                        name="mandatory_service_verification" id="mandatory_service_verification" value="1">
+                                                    <label class="custom-control-label"
+                                                        for="mandatory_service_verification">{{ __('admin.categories.mandatory_service_verification') }}</label>
                                                 </div>
                                             </fieldset>
                                         </div>
