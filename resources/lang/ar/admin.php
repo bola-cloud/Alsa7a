@@ -158,6 +158,7 @@ return [
         'venue' => 'المكان',
         'capacity' => 'السعة',
         'status' => 'الحالة',
+        'featured' => 'مميز',
     ],
     'news' => [
         'index' => 'الأخبار',

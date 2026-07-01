@@ -118,6 +118,15 @@
                                         <label class="custom-file-label" for="eventImage">Choose file</label>
                                     </div>
                                 </div>
+
+                                <div class="form-group mt-3">
+                                    <div class="custom-control custom-checkbox">
+                                        <input type="checkbox" class="custom-control-input" name="is_featured"
+                                            id="is_featured" value="1" {{ $event->is_featured ? 'checked' : '' }}>
+                                        <label class="custom-control-label font-weight-bold"
+                                            for="is_featured">{{ __('admin.events.featured') }}</label>
+                                    </div>
+                                </div>
                             </div>
                         </div>
 

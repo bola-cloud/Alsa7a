@@ -65,6 +65,8 @@ class EventController extends Controller
             $data['featured_image'] = $this->imageService->upload($request->file('featured_image'), 'events');
         }
 
+        $data['is_featured'] = $request->has('is_featured');
+
         Event::create($data);
 
         $this->flashSuccess(__('admin.messages.created'));
@@ -119,6 +121,8 @@ class EventController extends Controller
                 $event->featured_image
             );
         }
+
+        $data['is_featured'] = $request->has('is_featured');
 
         $event->update($data);
 

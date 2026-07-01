@@ -58,7 +58,12 @@
         @forelse($events as $event)
             <div class="col-xl-4 col-md-6 col-12 mb-4">
                 <div class="admin-card">
-                    <div class="card-img-wrapper" style="height: 180px; padding: 0;">
+                    <div class="card-img-wrapper position-relative" style="height: 180px; padding: 0;">
+                        @if($event->is_featured)
+                            <span class="badge badge-warning position-absolute" style="top: 10px; right: 10px; z-index: 10;">
+                                <i class="la la-star text-white"></i> {{ __('admin.events.featured') }}
+                            </span>
+                        @endif
                         @if($event->featured_image)
                             <img src="{{ $event->featured_image }}" class="card-img-top w-100 h-100" style="object-fit: cover;"
                                 alt="{{ $event->title }}">

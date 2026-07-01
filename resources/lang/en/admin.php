@@ -157,6 +157,7 @@ return [
         'venue' => 'Venue',
         'capacity' => 'Capacity',
         'status' => 'Status',
+        'featured' => 'Featured',
     ],
     'news' => [
         'index' => 'News',
