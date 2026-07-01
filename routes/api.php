@@ -200,6 +200,7 @@ Route::prefix('v1')->middleware('set.api.locale')->group(function () {
         Route::get('stories', [App\Http\Controllers\Api\V1\StoryController::class, 'index']);
         Route::post('stories', [App\Http\Controllers\Api\V1\StoryController::class, 'store']);
         Route::delete('stories/{id}', [App\Http\Controllers\Api\V1\StoryController::class, 'destroy']);
+        Route::post('stories/{id}', [App\Http\Controllers\Api\V1\StoryController::class, 'update']);
         Route::post('stories/{id}/seen', [App\Http\Controllers\Api\V1\StoryController::class, 'markSeen']);
         Route::get('stories/{id}/views', [App\Http\Controllers\Api\V1\StoryController::class, 'viewers']);
 
