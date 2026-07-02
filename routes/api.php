@@ -195,6 +195,8 @@ Route::prefix('v1')->middleware('set.api.locale')->group(function () {
         Route::get('notifications', [App\Http\Controllers\Api\V1\NotificationController::class, 'index']);
         Route::post('notifications/mark-read', [App\Http\Controllers\Api\V1\NotificationController::class, 'markAllRead']);
         Route::post('notifications/send', [App\Http\Controllers\Api\V1\NotificationController::class, 'sendTestNotification']);
+        Route::post('notifications/{id}/read', [App\Http\Controllers\Api\V1\NotificationController::class, 'markAsRead']);
+        Route::post('notifications/read-all', [App\Http\Controllers\Api\V1\NotificationController::class, 'markAllAsRead']);
 
         // Stories
         Route::get('stories', [App\Http\Controllers\Api\V1\StoryController::class, 'index']);

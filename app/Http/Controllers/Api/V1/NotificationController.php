@@ -74,6 +74,14 @@ class NotificationController extends Controller
     }
 
     /**
+     * Backward compatibility wrapper for markAllAsRead.
+     */
+    public function markAllRead(Request $request)
+    {
+        return $this->markAllAsRead($request);
+    }
+
+    /**
      * Delete a notification.
      * DELETE /api/v1/notifications/{id}
      */
