@@ -101,11 +101,25 @@ class StoryController extends Controller
                 // Store raw video first
                 $rawPath = $file->store('stories/videos/raw', 'public');
                 
+                // Validate Video Duration
+                try {
+                    $media = FFMpeg::fromDisk('public')->open($rawPath);
+                    $duration = $media->getDurationInSeconds();
+                    if ($duration > 60) {
+                        Storage::disk('public')->delete($rawPath);
+                        return response()->json(['status' => false, 'message' => 'Video duration cannot exceed 60 seconds.'], 422);
+                    }
+                } catch (\Exception $e) {
+                    \Log::error('Story Video Duration Check Failed: ' . $e->getMessage());
+                    // Allow to proceed if we can't determine duration (e.g., ffprobe issue), or we can block it. Let's proceed to compression.
+                }
+                
                 // Compress video synchronously for stories since they are short and need to be available immediately
                 try {
                     $compressedPath = 'stories/videos/' . uniqid() . '.mp4';
-                    $singleBitrate = (new X264('aac', 'libx264'))->setKiloBitrate(500)
-                        ->setAdditionalParameters(['-preset', 'superfast', '-crf', '28']);
+                    // Use CRF 22 for excellent quality, set a high max bitrate to allow quality retention
+                    $singleBitrate = (new X264('aac', 'libx264'))->setKiloBitrate(3000)
+                        ->setAdditionalParameters(['-preset', 'fast', '-crf', '22']);
                     
                     FFMpeg::fromDisk('public')
                         ->open($rawPath)
@@ -282,10 +296,22 @@ class StoryController extends Controller
                 
                 $rawPath = $file->store('stories/videos/raw', 'public');
                 
+                // Validate Video Duration
+                try {
+                    $media = FFMpeg::fromDisk('public')->open($rawPath);
+                    $duration = $media->getDurationInSeconds();
+                    if ($duration > 60) {
+                        Storage::disk('public')->delete($rawPath);
+                        return response()->json(['status' => false, 'message' => 'Video duration cannot exceed 60 seconds.'], 422);
+                    }
+                } catch (\Exception $e) {
+                    \Log::error('Story Video Duration Check Failed: ' . $e->getMessage());
+                }
+                
                 try {
                     $compressedPath = 'stories/videos/' . uniqid() . '.mp4';
-                    $singleBitrate = (new X264('aac', 'libx264'))->setKiloBitrate(500)
-                        ->setAdditionalParameters(['-preset', 'superfast', '-crf', '28']);
+                    $singleBitrate = (new X264('aac', 'libx264'))->setKiloBitrate(3000)
+                        ->setAdditionalParameters(['-preset', 'fast', '-crf', '22']);
                     
                     FFMpeg::fromDisk('public')
                         ->open($rawPath)

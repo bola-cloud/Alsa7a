@@ -87,6 +87,7 @@ Route::group([
 
         // Reports
         Route::get('reports/financial', [App\Http\Controllers\Admin\ReportController::class, 'financial'])->name('reports.financial');
+        Route::get('reports/analytics', [App\Http\Controllers\Admin\AnalyticsController::class, 'index'])->name('reports.analytics');
 
         // Community Posts (Blogs)
         Route::get('community_posts', [\App\Http\Controllers\Admin\CommunityPostController::class, 'index'])->name('community_posts.index');
@@ -129,63 +130,5 @@ Route::get('/chat-test', function () {
 // Note: /app is reserved by Reverb WebSocket (Nginx proxies it to port 6001)
 // Use /share prefix instead for deep links
 Route::prefix('share')->group(function () {
-    Route::get('{any?}', function($any = null) {
-        $title = 'الساحة | AlSaha';
-        $description = 'تطبيق الساحة — المنصة الرياضية الأولى';
-        $image = asset('app-assets/images/logo.jpeg');
-
-        if ($any) {
-            $parts = explode('/', trim($any, '/'));
-            if (count($parts) >= 2) {
-                $type = $parts[0];
-                $idOrSlug = $parts[1];
-
-                try {
-                    if ($type === 'post') {
-                        $post = \App\Models\Post::find($idOrSlug);
-                        if ($post) {
-                            $title = $post->content ? \Illuminate\Support\Str::limit(strip_tags($post->content), 60) : 'بوست جديد على الساحة';
-                            if ($post->image) {
-                                $image = $post->image;
-                            } elseif ($post->images()->exists()) {
-                                $image = $post->images()->first()->url;
-                            }
-                        }
-                    } elseif ($type === 'community' || $type === 'community-post') {
-                        $post = \App\Models\CommunityPost::find($idOrSlug);
-                        if ($post) {
-                            $title = $post->content ? \Illuminate\Support\Str::limit(strip_tags($post->content), 60) : 'بوست مجتمع جديد على الساحة';
-                            if ($post->image) {
-                                $image = $post->image;
-                            } elseif ($post->images()->exists()) {
-                                $image = $post->images()->first()->url;
-                            }
-                        }
-                    } elseif ($type === 'profile' || $type === 'user') {
-                        $user = \App\Models\User::find($idOrSlug);
-                        if ($user) {
-                            $title = $user->name;
-                            $description = 'الملف الشخصي لـ ' . $user->name . ' على تطبيق الساحة';
-                            if ($user->profile_photo_path) {
-                                $image = asset('storage/' . $user->profile_photo_path);
-                            }
-                        }
-                    } elseif ($type === 'club') {
-                        $club = is_numeric($idOrSlug) ? \App\Models\Club::find($idOrSlug) : \App\Models\Club::where('slug', $idOrSlug)->first();
-                        if ($club) {
-                            $title = $club->name;
-                            $description = $club->description ? \Illuminate\Support\Str::limit(strip_tags($club->description), 100) : 'نادي رياضي على الساحة';
-                            if ($club->logo_url) {
-                                $image = preg_match('#^https?://#i', $club->logo_url) ? $club->logo_url : asset('storage/' . $club->logo_url);
-                            }
-                        }
-                    }
-                } catch (\Exception $e) {
-                    // Fail silently, use defaults
-                }
-            }
-        }
-
-        return view('app_fallback', compact('title', 'description', 'image'));
-    })->where('any', '.*');
+    Route::get('{any?}', [\App\Http\Controllers\ShareController::class, 'handle'])->where('any', '.*');
 });

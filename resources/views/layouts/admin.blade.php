@@ -349,6 +349,18 @@
                             </a>
                         </li>
 
+                        <!-- Reports & Analytics -->
+                        <li class=" navigation-header" data-section="reports">
+                            <span>{{ App::getLocale() == 'ar' ? 'التقارير والإحصائيات' : 'Reports & Analytics' }}</span>
+                            <i class="la la-angle-down nav-section-icon"></i>
+                        </li>
+                        <li class="nav-item {{ request()->routeIs('admin.reports.analytics') ? 'active' : '' }}">
+                            <a href="{{ route('admin.reports.analytics') }}">
+                                <i class="la la-bar-chart"></i>
+                                <span class="menu-title">{{ App::getLocale() == 'ar' ? 'تحميلات التطبيق' : 'App Downloads' }}</span>
+                            </a>
+                        </li>
+
                         <!-- Settings & Legal -->
                         <li class=" navigation-header" data-section="settings">
                             <span>{{ App::getLocale() == 'ar' ? 'الإعدادات والقوانين' : 'Settings & Legal' }}</span>
