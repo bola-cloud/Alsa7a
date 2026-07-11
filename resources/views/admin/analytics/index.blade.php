@@ -3,7 +3,7 @@
 @section('title', 'Deep Link Analytics')
 
 @section('content')
-<div class="container-fluid">
+<div class="container-fluid pt-5">
     <div class="row mb-4">
         <div class="col-12 d-flex justify-content-between align-items-center">
             <h2 class="mb-0">إحصائيات روابط التحميل (Deep Links)</h2>
@@ -58,7 +58,9 @@
             <div class="card">
                 <div class="card-header">نقرات حسب نوع الجهاز (OS)</div>
                 <div class="card-body">
-                    <canvas id="osChart"></canvas>
+                    <div style="position: relative; height: 300px; width: 100%;">
+                        <canvas id="osChart"></canvas>
+                    </div>
                 </div>
             </div>
         </div>
@@ -67,7 +69,9 @@
             <div class="card">
                 <div class="card-header">أكثر 10 دول</div>
                 <div class="card-body">
-                    <canvas id="countryChart"></canvas>
+                    <div style="position: relative; height: 300px; width: 100%;">
+                        <canvas id="countryChart"></canvas>
+                    </div>
                 </div>
             </div>
         </div>
@@ -79,7 +83,9 @@
             <div class="card">
                 <div class="card-header">النقرات عبر الزمن (آخر {{ $period }} يوم)</div>
                 <div class="card-body">
-                    <canvas id="timelineChart"></canvas>
+                    <div style="position: relative; height: 300px; width: 100%;">
+                        <canvas id="timelineChart"></canvas>
+                    </div>
                 </div>
             </div>
         </div>
@@ -103,6 +109,10 @@
                 data: osCounts,
                 backgroundColor: ['#36a2eb', '#ff6384', '#ffce56', '#4bc0c0'],
             }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false
         }
     });
 
@@ -120,6 +130,10 @@
                 data: countryCounts,
                 backgroundColor: '#36a2eb',
             }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false
         }
     });
 
@@ -140,6 +154,8 @@
             }]
         },
         options: {
+            responsive: true,
+            maintainAspectRatio: false,
             scales: {
                 y: { beginAtZero: true }
             }
