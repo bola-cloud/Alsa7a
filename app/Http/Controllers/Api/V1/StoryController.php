@@ -114,27 +114,8 @@ class StoryController extends Controller
                     // Allow to proceed if we can't determine duration (e.g., ffprobe issue), or we can block it. Let's proceed to compression.
                 }
                 
-                // Compress video synchronously for stories since they are short and need to be available immediately
-                try {
-                    $compressedPath = 'stories/videos/' . uniqid() . '.mp4';
-                    // Use CRF 22 for excellent quality, set a high max bitrate to allow quality retention
-                    $singleBitrate = (new X264('aac', 'libx264'))->setKiloBitrate(3000)
-                        ->setAdditionalParameters(['-preset', 'fast', '-crf', '22']);
-                    
-                    FFMpeg::fromDisk('public')
-                        ->open($rawPath)
-                        ->export()
-                        ->toDisk('public')
-                        ->inFormat($singleBitrate)
-                        ->save($compressedPath);
-
-                    $mediaPath = $compressedPath;
-                    Storage::disk('public')->delete($rawPath); // Delete raw
-                } catch (\Exception $e) {
-                    \Log::error('Story Video Compression Failed: ' . $e->getMessage());
-                    // Fallback to raw if compression fails
-                    $mediaPath = $rawPath; 
-                }
+                // Save raw path first, then dispatch job for HLS
+                $mediaPath = $rawPath;
             }
         }
 
@@ -145,6 +126,11 @@ class StoryController extends Controller
             'media_path' => $mediaPath,
             'expires_at' => now()->addHours(24),
         ]);
+
+        if ($request->type === 'video' && $request->hasFile('media')) {
+            // Dispatch background job for HLS conversion
+            \App\Jobs\ProcessStoryVideo::dispatch($story, $rawPath);
+        }
 
         return response()->json([
             'status' => true,
@@ -177,6 +163,9 @@ class StoryController extends Controller
 
         if ($story->media_path) {
             Storage::disk('public')->delete($story->media_path);
+            // Also delete HLS folder if exists
+            $hlsFolder = 'stories/hls/' . $story->id;
+            Storage::disk('public')->deleteDirectory($hlsFolder);
         }
 
         $story->delete();
@@ -308,28 +297,14 @@ class StoryController extends Controller
                     \Log::error('Story Video Duration Check Failed: ' . $e->getMessage());
                 }
                 
-                try {
-                    $compressedPath = 'stories/videos/' . uniqid() . '.mp4';
-                    $singleBitrate = (new X264('aac', 'libx264'))->setKiloBitrate(3000)
-                        ->setAdditionalParameters(['-preset', 'fast', '-crf', '22']);
-                    
-                    FFMpeg::fromDisk('public')
-                        ->open($rawPath)
-                        ->export()
-                        ->toDisk('public')
-                        ->inFormat($singleBitrate)
-                        ->save($compressedPath);
-
-                    $mediaPath = $compressedPath;
-                    Storage::disk('public')->delete($rawPath);
-                } catch (\Exception $e) {
-                    \Log::error('Story Video Compression Failed: ' . $e->getMessage());
-                    $mediaPath = $rawPath; 
-                }
+                $mediaPath = $rawPath;
             }
         } elseif ($type === 'text' && $story->media_path) {
             // If type changes to text, delete old media
             Storage::disk('public')->delete($story->media_path);
+            // Also delete HLS folder if exists
+            $hlsFolder = 'stories/hls/' . $story->id;
+            Storage::disk('public')->deleteDirectory($hlsFolder);
             $mediaPath = null;
         }
 
@@ -338,6 +313,10 @@ class StoryController extends Controller
             'content' => $request->has('content') ? $request->content : $story->content,
             'media_path' => $mediaPath,
         ]);
+
+        if ($type === 'video' && $request->hasFile('media')) {
+            \App\Jobs\ProcessStoryVideo::dispatch($story, $rawPath);
+        }
 
         return response()->json([
             'status' => true,
