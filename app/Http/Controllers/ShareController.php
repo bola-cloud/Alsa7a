@@ -66,8 +66,11 @@ class ShareController extends Controller
             } elseif ($osType === 'iOS') {
                 return redirect()->away($iosLink);
             } else {
-                // Desktop or unknown -> show a landing page or redirect to main site
-                return redirect('/');
+                // Desktop or unknown -> show the app fallback landing page instead of redirecting to '/'
+                $title = 'الساحة | AlSaha';
+                $description = 'تطبيق الساحة — المنصة الرياضية الأولى';
+                $image = asset('app-assets/images/logo.jpeg');
+                return view('app_fallback', compact('title', 'description', 'image'));
             }
         }
 
