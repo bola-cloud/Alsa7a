@@ -26,7 +26,7 @@ class OneSignalService
      * @param array|null $data Additional data payload.
      * @return array
      */
-    public function sendToPlayers(array $playerIds, $title, $message, ?array $data = null)
+    public function sendToPlayers(array $playerIds, $title, $message, ?array $data = null, array $additionalOptions = [])
     {
         $headings = is_array($title) ? $title : ['en' => $title];
         $contents = is_array($message) ? $message : ['en' => $message];
@@ -41,6 +41,8 @@ class OneSignalService
         if ($data) {
             $payload['data'] = $data;
         }
+
+        $payload = array_merge($payload, $additionalOptions);
 
         return $this->sendRequest($payload);
     }

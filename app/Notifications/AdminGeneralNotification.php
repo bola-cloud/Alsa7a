@@ -5,8 +5,9 @@ namespace App\Notifications;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
 use App\Channels\OneSignalChannel;
+use Illuminate\Contracts\Queue\ShouldQueue;
 
-class AdminGeneralNotification extends Notification
+class AdminGeneralNotification extends Notification implements ShouldQueue
 {
     use Queueable;
 

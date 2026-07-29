@@ -36,11 +36,20 @@ class OneSignalChannel
             return;
         }
 
+        $additionalOptions = [];
+        if (isset($data['big_picture'])) {
+            $additionalOptions['big_picture'] = $data['big_picture'];
+        }
+        if (isset($data['ios_attachments'])) {
+            $additionalOptions['ios_attachments'] = $data['ios_attachments'];
+        }
+
         return $this->oneSignal->sendToPlayers(
             [$playerId],
             $data['title'],
             $data['message'],
-            $data['data'] ?? null
+            $data['data'] ?? null,
+            $additionalOptions
         );
     }
 }
