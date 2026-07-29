@@ -12,11 +12,15 @@ class AdminGeneralNotification extends Notification
 
     protected $title;
     protected $message;
+    protected $imageUrl;
+    protected $metaData;
 
-    public function __construct($title, $message)
+    public function __construct($title, $message, $imageUrl = null, $metaData = [])
     {
         $this->title = $title;
         $this->message = $message;
+        $this->imageUrl = $imageUrl;
+        $this->metaData = $metaData;
     }
 
     public function via($notifiable): array
@@ -26,7 +30,7 @@ class AdminGeneralNotification extends Notification
 
     public function toArray($notifiable): array
     {
-        return [
+        $data = [
             'title' => ['en' => $this->title, 'ar' => $this->title],
             'body' => [
                 'en' => $this->message,
@@ -34,19 +38,34 @@ class AdminGeneralNotification extends Notification
             ],
             'type' => 'admin_announcement',
         ];
+
+        if ($this->imageUrl) {
+            $data['image_url'] = $this->imageUrl;
+        }
+        
+        if (!empty($this->metaData)) {
+            $data['meta_data'] = $this->metaData;
+        }
+
+        return $data;
     }
 
     public function toOneSignal($notifiable): array
     {
-        return [
+        $payload = [
             'title' => ['en' => $this->title, 'ar' => $this->title],
             'message' => [
                 'en' => $this->message,
                 'ar' => $this->message
             ],
-            'data' => [
-                'type' => 'admin_announcement',
-            ],
+            'data' => array_merge(['type' => 'admin_announcement'], $this->metaData ?? []),
         ];
+
+        if ($this->imageUrl) {
+            $payload['big_picture'] = $this->imageUrl;
+            $payload['ios_attachments'] = ['id1' => $this->imageUrl];
+        }
+
+        return $payload;
     }
 }

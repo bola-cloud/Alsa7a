@@ -26,7 +26,7 @@ class PostController extends Controller
             });
         }
 
-        $posts = $query->paginate(20)->withQueryString();
+        $posts = $query->paginate(request('per_page', 20))->withQueryString();
         return view('admin.posts.index', compact('posts'));
     }
 

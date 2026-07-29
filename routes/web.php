@@ -88,6 +88,7 @@ Route::group([
         // Reports
         Route::get('reports/financial', [App\Http\Controllers\Admin\ReportController::class, 'financial'])->name('reports.financial');
         Route::get('reports/analytics', [App\Http\Controllers\Admin\AnalyticsController::class, 'index'])->name('reports.analytics');
+        Route::get('reports/user-activities', [\App\Http\Controllers\Admin\UserActivityController::class, 'index'])->name('reports.user_activities');
 
         // Community Posts (Blogs)
         Route::get('community_posts', [\App\Http\Controllers\Admin\CommunityPostController::class, 'index'])->name('community_posts.index');

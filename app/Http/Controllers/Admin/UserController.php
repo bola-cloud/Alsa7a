@@ -60,7 +60,7 @@ class UserController extends Controller
             $query->latest();
         }
 
-        $users = $query->paginate(15)->withQueryString();
+        $users = $query->paginate(request('per_page', 15))->withQueryString();
         // Assuming we need categories for filter, let's fetch them or use view composer if exists.
         // I'll fetch them here to be safe.
         $categories = \App\Models\Category::all();

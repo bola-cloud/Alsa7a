@@ -243,7 +243,7 @@
 
                         <!-- Sports & Events -->
                         <li class=" navigation-header" data-section="sports">
-                            <span>{{ App::getLocale() == 'ar' ? 'الرياضة والفعاليات' : 'Sports & Events' }}</span>
+                            <span>{{ __('admin.menu.sports_events') }}</span>
                             <i class="la la-angle-down nav-section-icon"></i>
                         </li>
                         <li class="nav-item {{ Route::is('admin.sports.*') ? 'active' : '' }}">
@@ -273,7 +273,7 @@
 
                         <!-- Content & Community -->
                         <li class=" navigation-header" data-section="content">
-                            <span>{{ App::getLocale() == 'ar' ? 'المحتوى والأقسام' : 'Content & Categories' }}</span>
+                            <span>{{ __('admin.menu.content_categories') }}</span>
                             <i class="la la-angle-down nav-section-icon"></i>
                         </li>
                         <li class="nav-item {{ Route::is('admin.parent_categories.*') ? 'active' : '' }}">
@@ -327,7 +327,7 @@
 
                         <!-- Services & Support -->
                         <li class=" navigation-header" data-section="services">
-                            <span>{{ App::getLocale() == 'ar' ? 'الخدمات والدعم' : 'Services & Support' }}</span>
+                            <span>{{ __('admin.menu.services_support') }}</span>
                             <i class="la la-angle-down nav-section-icon"></i>
                         </li>
                         <li class="nav-item {{ request()->routeIs('admin.services.*') ? 'active' : '' }}">
@@ -351,19 +351,25 @@
 
                         <!-- Reports & Analytics -->
                         <li class=" navigation-header" data-section="reports">
-                            <span>{{ App::getLocale() == 'ar' ? 'التقارير والإحصائيات' : 'Reports & Analytics' }}</span>
+                            <span>{{ __('admin.menu.reports_analytics') }}</span>
                             <i class="la la-angle-down nav-section-icon"></i>
                         </li>
                         <li class="nav-item {{ request()->routeIs('admin.reports.analytics') ? 'active' : '' }}">
                             <a href="{{ route('admin.reports.analytics') }}">
                                 <i class="la la-bar-chart"></i>
-                                <span class="menu-title">{{ App::getLocale() == 'ar' ? 'تحميلات التطبيق' : 'App Downloads' }}</span>
+                                <span class="menu-title">{{ __('admin.menu.app_downloads') }}</span>
+                            </a>
+                        </li>
+                        <li class="nav-item {{ request()->routeIs('admin.reports.user_activities') ? 'active' : '' }}">
+                            <a href="{{ route('admin.reports.user_activities') }}">
+                                <i class="la la-history"></i>
+                                <span class="menu-title">{{ __('admin.activities.title') }}</span>
                             </a>
                         </li>
 
                         <!-- Settings & Legal -->
                         <li class=" navigation-header" data-section="settings">
-                            <span>{{ App::getLocale() == 'ar' ? 'الإعدادات والقوانين' : 'Settings & Legal' }}</span>
+                            <span>{{ __('admin.menu.settings_legal') }}</span>
                             <i class="la la-angle-down nav-section-icon"></i>
                         </li>
                         <li class="nav-item {{ request()->routeIs('admin.notifications.*') ? 'active' : '' }}">

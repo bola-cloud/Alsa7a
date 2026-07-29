@@ -11,7 +11,7 @@ class StoryController extends Controller
 {
     public function index()
     {
-        $stories = Story::with('user')->orderBy('created_at', 'desc')->paginate(15);
+        $stories = Story::with('user')->orderBy('created_at', 'desc')->paginate(request('per_page', 15))->withQueryString();
         return view('admin.stories.index', compact('stories'));
     }
 

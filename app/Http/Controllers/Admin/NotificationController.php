@@ -17,16 +17,24 @@ class NotificationController extends Controller
         $request->validate([
             'title' => 'required|string|max:255',
             'message' => 'required|string',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'meta_key' => 'nullable|string|max:255',
+            'meta_value' => 'nullable|string|max:255',
         ]);
 
-        // Send push notification via OneSignal
-        // We will broadcast it to all users using the OneSignal channel.
-        // We can create an anonymous notification or iterate over users.
-        
-        // Let's create an AdminGeneralNotification class first or use the OneSignal API directly.
-        // Actually, since we use OneSignalChannel, we can just use the facade or a custom notification class.
+        $imageUrl = null;
+        if ($request->hasFile('image')) {
+            $path = $request->file('image')->store('notifications', 'public');
+            $imageUrl = asset('storage/' . $path);
+        }
+
+        $metaData = [];
+        if ($request->filled('meta_key') && $request->filled('meta_value')) {
+            $metaData[$request->meta_key] = $request->meta_value;
+        }
+
         $users = \App\Models\User::whereNotNull('onesignal_subscription')->get();
-        \Illuminate\Support\Facades\Notification::send($users, new \App\Notifications\AdminGeneralNotification($request->title, $request->message));
+        \Illuminate\Support\Facades\Notification::send($users, new \App\Notifications\AdminGeneralNotification($request->title, $request->message, $imageUrl, $metaData));
 
         return redirect()->route('admin.notifications.create')->with('success', __('admin.notifications.sent_success'));
     }

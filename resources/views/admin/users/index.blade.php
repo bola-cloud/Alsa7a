@@ -57,6 +57,15 @@
                             </select>
                         </div>
                         <div class="col-md-2 mb-2 mb-md-0">
+                            <label class="text-muted small mb-1">{{ __('admin.users.per_page') }}</label>
+                            <select name="per_page" class="form-control">
+                                <option value="15" {{ request('per_page') == 15 ? 'selected' : '' }}>15</option>
+                                <option value="30" {{ request('per_page') == 30 ? 'selected' : '' }}>30</option>
+                                <option value="50" {{ request('per_page') == 50 ? 'selected' : '' }}>50</option>
+                                <option value="100" {{ request('per_page') == 100 ? 'selected' : '' }}>100</option>
+                            </select>
+                        </div>
+                        <div class="col-md-1 mb-2 mb-md-0">
                             <button type="submit" class="btn btn-primary btn-block">
                                 <i class="la la-filter"></i> {{ __('admin.users.filter') }}
                             </button>

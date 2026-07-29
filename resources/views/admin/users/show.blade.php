@@ -47,6 +47,16 @@
                                 <span>{{ $user->email }}</span>
                             </li>
                             <li class="list-group-item d-flex justify-content-between align-items-center">
+                                {{ __('admin.users.last_seen') }}
+                                <span>
+                                    @if($user->last_seen_at)
+                                        <span class="badge badge-info">{{ $user->last_seen_at->diffForHumans() }}</span>
+                                    @else
+                                        <span class="badge badge-secondary">{{ __('admin.users.unknown') }}</span>
+                                    @endif
+                                </span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
                                 {{ __('admin.users.phone') }}
                                 <div>
                                     <span>{{ $user->phone }}</span>
