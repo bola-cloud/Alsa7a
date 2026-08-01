@@ -64,7 +64,7 @@ class AdminGeneralNotification extends Notification implements ShouldQueue
 
         if ($this->imageUrl) {
             $payload['big_picture'] = $this->imageUrl;
-            $payload['ios_attachments'] = ['id1' => $this->imageUrl];
+            $payload['ios_attachments'] = ['bg' => $this->imageUrl];
         }
 
         return $payload;
