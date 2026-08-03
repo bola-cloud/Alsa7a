@@ -4,10 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Traits\HasCountryScope;
 
 class CommunityPost extends Model
 {
-    use HasFactory;
+    use HasFactory, HasCountryScope;
 
     protected $fillable = ['user_id', 'community_category_id', 'content', 'image', 'video_thumbnail', 'is_hidden', 'hls_url', 'processing_status'];
 

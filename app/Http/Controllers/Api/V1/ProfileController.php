@@ -152,10 +152,11 @@ class ProfileController extends Controller
             'phone' => 'nullable|string|max:20',
             'birth_date' => 'nullable|date',
             'country' => 'nullable|string|max:100',
+            'country_id' => 'nullable|exists:countries,id',
             'bio' => 'nullable|string|max:1000',
             'profile_title' => 'nullable|string|max:255',
-            'category_id' => 'nullable|exists:categories,id', // Added
-            'show_services_activity' => 'nullable|boolean', // Added
+            'category_id' => 'nullable|exists:categories,id',
+            'show_services_activity' => 'nullable|boolean',
             'image' => 'nullable|image|max:4096', // Profile Photo
             'cover_photo' => 'nullable|image|max:4096', // Cover Photo
             'gallery_images.*' => 'nullable|image|max:4096', // For adding to gallery
@@ -187,12 +188,14 @@ class ProfileController extends Controller
             $user->birth_date = $request->birth_date;
         if ($request->has('country'))
             $user->country = $request->country;
+        if ($request->has('country_id'))
+            $user->country_id = $request->country_id;
         if ($request->has('bio'))
             $user->bio = $request->bio;
         if ($request->has('profile_title'))
             $user->profile_title = $request->profile_title;
         if ($request->has('category_id'))
-            $user->category_id = $request->category_id; // Added
+            $user->category_id = $request->category_id;
         if ($request->has('show_services_activity'))
             $user->show_services_activity = $request->show_services_activity;
 

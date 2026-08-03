@@ -4,13 +4,14 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Traits\HasCountryScope;
 use App\Traits\Translatable;
 
 use App\Traits\HasSlug;
 
 class Club extends Model
 {
-    use HasFactory, Translatable, HasSlug;
+    use HasFactory, HasCountryScope, Translatable, HasSlug;
 
     protected static function booted(): void
     {

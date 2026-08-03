@@ -456,4 +456,14 @@ return [
         'verified_successfully' => 'User phone verified successfully.',
         'force_verification' => 'Force Verification',
     ],
+    'countries' => [
+        'index' => 'Countries',
+        'create' => 'Add Country',
+        'edit' => 'Edit Country',
+        'name_en' => 'Name (EN)',
+        'name_ar' => 'Name (AR)',
+        'code' => 'Country Code',
+        'flag' => 'Country Flag',
+        'is_active' => 'Active',
+    ],
 ];

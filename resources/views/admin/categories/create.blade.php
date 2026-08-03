@@ -76,7 +76,7 @@
                                 </div>
 
                                 <div class="row">
-                                    <div class="col-md-12">
+                                    <div class="col-md-6">
                                         <div class="form-group">
                                             <fieldset>
                                                 <div class="custom-control custom-checkbox">
@@ -84,6 +84,18 @@
                                                         name="is_service_provider" id="is_service_provider" value="1">
                                                     <label class="custom-control-label"
                                                         for="is_service_provider">{{ __('admin.categories.is_service_provider') }}</label>
+                                                </div>
+                                            </fieldset>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <fieldset>
+                                                <div class="custom-control custom-checkbox">
+                                                    <input type="checkbox" class="custom-control-input"
+                                                        name="is_marketplace" id="is_marketplace" value="1">
+                                                    <label class="custom-control-label"
+                                                        for="is_marketplace">سوق التعاقدات (Marketplace)</label>
                                                 </div>
                                             </fieldset>
                                         </div>

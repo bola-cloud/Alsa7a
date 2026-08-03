@@ -456,4 +456,14 @@ return [
         'verified_successfully' => 'تم تأكيد رقم هاتف المستخدم بنجاح.',
         'force_verification' => 'تأكيد الحساب يدوياً',
     ],
+    'countries' => [
+        'index' => 'الدول',
+        'create' => 'إضافة دولة',
+        'edit' => 'تعديل دولة',
+        'name_en' => 'الاسم (EN)',
+        'name_ar' => 'الاسم (AR)',
+        'code' => 'كود الدولة',
+        'flag' => 'علم الدولة',
+        'is_active' => 'مفعل',
+    ],
 ];

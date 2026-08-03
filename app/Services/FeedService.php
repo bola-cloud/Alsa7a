@@ -20,7 +20,7 @@ class FeedService
      * 2. Unseen posts from non-followed users (Suggestions)
      * 3. Fallback to seen posts if all content is exhausted.
      */
-    public function getFeed(?User $user = null, int $perPage = 10, ?string $type = null)
+    public function getFeed(?User $user = null, int $perPage = 10, ?string $type = null, ?int $countryId = null)
     {
         $baseQuery = Post::with([
                 'user.category', 'user.club', 'user.ownedClub', 'comments',
@@ -33,6 +33,10 @@ class FeedService
 
         if ($type && in_array($type, ['image', 'video'])) {
             $baseQuery->where('type', $type);
+        }
+
+        if ($countryId) {
+            $baseQuery->where('country_id', $countryId);
         }
 
         if ($user) {

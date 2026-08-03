@@ -3,9 +3,13 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Traits\HasCountryScope;
 
 class Story extends Model
 {
+    use HasFactory, HasCountryScope;
+
     protected $fillable = ['user_id', 'type', 'media_path', 'content', 'expires_at'];
 
     protected $casts = [

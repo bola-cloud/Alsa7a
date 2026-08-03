@@ -20,6 +20,7 @@ class Category extends Model
         'description_en',
         'description_ar',
         'is_service_provider',
+        'is_marketplace',
         'requires_verification',
         'mandatory_service_verification',
         'verification_requirements_en',

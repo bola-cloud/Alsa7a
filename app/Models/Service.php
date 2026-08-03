@@ -4,12 +4,13 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Traits\HasCountryScope;
 
 use App\Traits\HasSlug;
 
 class Service extends Model
 {
-    use HasFactory, HasSlug;
+    use HasFactory, HasCountryScope, HasSlug;
 
     protected $slugSource = 'title';
 

@@ -8,6 +8,7 @@ use App\Http\Controllers\Admin\SliderController;
 use App\Http\Controllers\Admin\LeagueController;
 use App\Http\Controllers\Admin\EventController;
 use App\Http\Controllers\Admin\Dashboard;
+use App\Http\Controllers\Admin\CountryController;
 
 /*
 |--------------------------------------------------------------------------
@@ -99,6 +100,9 @@ Route::group([
         // Stories
         Route::get('stories', [\App\Http\Controllers\Admin\StoryController::class, 'index'])->name('stories.index');
         Route::delete('stories/{id}', [\App\Http\Controllers\Admin\StoryController::class, 'destroy'])->name('stories.destroy');
+
+        // Countries
+        Route::resource('countries', CountryController::class)->except('show');
 
         // Services & Tickets
         Route::resource('services', \App\Http\Controllers\Admin\ServiceController::class)->only(['index', 'show', 'destroy']);

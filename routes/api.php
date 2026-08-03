@@ -42,6 +42,9 @@ Route::prefix('v1')->middleware('set.api.locale')->group(function () {
     // Categories listing
     Route::get('categories', [CategoryController::class, 'index']);
 
+    // Countries (For Registration/Profile V2)
+    Route::get('countries', [\App\Http\Controllers\Api\V1\CountryController::class, 'index']);
+
     // General Settings
     Route::get('settings', [App\Http\Controllers\Api\V1\SettingController::class, 'index']);
 
@@ -212,6 +215,11 @@ Route::prefix('v1')->middleware('set.api.locale')->group(function () {
         Route::post('users/verification/upload', [App\Http\Controllers\Api\V1\VerificationController::class, 'upload']);
         Route::get('users/verification/status', [App\Http\Controllers\Api\V1\VerificationController::class, 'status']);
 
+        // --- Test Error Logging ---
+        Route::get('/test-error', function () {
+            return response()->json(['error' => 'This is a test error from routes.'], 500);
+        });
+
         // --- Reverb Test ---
         Route::get('reverb-test', function () {
             try {
@@ -239,3 +247,6 @@ Route::prefix('v1')->middleware('set.api.locale')->group(function () {
         });
     });
 });
+
+// V2 Routes
+Route::prefix('v2')->middleware('set.api.locale')->group(base_path('routes/api_v2.php'));

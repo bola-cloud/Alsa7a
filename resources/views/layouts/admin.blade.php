@@ -384,6 +384,12 @@
                                 <span class="menu-title">{{ __('admin.settings.index') }}</span>
                             </a>
                         </li>
+                        <li class="nav-item {{ Route::is('admin.countries.*') ? 'active' : '' }}">
+                            <a href="{{ route('admin.countries.index') }}">
+                                <i class="la la-globe"></i>
+                                <span class="menu-title">{{ __('admin.countries.index') }}</span>
+                            </a>
+                        </li>
                         <li class="nav-item">
                             <a href="{{ route('terms') }}" target="_blank">
                                 <i class="la la-file-text"></i>
