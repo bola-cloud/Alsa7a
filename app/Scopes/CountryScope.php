@@ -20,13 +20,20 @@ class CountryScope implements Scope
         // Only apply this scope if the request is coming from the V2 API
         // This ensures absolute backward compatibility with V1.
         if (request() && request()->is('api/v2/*')) {
-            $user = request()->user('sanctum'); // Use Sanctum guard to get the authenticated user
+            $countryId = request()->header('Country-Id');
+
+            // Fallback to authenticated user's country if header is not present
+            if (!$countryId) {
+                $user = request()->user('sanctum');
+                if ($user && $user->country_id) {
+                    $countryId = $user->country_id;
+                }
+            }
             
-            // If user is authenticated and has a country_id, filter the model by it
-            if ($user && $user->country_id) {
+            if ($countryId) {
                 // Check if the model has the 'country_id' column to avoid SQL errors
                 if (\Illuminate\Support\Facades\Schema::hasColumn($model->getTable(), 'country_id')) {
-                    $builder->where($model->getTable() . '.country_id', $user->country_id);
+                    $builder->where($model->getTable() . '.country_id', $countryId);
                 }
             }
         }
