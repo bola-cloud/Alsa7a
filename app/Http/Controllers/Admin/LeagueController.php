@@ -50,7 +50,8 @@ class LeagueController extends Controller
     public function create()
     {
         $sports = Sport::all();
-        return view('admin.leagues.create', compact('sports'));
+        $countries = \App\Models\Country::all();
+        return view('admin.leagues.create', compact('sports', 'countries'));
     }
 
     public function store(StoreLeagueRequest $request)
@@ -83,7 +84,8 @@ class LeagueController extends Controller
     public function edit(League $league)
     {
         $sports = Sport::all();
-        return view('admin.leagues.edit', compact('league', 'sports'));
+        $countries = \App\Models\Country::all();
+        return view('admin.leagues.edit', compact('league', 'sports', 'countries'));
     }
 
     public function update(UpdateLeagueRequest $request, League $league)

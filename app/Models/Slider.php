@@ -5,14 +5,15 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Traits\Translatable;
+use App\Traits\HasCountryScope;
 
 class Slider extends Model
 {
-    use HasFactory, Translatable;
+    use HasFactory, Translatable, HasCountryScope;
 
     protected $table = 'sliders';
 
-    protected $fillable = ['title', 'title_en', 'title_ar', 'image', 'link'];
+    protected $fillable = ['title', 'title_en', 'title_ar', 'image', 'link', 'country_id'];
 
     // Append computed full image URL
     protected $appends = ['image_url'];

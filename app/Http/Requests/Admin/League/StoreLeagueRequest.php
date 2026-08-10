@@ -27,6 +27,7 @@ class StoreLeagueRequest extends FormRequest
             'end_date' => 'nullable|date|after_or_equal:start_date',
             'image' => 'nullable|image|max:2048',
             'is_active' => 'boolean',
+            'country_id' => 'nullable|exists:countries,id',
         ];
     }
 }

@@ -41,6 +41,18 @@
 
                             <div class="col-md-6">
                                 <div class="form-group">
+                                    <label>{{ __('admin.countries.country') ?? 'Country' }}</label>
+                                    <select name="country_id" class="form-control">
+                                        <option value="">{{ __('admin.labels.all_countries') ?? 'All Countries (Global)' }}</option>
+                                        @foreach($countries as $country)
+                                            <option value="{{ $country->id }}" {{ old('country_id', session('admin_country_id')) == $country->id ? 'selected' : '' }}>
+                                                {{ $country->name_en }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                
+                                <div class="form-group">
                                     <label>{{ __('admin.sports.index') }}</label>
                                     <select name="sport_id" class="form-control select2">
                                         <option value="">{{ __('admin.categories.no') }}</option>

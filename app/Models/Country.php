@@ -12,9 +12,14 @@ class Country extends Model
         'code',
         'flag',
         'is_active',
+        'subscription_monthly_price',
+        'subscription_annual_price',
+        'currency',
     ];
 
     protected $casts = [
         'is_active' => 'boolean',
+        'subscription_monthly_price' => 'decimal:3',
+        'subscription_annual_price' => 'decimal:3',
     ];
 }

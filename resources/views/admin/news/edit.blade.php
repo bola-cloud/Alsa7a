@@ -55,6 +55,18 @@
                                         @endforeach
                                     </select>
                                 </div>
+                                
+                                <div class="form-group">
+                                    <label>{{ __('admin.countries.country') ?? 'Country' }}</label>
+                                    <select name="country_id" class="form-control">
+                                        <option value="">{{ __('admin.labels.all_countries') ?? 'All Countries (Global)' }}</option>
+                                        @foreach($countries as $country)
+                                            <option value="{{ $country->id }}" {{ old('country_id', $news->country_id) == $country->id ? 'selected' : '' }}>
+                                                {{ $country->name_en }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
 
                                 <hr>
 

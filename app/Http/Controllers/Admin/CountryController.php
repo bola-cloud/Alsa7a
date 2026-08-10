@@ -35,6 +35,9 @@ class CountryController extends Controller
             'code' => 'required|string|max:10|unique:countries,code',
             'flag' => 'nullable|image',
             'is_active' => 'nullable|boolean',
+            'subscription_monthly_price' => 'required|numeric|min:0',
+            'subscription_annual_price' => 'required|numeric|min:0',
+            'currency' => 'required|string|max:10',
         ]);
 
         $countryData = [
@@ -42,6 +45,9 @@ class CountryController extends Controller
             'name_ar' => $data['name_ar'],
             'code' => strtoupper($data['code']),
             'is_active' => $request->has('is_active'),
+            'subscription_monthly_price' => $data['subscription_monthly_price'],
+            'subscription_annual_price' => $data['subscription_annual_price'],
+            'currency' => strtoupper($data['currency']),
         ];
 
         if ($request->hasFile('flag')) {
@@ -67,6 +73,9 @@ class CountryController extends Controller
             'code' => 'required|string|max:10|unique:countries,code,' . $country->id,
             'flag' => 'nullable|image',
             'is_active' => 'nullable|boolean',
+            'subscription_monthly_price' => 'required|numeric|min:0',
+            'subscription_annual_price' => 'required|numeric|min:0',
+            'currency' => 'required|string|max:10',
         ]);
 
         $countryData = [
@@ -74,6 +83,9 @@ class CountryController extends Controller
             'name_ar' => $data['name_ar'],
             'code' => strtoupper($data['code']),
             'is_active' => $request->has('is_active'),
+            'subscription_monthly_price' => $data['subscription_monthly_price'],
+            'subscription_annual_price' => $data['subscription_annual_price'],
+            'currency' => strtoupper($data['currency']),
         ];
 
         if ($request->hasFile('flag')) {

@@ -49,7 +49,8 @@ class EventController extends Controller
     {
         $sports = Sport::all();
         $clubs = Club::all();
-        return view('admin.events.create', compact('sports', 'clubs'));
+        $countries = \App\Models\Country::all();
+        return view('admin.events.create', compact('sports', 'clubs', 'countries'));
     }
 
     public function store(StoreEventRequest $request)
@@ -101,7 +102,8 @@ class EventController extends Controller
     {
         $sports = Sport::all();
         $clubs = Club::all();
-        return view('admin.events.edit', compact('event', 'sports', 'clubs'));
+        $countries = \App\Models\Country::all();
+        return view('admin.events.edit', compact('event', 'sports', 'clubs', 'countries'));
     }
 
     public function update(UpdateEventRequest $request, Event $event)

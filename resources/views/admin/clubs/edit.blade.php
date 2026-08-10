@@ -85,9 +85,15 @@
                             </div>
                             <div class="col-md-4">
                                 <div class="form-group">
-                                    <label>{{ __('admin.clubs.country') }}</label>
-                                    <input type="text" name="country" class="form-control"
-                                        value="{{ old('country', $club->country) }}">
+                                    <label>{{ __('admin.countries.country') ?? 'Country' }}</label>
+                                    <select name="country_id" class="form-control">
+                                        <option value="">{{ __('admin.labels.all_countries') ?? 'All Countries (Global)' }}</option>
+                                        @foreach($countries as $country)
+                                            <option value="{{ $country->id }}" {{ old('country_id', $club->country_id) == $country->id ? 'selected' : '' }}>
+                                                {{ $country->name_en }}
+                                            </option>
+                                        @endforeach
+                                    </select>
                                 </div>
                             </div>
                             <div class="col-md-4">

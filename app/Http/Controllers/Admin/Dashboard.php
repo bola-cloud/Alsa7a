@@ -16,13 +16,27 @@ class Dashboard extends Controller
 {
     public function index(Request $request)
     {
+        $adminCountryId = session('admin_country_id');
+
+        $requestsQuery = ServiceRequest::query();
+        $ticketsQuery = Ticket::query();
+
+        if ($adminCountryId && $adminCountryId !== 'all') {
+            $requestsQuery->whereHas('requester', function ($q) use ($adminCountryId) {
+                $q->where('country_id', $adminCountryId);
+            });
+            $ticketsQuery->whereHas('user', function ($q) use ($adminCountryId) {
+                $q->where('country_id', $adminCountryId);
+            });
+        }
+
         $stats = [
             'users' => User::count(),
             'services' => Service::count(),
-            'requests' => ServiceRequest::count(),
+            'requests' => $requestsQuery->count(),
             'posts' => Post::count(),
             'news' => News::count(),
-            'tickets' => Ticket::count(),
+            'tickets' => $ticketsQuery->count(),
         ];
 
         // dynamic progress calculation (assuming target of 100 for demo, or relative to max)

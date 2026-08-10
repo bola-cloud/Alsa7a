@@ -37,6 +37,7 @@ class Club extends Model
         'is_featured',
         'meta',
         'user_id', // Owner
+        'country_id',
     ];
 
     protected $casts = [

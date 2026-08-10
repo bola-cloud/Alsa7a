@@ -65,7 +65,8 @@ class ClubController extends Controller
             ->first();
             
         $owners = User::where('category_id', $clubCategory?->id)->get();
-        return view('admin.clubs.create', compact('sports', 'leagues', 'owners'));
+        $countries = \App\Models\Country::all();
+        return view('admin.clubs.create', compact('sports', 'leagues', 'owners', 'countries'));
     }
 
     /**
@@ -86,6 +87,7 @@ class ClubController extends Controller
             'leagues'         => 'array',
             'user_id'         => 'nullable|exists:users,id', // Owner is now optional
             'founded_year'    => 'nullable|integer|between:1901,2155',
+            'country_id'      => 'nullable|exists:countries,id',
         ]);
 
         $data = [
@@ -97,6 +99,7 @@ class ClubController extends Controller
             'description_ar' => $request->description['ar'] ?? null,
             'city'           => $request->city,
             'country'        => $request->country ?? 'Jordan',
+            'country_id'     => $request->country_id,
             'founded_year'   => $request->filled('founded_year') ? $request->founded_year : null,
             'website'        => $request->website,
             'is_featured'    => $request->has('is_featured'),
@@ -156,7 +159,8 @@ class ClubController extends Controller
             ->first();
             
         $owners = User::where('category_id', $clubCategory?->id)->get();
-        return view('admin.clubs.edit', compact('club', 'sports', 'leagues', 'owners'));
+        $countries = \App\Models\Country::all();
+        return view('admin.clubs.edit', compact('club', 'sports', 'leagues', 'owners', 'countries'));
     }
 
     /**
@@ -173,6 +177,7 @@ class ClubController extends Controller
             'description.ar'  => 'nullable|string',
             'user_id'         => 'nullable|exists:users,id', // Owner is now optional
             'founded_year'    => 'nullable|integer|between:1901,2155',
+            'country_id'      => 'nullable|exists:countries,id',
         ]);
 
         $data = [
@@ -184,6 +189,7 @@ class ClubController extends Controller
             'description_ar' => $request->description['ar'] ?? null,
             'city'           => $request->city,
             'country'        => $request->country,
+            'country_id'     => $request->country_id,
             'founded_year'   => $request->filled('founded_year') ? $request->founded_year : null,
             'website'        => $request->website,
             'is_featured'    => $request->has('is_featured'),

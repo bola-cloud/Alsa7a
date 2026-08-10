@@ -30,6 +30,7 @@ class UpdateEventRequest extends FormRequest
             'featured_image' => 'nullable|image|max:2048',
             'status' => 'nullable|string|in:pending,approved,rejected',
             'is_featured' => 'sometimes|boolean',
+            'country_id' => 'nullable|exists:countries,id',
         ];
     }
 }

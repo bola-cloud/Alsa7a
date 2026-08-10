@@ -5,10 +5,11 @@ namespace App\Models;
 use App\Traits\Translatable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Traits\HasCountryScope;
 
 class News extends Model
 {
-    use HasFactory, Translatable;
+    use HasFactory, Translatable, HasCountryScope;
 
     protected $fillable = [
         'title_en',
@@ -17,7 +18,8 @@ class News extends Model
         'content_ar',
         'image',
         'sport_id',
-        'is_active'
+        'is_active',
+        'country_id'
     ];
 
     protected $casts = [

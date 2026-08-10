@@ -7,12 +7,13 @@ use Illuminate\Database\Eloquent\Model;
 use App\Traits\Translatable;
 
 use App\Traits\HasSlug;
+use App\Traits\HasCountryScope;
 
 class League extends Model
 {
-    use HasFactory, Translatable, HasSlug;
+    use HasFactory, Translatable, HasSlug, HasCountryScope;
 
-    protected $fillable = ['sport_id', 'name', 'name_en', 'name_ar', 'slug', 'description', 'description_en', 'description_ar', 'season', 'start_date', 'end_date', 'is_active', 'meta', 'image'];
+    protected $fillable = ['sport_id', 'name', 'name_en', 'name_ar', 'slug', 'description', 'description_en', 'description_ar', 'season', 'start_date', 'end_date', 'is_active', 'meta', 'image', 'country_id'];
 
     protected $casts = ['meta' => 'array', 'is_active' => 'boolean'];
 

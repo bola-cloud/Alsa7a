@@ -46,7 +46,8 @@ class SliderController extends Controller
      */
     public function create()
     {
-        return view('admin.sliders.create');
+        $countries = \App\Models\Country::all();
+        return view('admin.sliders.create', compact('countries'));
     }
 
     /**
@@ -78,7 +79,8 @@ class SliderController extends Controller
      */
     public function edit(Slider $slider)
     {
-        return view('admin.sliders.edit', compact('slider'));
+        $countries = \App\Models\Country::all();
+        return view('admin.sliders.edit', compact('slider', 'countries'));
     }
 
     /**

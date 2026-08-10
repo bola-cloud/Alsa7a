@@ -11,7 +11,16 @@ class TicketController extends Controller
 {
     public function index()
     {
-        $tickets = Ticket::with('user')->latest()->paginate(10);
+        $query = Ticket::with('user')->latest();
+
+        $adminCountryId = session('admin_country_id');
+        if ($adminCountryId && $adminCountryId !== 'all') {
+            $query->whereHas('user', function($q) use ($adminCountryId) {
+                $q->where('country_id', $adminCountryId);
+            });
+        }
+
+        $tickets = $query->paginate(10);
         return view('admin.tickets.index', compact('tickets'));
     }
 

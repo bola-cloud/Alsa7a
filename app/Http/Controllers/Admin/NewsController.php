@@ -50,7 +50,8 @@ class NewsController extends Controller
     public function create()
     {
         $sports = Sport::all();
-        return view('admin.news.create', compact('sports'));
+        $countries = \App\Models\Country::all();
+        return view('admin.news.create', compact('sports', 'countries'));
     }
 
     /**
@@ -70,6 +71,7 @@ class NewsController extends Controller
             'images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'video' => 'nullable|mimetypes:video/avi,video/mpeg,video/quicktime,video/mp4|max:20480',
             'video_url' => 'nullable|url',
+            'country_id' => 'nullable|exists:countries,id',
         ]);
 
         $newsData = [
@@ -78,6 +80,7 @@ class NewsController extends Controller
             'content_en' => $data['content']['en'] ?? null,
             'content_ar' => $data['content']['ar'] ?? null,
             'sport_id' => $data['sport_id'] ?? null,
+            'country_id' => $data['country_id'] ?? null,
         ];
 
         if ($request->hasFile('image')) {
@@ -130,7 +133,8 @@ class NewsController extends Controller
     public function edit(News $news)
     {
         $sports = Sport::all();
-        return view('admin.news.edit', compact('news', 'sports'));
+        $countries = \App\Models\Country::all();
+        return view('admin.news.edit', compact('news', 'sports', 'countries'));
     }
 
     /**
@@ -150,6 +154,7 @@ class NewsController extends Controller
             'images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'video' => 'nullable|mimetypes:video/avi,video/mpeg,video/quicktime,video/mp4|max:20480',
             'video_url' => 'nullable|url',
+            'country_id' => 'nullable|exists:countries,id',
         ]);
 
         $newsData = [
@@ -158,6 +163,7 @@ class NewsController extends Controller
             'content_en' => $data['content']['en'] ?? null,
             'content_ar' => $data['content']['ar'] ?? null,
             'sport_id' => $data['sport_id'] ?? null,
+            'country_id' => $data['country_id'] ?? null,
         ];
 
         if ($request->hasFile('image')) {

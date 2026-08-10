@@ -49,6 +49,27 @@
                             </div>
 
                             <div class="row">
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label for="subscription_monthly_price">السعر الشهري للاشتراك (Monthly Price)</label>
+                                        <input type="number" step="0.001" min="0" id="subscription_monthly_price" class="form-control round" name="subscription_monthly_price" value="{{ old('subscription_monthly_price', $country->subscription_monthly_price) }}" required>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label for="subscription_annual_price">السعر السنوي للاشتراك (Annual Price)</label>
+                                        <input type="number" step="0.001" min="0" id="subscription_annual_price" class="form-control round" name="subscription_annual_price" value="{{ old('subscription_annual_price', $country->subscription_annual_price) }}" required>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label for="currency">العملة (Currency)</label>
+                                        <input type="text" id="currency" class="form-control round" name="currency" value="{{ old('currency', $country->currency) }}" required placeholder="e.g. EGP, SAR, OMR">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
                                 <div class="col-md-12">
                                     <div class="form-group">
                                         <fieldset>

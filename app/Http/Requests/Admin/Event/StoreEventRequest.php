@@ -29,6 +29,7 @@ class StoreEventRequest extends FormRequest
             'capacity' => 'nullable|integer|min:0',
             'featured_image' => 'required|image|max:2048',
             'is_featured' => 'sometimes|boolean',
+            'country_id' => 'nullable|exists:countries,id',
         ];
     }
 }

@@ -25,11 +25,16 @@ class SubscriptionController extends Controller
     /**
      * Get available subscription plans
      */
-    public function plans()
+    public function plans(Request $request)
     {
+        $countryId = $request->header('Country-Id');
+        if (!$countryId && $user = $request->user('sanctum')) {
+            $countryId = $user->country_id;
+        }
+
         return response()->json([
             'status' => true,
-            'data' => $this->subscriptionService->getPlans()
+            'data' => $this->subscriptionService->getPlans($countryId)
         ]);
     }
 
@@ -48,7 +53,10 @@ class SubscriptionController extends Controller
 
         $user = $request->user();
         $type = $request->type;
-        $plans = $this->subscriptionService->getPlans();
+        
+        $countryId = $request->header('Country-Id') ?: $user->country_id;
+        $plans = $this->subscriptionService->getPlans($countryId);
+        
         $plan = collect($plans)->firstWhere('id', $type);
         $price = $plan['price'];
 

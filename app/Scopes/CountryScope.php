@@ -33,7 +33,10 @@ class CountryScope implements Scope
             if ($countryId) {
                 // Check if the model has the 'country_id' column to avoid SQL errors
                 if (\Illuminate\Support\Facades\Schema::hasColumn($model->getTable(), 'country_id')) {
-                    $builder->where($model->getTable() . '.country_id', $countryId);
+                    $builder->where(function ($q) use ($model, $countryId) {
+                        $q->where($model->getTable() . '.country_id', $countryId)
+                          ->orWhereNull($model->getTable() . '.country_id');
+                    });
                 }
             }
         }
@@ -44,7 +47,10 @@ class CountryScope implements Scope
             
             if ($adminCountryId && $adminCountryId !== 'all') {
                 if (\Illuminate\Support\Facades\Schema::hasColumn($model->getTable(), 'country_id')) {
-                    $builder->where($model->getTable() . '.country_id', $adminCountryId);
+                    $builder->where(function ($q) use ($model, $adminCountryId) {
+                        $q->where($model->getTable() . '.country_id', $adminCountryId)
+                          ->orWhereNull($model->getTable() . '.country_id');
+                    });
                 }
             }
         }

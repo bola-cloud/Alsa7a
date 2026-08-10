@@ -9,9 +9,16 @@ class UserActivityController extends Controller
 {
     public function index()
     {
-        $activities = \App\Models\UserActivity::with('user')
-            ->latest()
-            ->paginate(request('per_page', 15));
+        $query = \App\Models\UserActivity::with('user')->latest();
+
+        $adminCountryId = session('admin_country_id');
+        if ($adminCountryId && $adminCountryId !== 'all') {
+            $query->whereHas('user', function($q) use ($adminCountryId) {
+                $q->where('country_id', $adminCountryId);
+            });
+        }
+
+        $activities = $query->paginate(request('per_page', 15));
             
         return view('admin.user_activities.index', compact('activities'));
     }

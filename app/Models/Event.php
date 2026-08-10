@@ -15,7 +15,7 @@ class Event extends Model
 
     protected $slugSource = 'title';
 
-    protected $fillable = ['club_id', 'sport_id', 'title_en', 'title_ar', 'slug', 'description_en', 'description_ar', 'start_at', 'end_at', 'venue', 'price', 'capacity', 'tickets_sold', 'featured_image', 'is_featured', 'meta', 'ticket_types', 'status'];
+    protected $fillable = ['club_id', 'sport_id', 'title_en', 'title_ar', 'slug', 'description_en', 'description_ar', 'start_at', 'end_at', 'venue', 'price', 'capacity', 'tickets_sold', 'featured_image', 'is_featured', 'meta', 'ticket_types', 'status', 'country_id'];
 
     protected $casts = ['meta' => 'array', 'ticket_types' => 'array', 'is_featured' => 'boolean'];
 

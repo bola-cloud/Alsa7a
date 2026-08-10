@@ -27,6 +27,7 @@ class StoreSliderRequest extends FormRequest
             'title.ar' => 'nullable|string|max:255',
             'image' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
             'link' => 'nullable|string|max:1000',
+            'country_id' => 'nullable|exists:countries,id',
         ];
     }
 }

@@ -73,6 +73,20 @@
                                     {{ __('admin.leagues.season') }} & {{ __('admin.leagues.active') }}</h6>
                             </div>
 
+                            <div class="col-md-12 mb-3">
+                                <div class="form-group">
+                                    <label>{{ __('admin.countries.country') ?? 'Country' }}</label>
+                                    <select name="country_id" class="form-control">
+                                        <option value="">{{ __('admin.labels.all_countries') ?? 'All Countries (Global)' }}</option>
+                                        @foreach($countries as $country)
+                                            <option value="{{ $country->id }}" {{ old('country_id', session('admin_country_id')) == $country->id ? 'selected' : '' }}>
+                                                {{ $country->name_en }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            </div>
+
                             <div class="col-md-4">
                                 <div class="form-group">
                                     <label>{{ __('admin.sports.index') }} <span class="text-danger">*</span></label>

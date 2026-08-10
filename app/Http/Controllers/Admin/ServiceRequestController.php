@@ -13,7 +13,16 @@ class ServiceRequestController extends Controller
      */
     public function index()
     {
-        $requests = ServiceRequest::with(['service', 'provider', 'requester'])->latest()->paginate(10);
+        $query = ServiceRequest::with(['service', 'provider', 'requester'])->latest();
+
+        $adminCountryId = session('admin_country_id');
+        if ($adminCountryId && $adminCountryId !== 'all') {
+            $query->whereHas('requester', function($q) use ($adminCountryId) {
+                $q->where('country_id', $adminCountryId);
+            });
+        }
+
+        $requests = $query->paginate(10);
         return view('admin.service_requests.index', compact('requests'));
     }
 

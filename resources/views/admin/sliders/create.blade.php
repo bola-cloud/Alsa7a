@@ -72,6 +72,21 @@
                                 </div>
                             </div>
 
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label>{{ __('admin.countries.country') ?? 'Country' }}</label>
+                                    <select name="country_id" class="form-control">
+                                        <option value="">{{ __('admin.labels.all_countries') ?? 'All Countries (Global)' }}</option>
+                                        @foreach($countries as $country)
+                                            <option value="{{ $country->id }}" {{ old('country_id', session('admin_country_id')) == $country->id ? 'selected' : '' }}>
+                                                {{ $country->name_en }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                    <small class="text-muted">Leave empty to make this slider visible in all countries.</small>
+                                </div>
+                            </div>
+
                             <div class="col-12 mt-4 mb-3">
                                 <hr>
                                 <h6 class="text-muted text-uppercase font-weight-bold mb-3"><i class="la la-image"></i>
