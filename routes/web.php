@@ -9,6 +9,7 @@ use App\Http\Controllers\Admin\LeagueController;
 use App\Http\Controllers\Admin\EventController;
 use App\Http\Controllers\Admin\Dashboard;
 use App\Http\Controllers\Admin\CountryController;
+use App\Http\Controllers\Admin\AdminCountryController;
 
 /*
 |--------------------------------------------------------------------------
@@ -43,6 +44,9 @@ Route::group([
     // Admin Routes
     Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/dashboard', [Dashboard::class, 'index'])->name('dashboard');
+        
+        // Admin Global Country Filter
+        Route::post('/set-country', [AdminCountryController::class, 'setCountry'])->name('set_country');
 
         Route::get('categories/{category}/verification', [CategoryController::class, 'verification'])->name('categories.verification');
         Route::put('categories/{category}/verification', [CategoryController::class, 'updateVerification'])->name('categories.update_verification');

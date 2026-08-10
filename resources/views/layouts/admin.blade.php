@@ -129,6 +129,48 @@
                         </li>
                     </ul>
                     <ul class="nav navbar-nav float-right">
+                        {{-- Global Country Filter Dropdown --}}
+                        @php
+                            $currentCountryId = session('admin_country_id', 'all');
+                            $currentCountryName = '🌍 ' . (App::getLocale() == 'ar' ? 'كل الدول' : 'All Countries');
+                            if ($currentCountryId !== 'all' && isset($adminActiveCountries)) {
+                                $activeCountry = $adminActiveCountries->firstWhere('id', $currentCountryId);
+                                if ($activeCountry) {
+                                    $currentCountryName = '📍 ' . (App::getLocale() == 'ar' ? $activeCountry->name_ar : $activeCountry->name_en);
+                                }
+                            }
+                        @endphp
+                        @if(isset($adminActiveCountries))
+                        <li class="dropdown nav-item" style="display: flex; align-items: center; justify-content: center;">
+                            <a class="nav-link dropdown-toggle font-weight-bold" href="#" data-toggle="dropdown" style="color: white !important; font-size: 14px; background: rgba(255,255,255,0.2); padding: 5px 15px; border-radius: 20px; height: auto;">
+                                {{ $currentCountryName }}
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-right" style="min-width: 200px; padding: 10px 0;">
+                                <li>
+                                    <form action="{{ route('admin.set_country') }}" method="POST">
+                                        @csrf
+                                        <input type="hidden" name="admin_country_id" value="all">
+                                        <button type="submit" class="dropdown-item font-weight-bold {{ $currentCountryId === 'all' ? 'active bg-primary text-white' : '' }}">
+                                            🌍 {{ App::getLocale() == 'ar' ? 'كل الدول' : 'All Countries' }}
+                                        </button>
+                                    </form>
+                                </li>
+                                <div class="dropdown-divider"></div>
+                                @foreach($adminActiveCountries as $country)
+                                    <li>
+                                        <form action="{{ route('admin.set_country') }}" method="POST">
+                                            @csrf
+                                            <input type="hidden" name="admin_country_id" value="{{ $country->id }}">
+                                            <button type="submit" class="dropdown-item {{ $currentCountryId == $country->id ? 'active bg-primary text-white' : '' }}">
+                                                📍 {{ App::getLocale() == 'ar' ? $country->name_ar : $country->name_en }}
+                                            </button>
+                                        </form>
+                                    </li>
+                                @endforeach
+                            </ul>
+                        </li>
+                        @endif
+
                         <li class="nav-item">
                             <a class="nav-link" !data-widget="fullscreen"
                                 href="{{ App::getLocale() == 'ar' ? LaravelLocalization::getLocalizedURL('en') : LaravelLocalization::getLocalizedURL('ar') }}"

@@ -12,6 +12,7 @@ use Laravel\Sanctum\HasApiTokens;
 use App\Models\Question;
 use App\Models\QuestionAnswer;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use App\Traits\HasCountryScope;
 
 class User extends Authenticatable
 {
@@ -20,6 +21,7 @@ class User extends Authenticatable
     use HasProfilePhoto;
     use Notifiable;
     use TwoFactorAuthenticatable;
+    use HasCountryScope;
 
     /**
      * The attributes that are mass assignable.

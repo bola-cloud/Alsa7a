@@ -18,6 +18,7 @@ use App\Http\Controllers\Api\V1\ProfileController;
 */
 
 // --- Public Routes (Guests allowed, filtered by Country-Id header) ---
+Route::get('home', [\App\Http\Controllers\Api\V1\HomeController::class, 'index']);
 Route::get('feed', [FeedController::class, 'index']);
 
 // V1 Endpoints automatically filtered by CountryScope in V2
@@ -26,6 +27,7 @@ Route::get('services', [\App\Http\Controllers\Api\V1\ServiceController::class, '
 Route::get('clubs', [\App\Http\Controllers\Api\V1\ClubController::class, 'index']);
 Route::get('events', [\App\Http\Controllers\Api\V1\EventController::class, 'index']);
 Route::get('posts', [\App\Http\Controllers\Api\V1\PostController::class, 'index']);
+Route::get('users/{id}/posts', [\App\Http\Controllers\Api\V1\PostController::class, 'userPosts']);
 Route::get('reels', [\App\Http\Controllers\Api\V1\PostController::class, 'reels']);
 Route::get('community/posts', [\App\Http\Controllers\Api\V1\CommunityController::class, 'index']);
 

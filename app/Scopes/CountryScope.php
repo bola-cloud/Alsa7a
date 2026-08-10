@@ -37,5 +37,16 @@ class CountryScope implements Scope
                 }
             }
         }
+
+        // Admin Panel Global Filter
+        if (request() && (request()->is('*/admin/*') || request()->is('admin/*') || request()->is('*/admin') || request()->is('admin'))) {
+            $adminCountryId = session('admin_country_id');
+            
+            if ($adminCountryId && $adminCountryId !== 'all') {
+                if (\Illuminate\Support\Facades\Schema::hasColumn($model->getTable(), 'country_id')) {
+                    $builder->where($model->getTable() . '.country_id', $adminCountryId);
+                }
+            }
+        }
     }
 }
