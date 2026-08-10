@@ -14,7 +14,10 @@ class UserActivityController extends Controller
         $adminCountryId = session('admin_country_id');
         if ($adminCountryId && $adminCountryId !== 'all') {
             $query->whereHas('user', function($q) use ($adminCountryId) {
-                $q->where('country_id', $adminCountryId);
+                $q->where(function ($sub) use ($adminCountryId) {
+                    $sub->where('country_id', $adminCountryId)
+                        ->orWhereNull('country_id');
+                });
             });
         }
 

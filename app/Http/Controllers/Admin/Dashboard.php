@@ -23,10 +23,16 @@ class Dashboard extends Controller
 
         if ($adminCountryId && $adminCountryId !== 'all') {
             $requestsQuery->whereHas('requester', function ($q) use ($adminCountryId) {
-                $q->where('country_id', $adminCountryId);
+                $q->where(function ($sub) use ($adminCountryId) {
+                    $sub->where('country_id', $adminCountryId)
+                        ->orWhereNull('country_id');
+                });
             });
             $ticketsQuery->whereHas('user', function ($q) use ($adminCountryId) {
-                $q->where('country_id', $adminCountryId);
+                $q->where(function ($sub) use ($adminCountryId) {
+                    $sub->where('country_id', $adminCountryId)
+                        ->orWhereNull('country_id');
+                });
             });
         }
 
