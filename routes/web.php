@@ -45,6 +45,49 @@ Route::group([
     Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/dashboard', [Dashboard::class, 'index'])->name('dashboard');
         
+        // Temporary Test Route for Thawani Subscription
+        Route::get('/test-thawani', function () {
+            $user = auth()->user();
+            $countryId = session('admin_country_id');
+            if ($countryId === 'all') $countryId = null;
+            
+            $plans = app(\App\Services\SubscriptionService::class)->getPlans($countryId);
+            $plan = $plans[0]; // monthly
+            $price = $plan['price'];
+            
+            $clientReference = 'TEST_SUB_' . uniqid();
+            
+            $data = [
+                'client_reference_id' => $clientReference,
+                'mode' => 'payment',
+                'products' => [
+                    [
+                        'name' => "Alsa7a Test {$plan['name']}",
+                        'quantity' => 1,
+                        'unit_amount' => (int)($price * 1000),
+                    ]
+                ],
+                'success_url' => url('/'),
+                'cancel_url' => url('/'),
+                'metadata' => [
+                    'user_id' => $user->id,
+                    'subscription_type' => 'monthly',
+                    'type' => 'subscription'
+                ],
+            ];
+            
+            $session = app(\App\Services\ThawaniService::class)->createCheckoutSession($data);
+            
+            if (isset($session['data']['session_id'])) {
+                $publishableKey = config('services.thawani.publishable_key', 'HGvTMLDssJghr9tlQS6AgHe0GN5X9n');
+                $payUrl = config('services.thawani.pay_url', 'https://uatcheckout.thawani.om/pay');
+                $payUrl = rtrim($payUrl, '/') . '/';
+                return redirect("{$payUrl}{$session['data']['session_id']}?key={$publishableKey}");
+            }
+            
+            return response()->json(['error' => 'Failed to create session', 'details' => $session]);
+        });
+        
         // Admin Global Country Filter
         Route::post('/set-country', [AdminCountryController::class, 'setCountry'])->name('set_country');
 
