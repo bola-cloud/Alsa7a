@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\V2;
 
 use App\Http\Controllers\Controller;
+use App\Models\User;
 use App\Models\UserEvent;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -11,27 +12,88 @@ use Carbon\Carbon;
 class CalendarController extends Controller
 {
     /**
-     * Get User Events
+     * Get my own calendar events.
      */
     public function index(Request $request)
     {
         $user = $request->user();
-        
-        $query = UserEvent::where('user_id', $user->id);
 
-        // Optional filtering by month/year
-        if ($request->has('month') && $request->has('year')) {
-            $query->whereMonth('event_date', $request->month)
-                  ->whereYear('event_date', $request->year);
-        }
-
-        $events = $query->orderBy('event_date', 'asc')->get();
+        $events = $this->filteredQuery($request, $user->id)->get();
 
         return response()->json([
             'status' => true,
             'data' => $events,
             'message' => 'Calendar events retrieved successfully.'
         ]);
+    }
+
+    /**
+     * Get another user's calendar. Public by design — the whole point of the
+     * feature is that anyone visiting a profile can see that player's
+     * upcoming matches/events and show up to watch.
+     *
+     * Deliberately NOT country-scoped: the caller is asking for one specific
+     * person's calendar, so filtering it by the viewer's country would hide
+     * events for no reason (unlike feed/marketplace listings, which are
+     * browse-style and country-scoped).
+     */
+    public function userCalendar(Request $request, $id)
+    {
+        $user = User::find($id);
+
+        if (!$user) {
+            return response()->json([
+                'status' => false,
+                'message' => 'User not found.'
+            ], 404);
+        }
+
+        $events = $this->filteredQuery($request, $user->id)->get();
+
+        return response()->json([
+            'status' => true,
+            'data' => $events,
+            'message' => 'Calendar events retrieved successfully.'
+        ]);
+    }
+
+    /**
+     * Shared query builder for both the own-calendar and public-calendar
+     * endpoints, so filters behave identically on each.
+     *
+     * Supported filters (all optional):
+     *   month + year  -> that exact month
+     *   month only    -> that month of the current year
+     *   year only     -> the whole year
+     *   filter=upcoming -> from now on (the common "what's next" case)
+     *   filter=past     -> already happened, newest first
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $userId
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    protected function filteredQuery(Request $request, $userId)
+    {
+        $query = UserEvent::where('user_id', $userId);
+
+        if ($request->filled('month')) {
+            $query->whereMonth('event_date', $request->month)
+                  ->whereYear('event_date', $request->filled('year') ? $request->year : now()->year);
+        } elseif ($request->filled('year')) {
+            $query->whereYear('event_date', $request->year);
+        }
+
+        $filter = $request->input('filter');
+
+        if ($filter === 'upcoming') {
+            return $query->where('event_date', '>=', now())->orderBy('event_date', 'asc');
+        }
+
+        if ($filter === 'past') {
+            return $query->where('event_date', '<', now())->orderBy('event_date', 'desc');
+        }
+
+        return $query->orderBy('event_date', 'asc');
     }
 
     /**
@@ -69,7 +131,7 @@ class CalendarController extends Controller
             'status' => true,
             'data' => $event,
             'message' => 'Event added to calendar successfully.'
-        ]);
+        ], 201);
     }
 
     /**
@@ -78,7 +140,7 @@ class CalendarController extends Controller
     public function update(Request $request, $id)
     {
         $user = $request->user();
-        
+
         $event = UserEvent::where('id', $id)->where('user_id', $user->id)->first();
         if (!$event) {
             return response()->json([
@@ -122,7 +184,7 @@ class CalendarController extends Controller
     public function destroy(Request $request, $id)
     {
         $user = $request->user();
-        
+
         $event = UserEvent::where('id', $id)->where('user_id', $user->id)->first();
         if (!$event) {
             return response()->json([

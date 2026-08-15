@@ -84,6 +84,27 @@ class User extends Authenticatable
     }
 
     /**
+     * The user's personal calendar events (V2 calendar feature).
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function userEvents()
+    {
+        return $this->hasMany(UserEvent::class);
+    }
+
+    /**
+     * Only the events that have not happened yet — used for the
+     * `upcoming_events_count` badge on the profile response.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function upcomingEvents()
+    {
+        return $this->hasMany(UserEvent::class)->where('event_date', '>=', now());
+    }
+
+    /**
      * The attributes that are mass assignable.
      *
      * @var array<int, string>

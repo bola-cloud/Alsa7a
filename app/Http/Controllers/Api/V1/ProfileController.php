@@ -25,7 +25,7 @@ class ProfileController extends Controller
         $user = $request->user();
 
         // Eager load relationships
-        $user->loadCount(['followers', 'following', 'posts']);
+        $user->loadCount(['followers', 'following', 'posts', 'upcomingEvents']);
         $user->load([
             'club',
             'ownedClub',
@@ -52,7 +52,7 @@ class ProfileController extends Controller
      */
     public function show(Request $request, $id)
     {
-        $user = User::withCount(['followers', 'following', 'posts'])
+        $user = User::withCount(['followers', 'following', 'posts', 'upcomingEvents'])
             ->with([
                 'club',
                 'ownedClub',

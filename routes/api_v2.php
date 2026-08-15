@@ -40,6 +40,9 @@ Route::get('users/{id}/profile', [\App\Http\Controllers\Api\V1\ProfileController
 Route::get('users/{id}/followers', [\App\Http\Controllers\Api\V1\ProfileController::class, 'followers']);
 Route::get('users/{id}/following', [\App\Http\Controllers\Api\V1\ProfileController::class, 'following']);
 Route::get('users/{id}/ratings', [\App\Http\Controllers\Api\V1\ProfileController::class, 'ratings']);
+// Public on purpose: anyone visiting a profile can see that user's calendar
+// (e.g. a player's upcoming match) — that is the point of the feature.
+Route::get('users/{id}/calendar', [CalendarController::class, 'userCalendar']);
 Route::get('reels', [\App\Http\Controllers\Api\V1\PostController::class, 'reels']);
 Route::get('community/posts', [\App\Http\Controllers\Api\V1\CommunityController::class, 'index']);
 Route::get('clubs/{id}', [\App\Http\Controllers\Api\V1\ClubController::class, 'show']);

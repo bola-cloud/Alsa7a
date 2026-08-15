@@ -158,6 +158,11 @@ trait FormatsProfileData
                 'posts' => $user->posts_count ?? 0,
                 'followers' => $user->followers_count ?? 0,
                 'following' => $user->following_count ?? 0,
+                // Calendar badge. Like the counts above, this is only a real
+                // number when the caller eager-loaded it (the profile
+                // endpoints do); elsewhere it stays 0 instead of firing a
+                // query per user in feed/comment listings.
+                'upcoming_events' => $user->upcoming_events_count ?? 0,
             ],
             'is_following' => (bool) $isFollowing,
             'is_club_account' => $user->is_club_account ?? ($associatedClub ? ($associatedClub->user_id === $user->id) : false),
