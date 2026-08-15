@@ -504,12 +504,23 @@ class PostController extends Controller
             ->withCount(['likes', 'comments'])
             ->where('is_hidden', false)
             ->where('type', 'video')
-            ->where('processing_status', 'completed')
-            ->latest();
+            ->where('processing_status', 'completed');
 
-        $posts = $query->paginate(10);
+        $currentUser = $request->user('sanctum');
 
-        if ($user = $request->user('sanctum')) {
+        // Admin-controlled (Settings → feed_sort_mode). Reels have always been
+        // newest-first; 'algorithmic' additionally floats the people you follow
+        // to the top, matching how the home feed behaves in that mode.
+        if ($currentUser && setting('feed_sort_mode', 'latest') === 'algorithmic') {
+            $followingIds = $currentUser->following()->pluck('following_id')->toArray();
+            $followingIds[] = $currentUser->id; // Include self
+
+            $query->orderByRaw('IF(posts.user_id IN (' . implode(',', array_map('intval', $followingIds)) . '), 1, 0) DESC');
+        }
+
+        $posts = $query->latest()->paginate(10);
+
+        if ($user = $currentUser) {
             $postIds = $posts->getCollection()->pluck('id')->toArray();
             $authorIds = $posts->getCollection()->pluck('user_id')->unique()->toArray();
             

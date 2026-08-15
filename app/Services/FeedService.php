@@ -50,12 +50,22 @@ class FeedService
             $followingIdsStr = implode(',', $followingIds);
             $userId = $user->id;
 
+            // These two computed columns stay in the response in BOTH sort
+            // modes — the mobile app reads them, so only the ordering below
+            // changes, never the payload shape.
             $baseQuery->addSelect('posts.*')
                 ->selectRaw("EXISTS(SELECT 1 FROM post_views WHERE post_views.post_id = posts.id AND post_views.user_id = ?) as is_seen", [$userId])
-                ->selectRaw("IF(posts.user_id IN ($followingIdsStr), 1, 0) as is_following_or_self")
-                ->orderBy('is_seen', 'asc') // Unseen first (0), then seen (1)
-                ->orderBy('is_following_or_self', 'desc') // Followed first (1), then suggestions (0)
-                ->latest('posts.created_at');
+                ->selectRaw("IF(posts.user_id IN ($followingIdsStr), 1, 0) as is_following_or_self");
+
+            // Admin-controlled (Settings → feed_sort_mode):
+            //   'latest'      -> newest first for everyone, no personalisation
+            //   'algorithmic' -> unseen first, then followed users, then newest
+            if (setting('feed_sort_mode', 'latest') === 'algorithmic') {
+                $baseQuery->orderBy('is_seen', 'asc')            // Unseen first (0), then seen (1)
+                          ->orderBy('is_following_or_self', 'desc'); // Followed first (1), then suggestions (0)
+            }
+
+            $baseQuery->latest('posts.created_at');
 
             $paginated = $baseQuery->paginate($perPage);
         } else {

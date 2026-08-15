@@ -14,6 +14,13 @@ if (!function_exists('setting')) {
                     $setting->options = [0 => 'admin.categories.no', 1 => 'admin.categories.yes'];
                 }
 
+                if ($setting->key === 'feed_sort_mode') {
+                    $setting->options = [
+                        'latest' => 'admin.settings.feed_sort_latest',
+                        'algorithmic' => 'admin.settings.feed_sort_algorithmic',
+                    ];
+                }
+
                 // Add image_url logic
                 if ($setting->type === 'image') {
                     // Check if value is a path or full URL (mock data uses asset())
