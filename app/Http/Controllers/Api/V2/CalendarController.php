@@ -107,6 +107,11 @@ class CalendarController extends Controller
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
             'location' => 'nullable|string|max:255',
+            // Map pin. Both halves or neither - half a coordinate is useless.
+            'latitude' => 'nullable|numeric|between:-90,90|required_with:longitude',
+            'longitude' => 'nullable|numeric|between:-180,180|required_with:latitude',
+            // Written address, always optional.
+            'address' => 'nullable|string|max:255',
             'event_date' => 'required|date',
         ]);
 
@@ -124,6 +129,9 @@ class CalendarController extends Controller
             'title' => $request->title,
             'description' => $request->description,
             'location' => $request->location,
+            'latitude' => $request->latitude,
+            'longitude' => $request->longitude,
+            'address' => $request->address,
             'event_date' => Carbon::parse($request->event_date),
         ]);
 
@@ -153,6 +161,11 @@ class CalendarController extends Controller
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
             'location' => 'nullable|string|max:255',
+            // Map pin. Both halves or neither - half a coordinate is useless.
+            'latitude' => 'nullable|numeric|between:-90,90|required_with:longitude',
+            'longitude' => 'nullable|numeric|between:-180,180|required_with:latitude',
+            // Written address, always optional.
+            'address' => 'nullable|string|max:255',
             'event_date' => 'required|date',
         ]);
 
@@ -168,6 +181,9 @@ class CalendarController extends Controller
             'title' => $request->title,
             'description' => $request->description,
             'location' => $request->location,
+            'latitude' => $request->latitude,
+            'longitude' => $request->longitude,
+            'address' => $request->address,
             'event_date' => Carbon::parse($request->event_date),
         ]);
 

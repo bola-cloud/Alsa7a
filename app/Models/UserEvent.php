@@ -12,11 +12,18 @@ class UserEvent extends Model
         'title',
         'description',
         'location',
+        'latitude',
+        'longitude',
+        'address',
         'event_date',
     ];
 
     protected $casts = [
         'event_date' => 'datetime',
+        // Cast so the API returns real numbers, not the "23.5880000" strings
+        // MySQL hands back for DECIMAL columns.
+        'latitude' => 'float',
+        'longitude' => 'float',
     ];
 
     public function user()
