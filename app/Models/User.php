@@ -333,6 +333,10 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
         'phone_verified_at' => 'datetime',
+        // Missing entirely before: admin/users/show.blade.php calls
+        // ->diffForHumans() on this, which fatals on a plain string the
+        // moment any user actually has a last_seen_at value.
+        'last_seen_at' => 'datetime',
         'stats' => 'array',
         'availability' => 'array',
         'is_featured' => 'boolean',
