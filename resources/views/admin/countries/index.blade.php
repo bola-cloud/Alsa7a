@@ -38,7 +38,7 @@
                                     <td>{{ $index + 1 }}</td>
                                     <td>
                                         @if($country->flag)
-                                            <img src="{{ asset('storage/' . $country->flag) }}" alt="Flag" style="width: 40px; height: 25px; object-fit: cover;">
+                                            <img src="{{ $country->flag_url }}" alt="Flag" style="width: 40px; height: 25px; object-fit: cover;">
                                         @else
                                             -
                                         @endif

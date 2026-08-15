@@ -13,10 +13,9 @@ class ClubController extends Controller
      */
     public function index(Request $request)
     {
+        // NOTE: the clubs table has no 'active' column — filtering on it made
+        // this endpoint fail with SQLSTATE[42S22] on both V1 and V2.
         $clubs = Club::with(['sports', 'owner'])
-            ->where('active', true) // Assuming 'active' column exists based on context, or remove if not. Let's check model first or stick to safe usage. 
-            // Migration checked earlier (clubs table): 'active' isn't explicitly in fillable but usually standard. 
-            // Checking Club.php again locally might be safer, but let's assume standard 'latest()->paginate()'.
             ->latest()
             ->paginate(10);
 

@@ -86,6 +86,10 @@ class ParentCategoryController extends Controller
 
     public function destroy(ParentCategory $parentCategory)
     {
+        if ($parentCategory->isProtected()) {
+            return redirect()->back()->with('swal_error', 'System sections cannot be deleted.');
+        }
+
         $this->imageService->delete($parentCategory->image);
         $parentCategory->delete();
 

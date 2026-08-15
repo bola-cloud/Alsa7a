@@ -21,23 +21,28 @@ class Dashboard extends Controller
         $requestsQuery = ServiceRequest::query();
         $ticketsQuery = Ticket::query();
 
+        // ServiceRequest/Ticket carry no country_id of their own, so the
+        // country is inherited through the requester/user relation. Strict
+        // on purpose, matching the rest of the admin country switch: picking
+        // a country isolates that country's data instead of blending in
+        // every user who has none set yet.
         if ($adminCountryId && $adminCountryId !== 'all') {
             $requestsQuery->whereHas('requester', function ($q) use ($adminCountryId) {
-                $q->where(function ($sub) use ($adminCountryId) {
-                    $sub->where('country_id', $adminCountryId)
-                        ->orWhereNull('country_id');
-                });
+                $adminCountryId === 'none'
+                    ? $q->whereNull('country_id')
+                    : $q->where('country_id', $adminCountryId);
             });
             $ticketsQuery->whereHas('user', function ($q) use ($adminCountryId) {
-                $q->where(function ($sub) use ($adminCountryId) {
-                    $sub->where('country_id', $adminCountryId)
-                        ->orWhereNull('country_id');
-                });
+                $adminCountryId === 'none'
+                    ? $q->whereNull('country_id')
+                    : $q->where('country_id', $adminCountryId);
             });
         }
 
         $stats = [
-            'users' => User::count(),
+            // User has no automatic country scope (see App\Models\User), so
+            // it is filtered explicitly here, same as Admin\UserController.
+            'users' => User::inCountry($adminCountryId)->count(),
             'services' => Service::count(),
             'requests' => $requestsQuery->count(),
             'posts' => Post::count(),

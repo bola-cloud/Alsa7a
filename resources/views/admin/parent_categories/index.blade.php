@@ -50,16 +50,18 @@
                                 <i class="la la-edit"></i>
                             </a>
 
-                            <form action="{{ route('admin.parent_categories.destroy', $category->id) }}" method="POST"
-                                onsubmit="return confirm('{{ __('admin.buttons.confirm_delete') }}');" class="mb-0">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="btn btn-icon btn-outline-danger rounded-circle"
-                                    style="width: 42px; height: 42px; display: flex; align-items: center; justify-content: center;"
-                                    title="{{ __('admin.buttons.delete') }}">
-                                    <i class="la la-trash"></i>
-                                </button>
-                            </form>
+                            @if(!$category->isProtected())
+                                <form action="{{ route('admin.parent_categories.destroy', $category->id) }}" method="POST"
+                                    onsubmit="return confirm('{{ __('admin.buttons.confirm_delete') }}');" class="mb-0">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="btn btn-icon btn-outline-danger rounded-circle"
+                                        style="width: 42px; height: 42px; display: flex; align-items: center; justify-content: center;"
+                                        title="{{ __('admin.buttons.delete') }}">
+                                        <i class="la la-trash"></i>
+                                    </button>
+                                </form>
+                            @endif
                         </div>
                     </div>
                 </div>

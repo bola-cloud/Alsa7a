@@ -13,7 +13,9 @@ trait HasCountryScope
      */
     protected static function bootHasCountryScope()
     {
-        static::addGlobalScope(new CountryScope);
+        if (static::appliesCountryGlobalScope()) {
+            static::addGlobalScope(new CountryScope);
+        }
 
         static::creating(function ($model) {
             // Automatically assign the authenticated user's country_id when creating a new record
@@ -26,5 +28,20 @@ trait HasCountryScope
                 }
             }
         });
+    }
+
+    /**
+     * Whether the country filter should run automatically on every query.
+     *
+     * Models that are loaded while authenticating (the User model) must return
+     * false and filter by country explicitly instead — a global scope there
+     * makes the sanctum guard query itself recursively, and would also hide
+     * users of other countries from relations such as a post author.
+     *
+     * @return bool
+     */
+    protected static function appliesCountryGlobalScope()
+    {
+        return true;
     }
 }

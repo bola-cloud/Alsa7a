@@ -2,11 +2,15 @@
 
 namespace App\Models;
 
+use App\Traits\HasCountryScope;
 use Illuminate\Database\Eloquent\Model;
 
 class MarketRequest extends Model
 {
+    use HasCountryScope;
+
     protected $fillable = [
+        'user_id',
         'club_id',
         'category_id',
         'country_id',
@@ -15,6 +19,20 @@ class MarketRequest extends Model
         'status',
     ];
 
+    /**
+     * The user who posted this job. Any user whose category has
+     * `is_marketplace` enabled can post — not only club owners.
+     */
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    /**
+     * Optional: only set if the poster happened to own a club at posting
+     * time. Purely informational — never required, never the authorization
+     * check (see MarketController).
+     */
     public function club()
     {
         return $this->belongsTo(Club::class);

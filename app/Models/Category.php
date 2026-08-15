@@ -30,6 +30,7 @@ class Category extends Model
 
     protected $casts = [
         'is_service_provider' => 'boolean',
+        'is_marketplace' => 'boolean',
         'requires_verification' => 'boolean',
         'mandatory_service_verification' => 'boolean',
         'verification_fields' => 'array',
@@ -108,7 +109,7 @@ class Category extends Model
     public function isProtected()
     {
         // Protected categories by name (English or Arabic)
-        $protectedNames = ['Club', 'نادي'];
+        $protectedNames = ['Club', 'نادي', 'Football player', 'لاعب كرة القدم'];
         return in_array($this->name_en, $protectedNames) || in_array($this->name_ar, $protectedNames);
     }
 }

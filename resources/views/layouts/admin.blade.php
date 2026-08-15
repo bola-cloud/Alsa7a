@@ -133,7 +133,9 @@
                         @php
                             $currentCountryId = session('admin_country_id', 'all');
                             $currentCountryName = '🌍 ' . (App::getLocale() == 'ar' ? 'كل الدول' : 'All Countries');
-                            if ($currentCountryId !== 'all' && isset($adminActiveCountries)) {
+                            if ($currentCountryId === 'none') {
+                                $currentCountryName = '❔ ' . (App::getLocale() == 'ar' ? 'بدون دولة' : 'Unassigned');
+                            } elseif ($currentCountryId !== 'all' && isset($adminActiveCountries)) {
                                 $activeCountry = $adminActiveCountries->firstWhere('id', $currentCountryId);
                                 if ($activeCountry) {
                                     $currentCountryName = '📍 ' . (App::getLocale() == 'ar' ? $activeCountry->name_ar : $activeCountry->name_en);
@@ -167,6 +169,16 @@
                                         </form>
                                     </li>
                                 @endforeach
+                                <div class="dropdown-divider"></div>
+                                <li>
+                                    <form action="{{ route('admin.set_country') }}" method="POST">
+                                        @csrf
+                                        <input type="hidden" name="admin_country_id" value="none">
+                                        <button type="submit" class="dropdown-item text-muted {{ $currentCountryId === 'none' ? 'active bg-primary text-white' : '' }}">
+                                            ❔ {{ App::getLocale() == 'ar' ? 'بدون دولة' : 'Unassigned' }}
+                                        </button>
+                                    </form>
+                                </li>
                             </ul>
                         </li>
                         @endif
@@ -382,6 +394,12 @@
                             <a href="{{ route('admin.service_requests.index') }}">
                                 <i class="la la-exchange"></i>
                                 <span class="menu-title">{{ __('admin.service_requests.title') }}</span>
+                            </a>
+                        </li>
+                        <li class="nav-item {{ request()->routeIs('admin.market_requests.*') ? 'active' : '' }}">
+                            <a href="{{ route('admin.market_requests.index') }}">
+                                <i class="la la-suitcase"></i>
+                                <span class="menu-title">{{ __('admin.market_requests.title') }}</span>
                             </a>
                         </li>
                         <li class="nav-item {{ request()->routeIs('admin.tickets.*') ? 'active' : '' }}">

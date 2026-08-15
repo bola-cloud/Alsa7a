@@ -22,6 +22,19 @@ class ParentCategory extends Model
     }
 
     /**
+     * The football players section that the "Club"/"نادي" category belongs
+     * to — the app assumes it exists (Club's parent), so it can never be
+     * deleted. Matched by name, same pattern as Category::isProtected().
+     *
+     * @return bool
+     */
+    public function isProtected()
+    {
+        $protectedNames = ['Football ARENA', 'ساحة كرة القدم'];
+        return in_array($this->name_en, $protectedNames) || in_array($this->name_ar, $protectedNames);
+    }
+
+    /**
      * Return `image` as full URL for API consumers.
      */
     public function getImageAttribute($value)

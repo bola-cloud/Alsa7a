@@ -24,6 +24,66 @@ class User extends Authenticatable
     use HasCountryScope;
 
     /**
+     * Users are never filtered by country automatically.
+     *
+     * The sanctum guard loads the token owner with an Eloquent query, so a
+     * global scope here calls the guard from inside the guard (HTTP 500,
+     * "Infinite recursion?"), and it would also hide users of other countries
+     * from relations such as a post author or a followers list.
+     *
+     * The country_id column is still filled on creation by HasCountryScope,
+     * and the admin panel filters users by country explicitly.
+     *
+     * @return bool
+     */
+    protected static function appliesCountryGlobalScope()
+    {
+        return false;
+    }
+
+    /**
+     * Scope a query to the country selected in the admin panel.
+     *
+     * Strict on purpose: unlike API reads (which show NULL/legacy content
+     * everywhere for backward compatibility), the admin switcher is meant to
+     * isolate one country's users, so picking a country here does not also
+     * pull in every user who has no country set.
+     *
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
+     * @param  mixed  $countryId  a country id, 'all', or the sentinel 'none'
+     *                            for users with no country assigned yet
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function scopeInCountry($query, $countryId)
+    {
+        if (! $countryId || $countryId === 'all') {
+            return $query;
+        }
+
+        if ($countryId === 'none') {
+            return $query->whereNull('users.country_id');
+        }
+
+        return $query->where('users.country_id', $countryId);
+    }
+
+    /**
+     * The country the user selected (V2 country filtering, `country_id`).
+     *
+     * Deliberately NOT named `country()` — the `users` table already has a
+     * legacy free-text `country` column, and Eloquent's magic `$user->country`
+     * accessor always resolves the raw column over a same-named relation, so
+     * a `country()` relation here would silently never be called through
+     * property access (only through `$user->country()->first()`).
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function selectedCountry()
+    {
+        return $this->belongsTo(Country::class, 'country_id');
+    }
+
+    /**
      * The attributes that are mass assignable.
      *
      * @var array<int, string>

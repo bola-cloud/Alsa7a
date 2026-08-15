@@ -108,6 +108,7 @@
                                     <th>{{ __('admin.users.id') }}</th>
                                     <th>{{ __('admin.users.name') }}</th>
                                     <th>{{ __('admin.users.role') }}</th>
+                                    <th>{{ __('admin.users.country') }}</th>
                                     <th>{{ __('admin.users.status') }}</th>
                                     <th>{{ __('admin.users.verification') }}</th>
                                     <th>{{ __('admin.users.join_date') }}</th>
@@ -128,6 +129,15 @@
                                             <small class="text-muted">{{ $user->email }} / {{ $user->phone }}</small>
                                         </td>
                                         <td>{{ $user->category->name ?? 'User' }}</td>
+                                        <td>
+                                            @if($user->selectedCountry)
+                                                <span class="badge badge-light border">
+                                                    {{ app()->getLocale() == 'ar' ? $user->selectedCountry->name_ar : $user->selectedCountry->name_en }}
+                                                </span>
+                                            @else
+                                                <span class="badge badge-secondary">{{ __('admin.users.no_country') }}</span>
+                                            @endif
+                                        </td>
                                         <td>
                                             @if($user->is_approved)
                                                 <span class="badge badge-success">{{ __('admin.users.approved') }}</span>

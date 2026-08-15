@@ -36,6 +36,7 @@ trait FormatsProfileData
                 'name_en' => data_get($user->category, 'name_en'), // Restored
                 'name_ar' => data_get($user->category, 'name_ar'), // Restored
                 'is_service_provider' => data_get($user->category, 'is_service_provider'),
+                'is_marketplace' => (bool) data_get($user->category, 'is_marketplace'),
                 'requires_verification' => (bool) data_get($user->category, 'requires_verification'),
                 'mandatory_service_verification' => (bool) data_get($user->category, 'mandatory_service_verification'),
                 'verification_requirements_en' => data_get($user->category, 'verification_requirements_en'),
@@ -201,6 +202,12 @@ trait FormatsProfileData
                 'end_date' => $user->subscription ? $user->subscription->end_date : null,
                 'status' => $user->subscription ? $user->subscription->status : null,
             ],
+
+            // V2 country filtering. Additive: the legacy free-text `country`
+            // field above is untouched; this is the countries.id foreign key
+            // the app sends as the `Country-Id` header. Null means the user has
+            // not picked a country yet.
+            'country_id' => $user->country_id !== null ? (int) $user->country_id : null,
         ];
 
         // Club Details View (Always include if associated with a club, either as owner or member)

@@ -80,6 +80,19 @@
                                 <span class="badge badge-primary">{{ $user->category->name ?? 'N/A' }}</span>
                             </li>
                             <li class="list-group-item d-flex justify-content-between align-items-center">
+                                {{ __('admin.users.country') }}
+                                @if($user->selectedCountry)
+                                    <span class="badge badge-light border">
+                                        @if($user->selectedCountry->flag_url)
+                                            <img src="{{ $user->selectedCountry->flag_url }}" style="width: 18px; height: 12px; object-fit: cover;" class="mr-1">
+                                        @endif
+                                        {{ app()->getLocale() == 'ar' ? $user->selectedCountry->name_ar : $user->selectedCountry->name_en }}
+                                    </span>
+                                @else
+                                    <span class="badge badge-secondary">{{ __('admin.users.no_country') }}</span>
+                                @endif
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
                                 {{ __('admin.users.verification') }}
                                 @if($user->verification_status == 'approved')
                                     <span class="badge badge-success">{{ __('admin.users.verified') }}</span>

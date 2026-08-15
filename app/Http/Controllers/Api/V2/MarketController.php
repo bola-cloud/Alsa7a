@@ -12,18 +12,25 @@ use Illuminate\Support\Facades\Storage;
 class MarketController extends Controller
 {
     /**
-     * Get Marketplace requests filtered by Country
+     * Get Marketplace requests. Public.
+     *
+     * Country filtering is automatic — MarketRequest carries HasCountryScope,
+     * so CountryScope applies the same Country-Id/user-country logic here as
+     * every other country-scoped model, no manual code needed.
+     *
+     * Pass `user_id` to get one user's own postings — the same pattern the
+     * mobile app already uses for a provider's services on their profile
+     * (GET /services?provider_id=X), so a user's job listings can be shown
+     * on their profile screen the same way.
      */
     public function index(Request $request)
     {
-        $user = $request->user();
-        
-        $query = MarketRequest::with(['club', 'category'])
+        $query = MarketRequest::with(['user', 'club', 'category'])
+            ->withCount('applications')
             ->where('status', 'active');
-            
-        // Filter by user's country if set
-        if ($user->country_id) {
-            $query->where('country_id', $user->country_id);
+
+        if ($request->filled('user_id')) {
+            $query->where('user_id', $request->user_id);
         }
 
         $requests = $query->latest()->paginate(15);
@@ -36,18 +43,46 @@ class MarketController extends Controller
     }
 
     /**
-     * Create a new Market Request (Job Post)
-     * Assuming the authenticated user is the club owner.
+     * Get a single Marketplace request. Public, same as index — used for
+     * direct links / opening a job from a notification.
+     */
+    public function show(Request $request, $id)
+    {
+        $marketRequest = MarketRequest::with(['user', 'club', 'category'])
+            ->withCount('applications')
+            ->find($id);
+
+        if (!$marketRequest) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Market request not found.'
+            ], 404);
+        }
+
+        return response()->json([
+            'status' => true,
+            'data' => $marketRequest,
+            'message' => 'Market request retrieved successfully.'
+        ]);
+    }
+
+    /**
+     * Create a new Market Request (Job Post).
+     *
+     * Authorization mirrors how service providers are meant to work: any
+     * user whose category has the "سوق التعاقدات (Marketplace)" checkbox
+     * enabled in the admin panel (categories.is_marketplace) can post,
+     * whether or not they own a club. club_id is attached only as optional
+     * context when the poster happens to own one.
      */
     public function store(Request $request)
     {
         $user = $request->user();
 
-        // Check if user owns a club
-        if (!$user->ownedClub) {
+        if (!$user->category || !$user->category->is_marketplace) {
             return response()->json([
                 'status' => false,
-                'message' => 'You do not have a club to create a request for.'
+                'message' => 'Your category is not allowed to post marketplace job requests.'
             ], 403);
         }
 
@@ -66,9 +101,10 @@ class MarketController extends Controller
         }
 
         $marketRequest = MarketRequest::create([
-            'club_id' => $user->ownedClub->id,
+            'user_id' => $user->id,
+            'club_id' => optional($user->ownedClub)->id,
             'category_id' => $request->category_id,
-            'country_id' => $user->country_id, // Inherit country from club owner
+            'country_id' => $user->country_id,
             'title' => $request->title,
             'description' => $request->description,
             'status' => 'active',
@@ -76,8 +112,45 @@ class MarketController extends Controller
 
         return response()->json([
             'status' => true,
-            'data' => $marketRequest,
+            'data' => $marketRequest->load(['user', 'club', 'category']),
             'message' => 'Market request created successfully.'
+        ], 201);
+    }
+
+    /**
+     * End a Market Request's visibility. Only the poster can close it, and
+     * only they can reopen it — there is no separate reopen endpoint by
+     * design, matching "ينهي صلاحية عرض الوظيفة في أي وقت" (a one-way action
+     * from the poster's point of view; post a new listing to relist).
+     */
+    public function close(Request $request, $id)
+    {
+        $user = $request->user();
+        $marketRequest = MarketRequest::find($id);
+
+        if (!$marketRequest) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Market request not found.'
+            ], 404);
+        }
+
+        if ($marketRequest->user_id !== $user->id) {
+            return response()->json([
+                'status' => false,
+                'message' => 'You can only close your own market requests.'
+            ], 403);
+        }
+
+        // Idempotent: closing an already-closed request just confirms it.
+        if ($marketRequest->status !== 'closed') {
+            $marketRequest->update(['status' => 'closed']);
+        }
+
+        return response()->json([
+            'status' => true,
+            'data' => $marketRequest,
+            'message' => 'Market request closed successfully.'
         ]);
     }
 
@@ -87,7 +160,7 @@ class MarketController extends Controller
     public function apply(Request $request, $id)
     {
         $user = $request->user();
-        
+
         $marketRequest = MarketRequest::find($id);
         if (!$marketRequest) {
             return response()->json([
@@ -96,11 +169,25 @@ class MarketController extends Controller
             ], 404);
         }
 
+        if ($marketRequest->status !== 'active') {
+            return response()->json([
+                'status' => false,
+                'message' => 'This job posting is closed and no longer accepting applications.'
+            ], 400);
+        }
+
+        if ($marketRequest->user_id === $user->id) {
+            return response()->json([
+                'status' => false,
+                'message' => 'You cannot apply to your own job posting.'
+            ], 400);
+        }
+
         // Prevent double applications
         $existing = MarketApplication::where('market_request_id', $marketRequest->id)
             ->where('user_id', $user->id)
             ->first();
-            
+
         if ($existing) {
             return response()->json([
                 'status' => false,
@@ -136,26 +223,64 @@ class MarketController extends Controller
         return response()->json([
             'status' => true,
             'data' => $application,
-            'message' => 'Application submitted successfully. The club owner will contact you via chat.'
+            'message' => 'Application submitted successfully. The job poster will contact you via chat.'
+        ], 201);
+    }
+
+    /**
+     * Get the applicants for one of my own Market Requests, paginated.
+     *
+     * Kept separate from myRequests() on purpose: a popular job posting can
+     * attract far more applicants than fit comfortably in a list-of-jobs
+     * response, so applicants are fetched per-job, on demand.
+     */
+    public function applications(Request $request, $id)
+    {
+        $user = $request->user();
+        $marketRequest = MarketRequest::find($id);
+
+        if (!$marketRequest) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Market request not found.'
+            ], 404);
+        }
+
+        if ($marketRequest->user_id !== $user->id) {
+            return response()->json([
+                'status' => false,
+                'message' => 'You can only view applicants for your own market requests.'
+            ], 403);
+        }
+
+        $applications = $marketRequest->applications()
+            ->with('user')
+            ->latest()
+            ->paginate(15);
+
+        return response()->json([
+            'status' => true,
+            'data' => $applications,
+            'message' => 'Applicants retrieved successfully.'
         ]);
     }
 
     /**
-     * Get Market Requests created by my Club
+     * Get Market Requests I posted myself.
+     *
+     * Any user can have posted requests, not just club owners, so this no
+     * longer 403s for users without a club — it simply returns their own
+     * list (empty if they have not posted anything). Applicant lists are
+     * fetched separately per job via applications() to keep this response
+     * light regardless of how many people applied.
      */
     public function myRequests(Request $request)
     {
         $user = $request->user();
 
-        if (!$user->ownedClub) {
-            return response()->json([
-                'status' => false,
-                'message' => 'You do not have a club.'
-            ], 403);
-        }
-
-        $requests = MarketRequest::with(['category', 'applications.user'])
-            ->where('club_id', $user->ownedClub->id)
+        $requests = MarketRequest::with(['category', 'club'])
+            ->withCount('applications')
+            ->where('user_id', $user->id)
             ->latest()
             ->paginate(15);
 

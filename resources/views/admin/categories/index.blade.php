@@ -52,13 +52,11 @@
                         </p>
 
                         <div class="d-flex align-items-center justify-content-center mt-2" style="gap: 8px;">
-                            @if(!$category->isProtected())
-                                <a href="{{ route('admin.categories.edit', $category->id) }}" class="btn btn-icon btn-outline-primary rounded-circle"
-                                    style="width: 38px; height: 38px; display: flex; align-items: center; justify-content: center;"
-                                    title="{{ __('admin.buttons.edit') }}">
-                                    <i class="la la-edit"></i>
-                                </a>
-                            @endif
+                            <a href="{{ route('admin.categories.edit', $category->id) }}" class="btn btn-icon btn-outline-primary rounded-circle"
+                                style="width: 38px; height: 38px; display: flex; align-items: center; justify-content: center;"
+                                title="{{ __('admin.buttons.edit') }}">
+                                <i class="la la-edit"></i>
+                            </a>
 
                             <a href="{{ route('admin.questions.index', ['category_id' => $category->id]) }}"
                                 class="btn btn-icon btn-outline-info rounded-circle" 

@@ -15,13 +15,15 @@ class ServiceRequestController extends Controller
     {
         $query = ServiceRequest::with(['service', 'provider', 'requester'])->latest();
 
+        // ServiceRequest carries no country_id of its own, so the country is
+        // inherited through the requester relation. Strict on purpose,
+        // matching the rest of the admin country switch.
         $adminCountryId = session('admin_country_id');
         if ($adminCountryId && $adminCountryId !== 'all') {
             $query->whereHas('requester', function($q) use ($adminCountryId) {
-                $q->where(function ($sub) use ($adminCountryId) {
-                    $sub->where('country_id', $adminCountryId)
-                        ->orWhereNull('country_id');
-                });
+                $adminCountryId === 'none'
+                    ? $q->whereNull('country_id')
+                    : $q->where('country_id', $adminCountryId);
             });
         }
 

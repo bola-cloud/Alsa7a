@@ -24,13 +24,15 @@ class BlockParentAction
             if ($token && in_array('view-only', $token->abilities ?? []) && !in_array('*', $token->abilities ?? [])) {
                 if (!in_array($request->method(), ['GET', 'HEAD', 'OPTIONS'])) {
                     
-                    // Allow harmless POST requests for parent accounts
+                    // Allow harmless POST requests for parent accounts.
+                    // The version segment is a wildcard: V2 is a superset of V1,
+                    // so the same calls arrive on api/v2/* from the new app.
                     $allowedPaths = [
-                        'api/v1/auth/logout',
-                        'api/v1/notifications/read-all',
-                        'api/v1/notifications/*/read',
-                        'api/v1/posts/*/view',
-                        'api/v1/users/onesignal-subscription',
+                        'api/*/auth/logout',
+                        'api/*/notifications/read-all',
+                        'api/*/notifications/*/read',
+                        'api/*/posts/*/view',
+                        'api/*/users/onesignal-subscription',
                     ];
 
                     if (!$request->is($allowedPaths)) {

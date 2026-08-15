@@ -9,6 +9,15 @@
                 </div>
                 <div class="card-content collapse show">
                     <div class="card-body">
+                        @if($category->isProtected())
+                            <div class="alert alert-warning d-flex align-items-center" role="alert">
+                                <i class="la la-lock mr-2 font-medium-2"></i>
+                                <div>
+                                    هذا القسم أساسي في النظام — الاسم والقسم الرئيسي غير قابلين للتعديل ولا يمكن حذفه.
+                                    باقي الحقول (الصورة، الوصف، والخيارات) متاحة للتعديل بحرية.
+                                </div>
+                            </div>
+                        @endif
                         <form action="{{ route('admin.categories.update', $category->id) }}" method="POST"
                             enctype="multipart/form-data">
                             @csrf
@@ -19,14 +28,14 @@
                                         <div class="form-group">
                                             <label for="name_en">{{ __('admin.categories.name') }} (EN)</label>
                                             <input type="text" id="name_en" class="form-control round" name="name[en]"
-                                                value="{{ $category->name_en }}" required>
+                                                value="{{ $category->name_en }}" {{ $category->isProtected() ? 'disabled' : 'required' }}>
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-group">
                                             <label for="name_ar">{{ __('admin.categories.name') }} (AR)</label>
                                             <input type="text" id="name_ar" class="form-control round" name="name[ar]"
-                                                value="{{ $category->name_ar }}" required>
+                                                value="{{ $category->name_ar }}" {{ $category->isProtected() ? 'disabled' : 'required' }}>
                                         </div>
                                     </div>
                                 </div>
@@ -37,7 +46,7 @@
                                             <label
                                                 for="parent_category_id">{{ __('admin.parent_categories.index') }}</label>
                                             <select name="parent_category_id" id="parent_category_id" class="form-control"
-                                                required>
+                                                {{ $category->isProtected() ? 'disabled' : 'required' }}>
                                                 <option value="">{{ __('admin.buttons.select') }}</option>
                                                 @foreach($parentCategories as $parent)
                                                     <option value="{{ $parent->id }}" {{ $category->parent_category_id == $parent->id ? 'selected' : '' }}>

@@ -96,42 +96,44 @@ class CategoryController extends Controller
 
     public function edit(Category $category)
     {
-        if ($category->isProtected()) {
-            return redirect()->back()->with('swal_error', 'System categories cannot be edited.');
-        }
         $parentCategories = ParentCategory::all();
         return view('admin.categories.edit', compact('category', 'parentCategories'));
     }
 
     public function update(Request $request, Category $category)
     {
-        if ($category->isProtected()) {
-            return redirect()->back()->with('swal_error', 'System categories cannot be updated.');
-        }
-        $data = $request->validate([
+        // Protected categories (e.g. "Club"/"نادي") stay editable — the admin
+        // panel needs to toggle their checkboxes, description and image —
+        // but their identity (name, parent section) is locked for good: the
+        // app assumes this exact category/section pair exists. Enforced here
+        // server-side, not just by disabling the inputs in the view.
+        $locked = $category->isProtected();
+
+        $rules = [
             'image' => 'nullable|image',
-            'name' => 'required|array',
-            'name.en' => 'required|string',
-            'name.ar' => 'required|string',
             'is_service_provider' => 'nullable|boolean',
             'is_marketplace' => 'nullable|boolean',
             'description' => 'required|array',
             'description.en' => 'nullable|string',
             'description.ar' => 'nullable|string',
-            'parent_category_id' => 'required|exists:parent_categories,id',
             'requires_verification' => 'nullable|boolean',
             'mandatory_service_verification' => 'nullable|boolean',
             'verification_requirements' => 'nullable|array',
             'verification_requirements.en' => 'nullable|string',
             'verification_requirements.ar' => 'nullable|string',
             'verification_fields' => 'nullable|array',
-        ]);
+        ];
+
+        if (!$locked) {
+            $rules['name'] = 'required|array';
+            $rules['name.en'] = 'required|string';
+            $rules['name.ar'] = 'required|string';
+            $rules['parent_category_id'] = 'required|exists:parent_categories,id';
+        }
+
+        $data = $request->validate($rules);
 
         $categoryData = [
-            'name' => $data['name']['en'],
-            'name_en' => $data['name']['en'],
-            'name_ar' => $data['name']['ar'],
-            'parent_category_id' => $data['parent_category_id'],
             'description' => $data['description']['en'] ?? null,
             'description_en' => $data['description']['en'] ?? null,
             'description_ar' => $data['description']['ar'] ?? null,
@@ -143,6 +145,13 @@ class CategoryController extends Controller
             'verification_requirements_ar' => $data['verification_requirements']['ar'] ?? null,
             'verification_fields' => $data['verification_fields'] ?? null,
         ];
+
+        if (!$locked) {
+            $categoryData['name'] = $data['name']['en'];
+            $categoryData['name_en'] = $data['name']['en'];
+            $categoryData['name_ar'] = $data['name']['ar'];
+            $categoryData['parent_category_id'] = $data['parent_category_id'];
+        }
 
         if ($request->hasFile('image')) {
             $categoryData['image'] = $this->imageService->replace(

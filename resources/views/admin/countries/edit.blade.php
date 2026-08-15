@@ -41,7 +41,7 @@
                                         <input type="file" id="flag" class="form-control-file" name="flag">
                                         @if($country->flag)
                                             <div class="mt-2">
-                                                <img src="{{ asset('storage/' . $country->flag) }}" alt="Flag" style="width: 80px; height: 50px; object-fit: cover; border-radius: 4px;">
+                                                <img src="{{ $country->flag_url }}" alt="Flag" style="width: 80px; height: 50px; object-fit: cover; border-radius: 4px;">
                                             </div>
                                         @endif
                                     </div>

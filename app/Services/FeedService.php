@@ -36,7 +36,12 @@ class FeedService
         }
 
         if ($countryId) {
-            $baseQuery->where('country_id', $countryId);
+            // Country-less posts (created before country filtering existed)
+            // stay visible everywhere, same rule as CountryScope. A plain
+            // where('country_id', $countryId) would exclude every NULL row.
+            $baseQuery->where(function ($q) use ($countryId) {
+                $q->where('country_id', $countryId)->orWhereNull('country_id');
+            });
         }
 
         if ($user) {

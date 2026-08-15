@@ -10,7 +10,10 @@ class UserController extends Controller
 {
     public function index(Request $request)
     {
-        $query = User::with('category', 'subscription');
+        // Users carry no country global scope (it would recurse inside the
+        // sanctum guard), so the admin country switch is applied here.
+        $query = User::with('category', 'subscription', 'selectedCountry')
+            ->inCountry(session('admin_country_id'));
 
         // General Search (Name, Email, Phone)
         if ($request->filled('search')) {
@@ -76,7 +79,7 @@ class UserController extends Controller
             return redirect()->route('admin.users.index')->with('swal_error', __('admin.messages.user_not_found'));
         }
 
-        $user->load('category', 'answers'); // Eager load
+        $user->load('category', 'answers', 'selectedCountry'); // Eager load
 
         $questions = collect();
         if ($user->category_id) {

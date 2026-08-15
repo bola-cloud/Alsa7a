@@ -44,7 +44,6 @@ Route::get('reels', [\App\Http\Controllers\Api\V1\PostController::class, 'reels'
 Route::get('community/posts', [\App\Http\Controllers\Api\V1\CommunityController::class, 'index']);
 Route::get('clubs/{id}', [\App\Http\Controllers\Api\V1\ClubController::class, 'show']);
 Route::get('clubs/{club_id}/teams', [\App\Http\Controllers\Api\V1\TeamController::class, 'index']);
-Route::get('club/events', [\App\Http\Controllers\Api\V1\ClubEventController::class, 'index']);
 
 // Marketplace (Job Board) Public List
 Route::get('market-requests', [MarketController::class, 'index']);
@@ -55,8 +54,13 @@ Route::middleware('auth:sanctum')->group(function () {
     // --- Profile Updates ---
     Route::post('profile/update', [ProfileController::class, 'update']);
     Route::post('market-requests', [MarketController::class, 'store']);
-    Route::post('market-requests/{id}/apply', [MarketController::class, 'apply']);
+    // Static segments (my-requests, {id}/apply, {id}/close, {id}/applications)
+    // must be registered before the public market-requests/{id} wildcard
+    // below, or Laravel would match "my-requests" as the {id} instead.
     Route::get('market-requests/my-requests', [MarketController::class, 'myRequests']);
+    Route::post('market-requests/{id}/apply', [MarketController::class, 'apply']);
+    Route::post('market-requests/{id}/close', [MarketController::class, 'close']);
+    Route::get('market-requests/{id}/applications', [MarketController::class, 'applications']);
     
     // --- V2 Calendar ---
     Route::get('calendar', [CalendarController::class, 'index']);
@@ -71,7 +75,15 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('my-bookings', [\App\Http\Controllers\Api\V1\EventBookingController::class, 'index']);
     Route::get('my-requests', [\App\Http\Controllers\Api\V1\ServiceRequestController::class, 'index']);
     Route::get('club-requests', [\App\Http\Controllers\Api\V1\ClubRequestController::class, 'index']);
+    // Club owner only (same as V1) — it reads the caller's own club, so it can
+    // never be public: as a guest route it died on a null user with HTTP 500.
+    Route::get('club/events', [\App\Http\Controllers\Api\V1\ClubEventController::class, 'index']);
     Route::get('provider/requests', [\App\Http\Controllers\Api\V1\ProviderRequestController::class, 'index']);
     Route::get('users/verification/status', [\App\Http\Controllers\Api\V1\VerificationController::class, 'status']);
-    
+
 });
+
+// Single job details — public, same visibility as the list above. Registered
+// last on purpose: it must come after market-requests/my-requests so that
+// literal segment is matched first instead of being captured as {id}.
+Route::get('market-requests/{id}', [MarketController::class, 'show']);
