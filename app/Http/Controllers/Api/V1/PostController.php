@@ -23,6 +23,13 @@ class PostController extends Controller
             ->where('is_hidden', false)
             ->where('processing_status', 'completed');
 
+        // Own country + country-less content + everyone the viewer follows.
+        $viewer = $request->user('sanctum');
+        $query->countryVisibleOrFollowed(
+            \App\Scopes\CountryScope::currentApiCountryId(),
+            $viewer ? array_merge($viewer->following()->pluck('following_id')->toArray(), [$viewer->id]) : []
+        );
+
         if ($request->has('type') && in_array($request->type, ['image', 'video'])) {
             $query->where('type', $request->type);
         }
@@ -511,6 +518,12 @@ class PostController extends Controller
             ->where('processing_status', 'completed');
 
         $currentUser = $request->user('sanctum');
+
+        // Own country + country-less content + everyone the viewer follows.
+        $query->countryVisibleOrFollowed(
+            \App\Scopes\CountryScope::currentApiCountryId(),
+            $currentUser ? array_merge($currentUser->following()->pluck('following_id')->toArray(), [$currentUser->id]) : []
+        );
 
         // Admin-controlled (Settings → feed_sort_mode). Reels have always been
         // newest-first; 'algorithmic' additionally floats the people you follow

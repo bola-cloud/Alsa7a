@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\V1;
 use App\Http\Controllers\Controller;
 use App\Models\Story;
 use App\Models\StoryView;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
@@ -26,7 +27,11 @@ class StoryController extends Controller
         $followedUserIds = $request->user()->following()->pluck('following_id')->toArray();
         $followedUserIds[] = $userId; // Include self
 
-        $stories = Story::with('user:id,name,email,profile_photo_path')
+        // Not a discovery feed: these are the stories of people the user
+        // explicitly chose to follow, and following works across countries.
+        // Country-filtering here would silently hide a followed player's
+        // stories the moment they pick a different country.
+        $stories = Story::directAccess()->with('user:id,name,email,profile_photo_path')
             ->whereIn('user_id', $followedUserIds)
             ->where('expires_at', '>', now())
             ->orderBy('created_at', 'desc')
@@ -54,6 +59,57 @@ class StoryController extends Controller
             'status' => true,
             'data' => $grouped,
             'message' => 'Stories retrieved successfully'
+        ]);
+    }
+
+    /**
+     * Get one user's live stories — for the story ring on their profile.
+     *
+     * Public and not country-filtered, same rule as the rest of direct
+     * access: you are asking for one specific person, not browsing.
+     * Expired stories are never returned.
+     */
+    public function userStories(Request $request, $id)
+    {
+        $user = User::find($id);
+
+        if (! $user) {
+            return response()->json([
+                'status' => false,
+                'message' => 'User not found.'
+            ], 404);
+        }
+
+        $stories = Story::directAccess()
+            ->where('user_id', $user->id)
+            ->where('expires_at', '>', now())
+            ->orderBy('created_at', 'asc')
+            ->get();
+
+        // Which of them the caller already watched, so the app can render the
+        // seen/unseen ring without a second request. Guests see false.
+        $seenIds = [];
+        if ($viewer = $request->user('sanctum')) {
+            $seenIds = StoryView::where('user_id', $viewer->id)
+                ->whereIn('story_id', $stories->pluck('id'))
+                ->pluck('story_id')
+                ->toArray();
+        }
+
+        return response()->json([
+            'status' => true,
+            'data' => $stories->map(function ($story) use ($seenIds) {
+                return [
+                    'id' => $story->id,
+                    'type' => $story->type,
+                    'content' => $story->content,
+                    'media_url' => $story->media_url,
+                    'expires_at' => $story->expires_at,
+                    'created_at' => $story->created_at,
+                    'is_seen' => in_array($story->id, $seenIds),
+                ];
+            }),
+            'message' => 'User stories retrieved successfully'
         ]);
     }
 
@@ -151,7 +207,8 @@ class StoryController extends Controller
      */
     public function destroy(Request $request, $id)
     {
-        $story = Story::find($id);
+        // Direct access by id (owner action) - never country-filtered.
+        $story = Story::directAccess()->find($id);
 
         if (!$story) {
             return response()->json(['status' => false, 'message' => 'Story not found'], 404);
@@ -178,7 +235,8 @@ class StoryController extends Controller
      */
     public function markSeen(Request $request, $id)
     {
-        $story = Story::find($id);
+        // Direct access by id (owner action) - never country-filtered.
+        $story = Story::directAccess()->find($id);
 
         if (!$story) {
             return response()->json(['status' => false, 'message' => 'Story not found'], 404);
@@ -197,7 +255,8 @@ class StoryController extends Controller
      */
     public function viewers(Request $request, $id)
     {
-        $story = Story::find($id);
+        // Direct access by id (owner action) - never country-filtered.
+        $story = Story::directAccess()->find($id);
 
         if (!$story) {
             return response()->json(['status' => false, 'message' => 'Story not found'], 404);
@@ -231,7 +290,8 @@ class StoryController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $story = Story::find($id);
+        // Direct access by id (owner action) - never country-filtered.
+        $story = Story::directAccess()->find($id);
 
         if (!$story) {
             return response()->json(['status' => false, 'message' => 'Story not found'], 404);

@@ -43,6 +43,9 @@ Route::get('users/{id}/ratings', [\App\Http\Controllers\Api\V1\ProfileController
 // Public on purpose: anyone visiting a profile can see that user's calendar
 // (e.g. a player's upcoming match) — that is the point of the feature.
 Route::get('users/{id}/calendar', [CalendarController::class, 'userCalendar']);
+// One user's live stories, for the story ring on their profile. Public and
+// not country-filtered — direct access, same rule as their posts/calendar.
+Route::get('users/{id}/stories', [\App\Http\Controllers\Api\V1\StoryController::class, 'userStories']);
 Route::get('reels', [\App\Http\Controllers\Api\V1\PostController::class, 'reels']);
 Route::get('community/posts', [\App\Http\Controllers\Api\V1\CommunityController::class, 'index']);
 Route::get('clubs/{id}', [\App\Http\Controllers\Api\V1\ClubController::class, 'show']);

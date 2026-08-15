@@ -48,6 +48,12 @@ class CommunityController extends Controller
             ->where('processing_status', 'completed')
             ->latest();
 
+        // Own country + country-less content + everyone the viewer follows.
+        $query->countryVisibleOrFollowed(
+            \App\Scopes\CountryScope::currentApiCountryId(),
+            $user ? array_merge($user->following()->pluck('following_id')->toArray(), [$user->id]) : []
+        );
+
         if ($request->has('category_id')) {
             $query->where('community_category_id', $request->category_id);
         }

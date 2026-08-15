@@ -35,14 +35,13 @@ class FeedService
             $baseQuery->where('type', $type);
         }
 
-        if ($countryId) {
-            // Country-less posts (created before country filtering existed)
-            // stay visible everywhere, same rule as CountryScope. A plain
-            // where('country_id', $countryId) would exclude every NULL row.
-            $baseQuery->where(function ($q) use ($countryId) {
-                $q->where('country_id', $countryId)->orWhereNull('country_id');
-            });
-        }
+        // Country rule for the feed: your own country, plus content with no
+        // country yet, plus anyone you follow (following crosses borders).
+        $feedFollowingIds = $user
+            ? array_merge($user->following()->pluck('following_id')->toArray(), [$user->id])
+            : [];
+
+        $baseQuery->countryVisibleOrFollowed($countryId, $feedFollowingIds);
 
         if ($user) {
             $followingIds = $user->following()->pluck('following_id')->toArray();

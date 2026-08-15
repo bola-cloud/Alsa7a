@@ -48,6 +48,45 @@ trait HasCountryScope
     }
 
     /**
+     * Country filter for feed-style listings that also carry followed people.
+     *
+     * A listing like the feed, reels or the community wall mixes two things:
+     * discovery (strangers — must stay inside the viewer's country) and the
+     * people the viewer deliberately followed. Following works across
+     * countries, so a followed author's content must come through no matter
+     * where they are, exactly like their stories do.
+     *
+     * Passing a null country (V1, or a guest with no header) is a no-op.
+     *
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
+     * @param  mixed  $countryId
+     * @param  array<int>  $followingIds  authors the viewer follows (plus self)
+     * @param  string  $ownerColumn
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function scopeCountryVisibleOrFollowed($query, $countryId, array $followingIds = [], $ownerColumn = 'user_id')
+    {
+        // The global scope would apply the plain country rule on top of this
+        // one and cancel out the "followed" part, so drop it first.
+        $query->withoutGlobalScope(CountryScope::class);
+
+        if (! $countryId) {
+            return $query;
+        }
+
+        $table = $this->getTable();
+
+        return $query->where(function ($q) use ($table, $countryId, $followingIds, $ownerColumn) {
+            $q->where($table . '.country_id', $countryId)
+              ->orWhereNull($table . '.country_id');
+
+            if (! empty($followingIds)) {
+                $q->orWhereIn($table . '.' . $ownerColumn, $followingIds);
+            }
+        });
+    }
+
+    /**
      * Whether the country filter should run automatically on every query.
      *
      * Models that are loaded while authenticating (the User model) must return
