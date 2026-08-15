@@ -31,7 +31,8 @@ class ClubController extends Controller
      */
     public function show($id)
     {
-        $club = Club::with(['sports', 'media', 'teams.sport', 'owner'])->find($id);
+        // Direct access by id - country filter must not hide it.
+        $club = Club::directAccess()->with(['sports', 'media', 'teams.sport', 'owner'])->find($id);
 
         if (!$club) {
             return response()->json(['status' => false, 'message' => 'Club not found'], 404);

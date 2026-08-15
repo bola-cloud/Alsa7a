@@ -32,9 +32,12 @@ class HomeController extends Controller
         $topClubs = Club::where('is_featured', true)->with('media')->take(8)->get();
 
         // Returning full user details with relations for proper profile formatting
+        // Country-scoped discovery on V2 (no-op on V1). Users are not covered
+        // by the global CountryScope, so it has to be applied explicitly.
         $topPlayers = User::with(['subscription', 'category', 'club', 'ownedClub'])
             ->where('category_id', 1)
             ->where('is_featured', true)
+            ->visibleInCountry(\App\Scopes\CountryScope::currentApiCountryId())
             ->take(8)
             ->get();
 

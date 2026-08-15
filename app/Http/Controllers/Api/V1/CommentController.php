@@ -18,7 +18,8 @@ class CommentController extends Controller
      */
     public function index($postId)
     {
-        $post = Post::find($postId);
+        // Direct access by id - country filter must not hide it.
+        $post = Post::directAccess()->find($postId);
         if (!$post) {
             return response()->json(['status' => false, 'message' => 'Post not found'], 404);
         }

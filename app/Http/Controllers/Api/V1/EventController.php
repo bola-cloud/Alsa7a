@@ -72,7 +72,8 @@ class EventController extends Controller
      */
     public function show($id)
     {
-        $event = Event::with(['club.owner.subscription', 'club.owner.category', 'sport', 'media'])
+        // Direct access by id - country filter must not hide it.
+        $event = Event::directAccess()->with(['club.owner.subscription', 'club.owner.category', 'sport', 'media'])
             ->where('status', 'approved')
             ->find($id);
 

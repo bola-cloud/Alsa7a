@@ -193,7 +193,8 @@ class CommunityController extends Controller
     {
         $user = $request->user('sanctum');
 
-        $post = CommunityPost::with(['user', 'category', 'mentions:id,name,profile_photo_path', 'images'])
+        // Direct access by id - country filter must not hide it.
+        $post = CommunityPost::directAccess()->with(['user', 'category', 'mentions:id,name,profile_photo_path', 'images'])
             ->withCount(['comments', 'likes'])
             ->where('is_hidden', false)
             ->where('processing_status', 'completed')

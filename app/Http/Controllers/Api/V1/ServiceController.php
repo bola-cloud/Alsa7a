@@ -44,9 +44,12 @@ class ServiceController extends Controller
             });
         }
 
-        // Filter by Provider ID
+        // Filter by Provider ID. Asking for one provider's services is
+        // direct access (their profile tab), not browsing, so drop the
+        // country filter for this case only.
         if ($request->has('provider_id') && $request->provider_id != null) {
-            $query->where('provider_id', $request->provider_id);
+            $query->withoutGlobalScope(\App\Scopes\CountryScope::class)
+                  ->where('provider_id', $request->provider_id);
         }
 
         // Filter by Type
@@ -93,7 +96,8 @@ class ServiceController extends Controller
      */
     public function show(Request $request, $id)
     {
-        $service = Service::with([
+        // Direct access by id - country filter must not hide it.
+        $service = Service::directAccess()->with([
             'provider.category.parentCategory',
             'provider.club',
             'provider.ownedClub',

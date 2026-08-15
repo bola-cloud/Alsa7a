@@ -84,6 +84,34 @@ class User extends Authenticatable
     }
 
     /**
+     * Country filter for V2 *discovery* surfaces (search, top players…).
+     *
+     * Permissive on purpose, matching CountryScope's API branch: users who
+     * have not picked a country yet stay visible to everyone, otherwise the
+     * 2600+ accounts created before the country feature would vanish from
+     * search overnight. This is the opposite of scopeInCountry(), which is
+     * strict because the admin panel needs true per-country isolation.
+     *
+     * Passing null (V1 requests, or no country resolved) is a no-op, so V1
+     * behaviour never changes.
+     *
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
+     * @param  mixed  $countryId
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function scopeVisibleInCountry($query, $countryId)
+    {
+        if (! $countryId) {
+            return $query;
+        }
+
+        return $query->where(function ($q) use ($countryId) {
+            $q->where('users.country_id', $countryId)
+              ->orWhereNull('users.country_id');
+        });
+    }
+
+    /**
      * The user's personal calendar events (V2 calendar feature).
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany

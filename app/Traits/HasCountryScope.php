@@ -31,6 +31,23 @@ trait HasCountryScope
     }
 
     /**
+     * Turn the country filter off for a query.
+     *
+     * The country rules are about *discovery* — the feed, search, listings.
+     * When the caller asks for one specific thing by id (a shared post link,
+     * a profile's posts, a club page), country must not hide it: otherwise a
+     * deep link opens an empty screen, and every follower in another country
+     * suddenly sees a blank profile the moment its owner picks a country.
+     *
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function scopeDirectAccess($query)
+    {
+        return $query->withoutGlobalScope(CountryScope::class);
+    }
+
+    /**
      * Whether the country filter should run automatically on every query.
      *
      * Models that are loaded while authenticating (the User model) must return

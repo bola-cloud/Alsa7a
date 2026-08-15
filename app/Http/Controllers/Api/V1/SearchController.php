@@ -92,6 +92,11 @@ class SearchController extends Controller
                 ->orWhereHas('ownedClub');
         });
 
+        // V2 discovery is country-scoped: you search within your own country.
+        // Direct access to a profile (deep link, follow, chat) stays open.
+        // No-op on V1.
+        $query->visibleInCountry(\App\Scopes\CountryScope::currentApiCountryId());
+
         // Eager load relationships needed for the response
         $query->with(['answers.question', 'category', 'ownedClub', 'club', 'subscription']);
 

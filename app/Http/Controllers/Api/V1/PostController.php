@@ -65,7 +65,8 @@ class PostController extends Controller
      */
     public function likers(Request $request, $id)
     {
-        $post = Post::findOrFail($id);
+        // Direct access by id — never hidden by country (see HasCountryScope::scopeDirectAccess)
+        $post = Post::directAccess()->findOrFail($id);
 
         $likers = $post->likes()
             ->with('user:id,name,email,profile_photo_path,phone')
@@ -91,7 +92,9 @@ class PostController extends Controller
      */
     public function userPosts(Request $request, $id)
     {
-        $query = Post::where('user_id', $id)
+        // A specific user's posts on their profile — direct access, so the
+        // country filter must not blank it out for viewers abroad.
+        $query = Post::directAccess()->where('user_id', $id)
             ->with(['user', 'comments', 'mentions:id,name,profile_photo_path', 'images'])
             ->withCount(['likes', 'comments'])
             ->where('is_hidden', false)
@@ -332,7 +335,8 @@ class PostController extends Controller
      */
     public function show(Request $request, $id)
     {
-        $post = Post::with(['user', 'comments.user', 'mentions:id,name,profile_photo_path', 'images'])
+        // Single post (shared/deep link) — direct access, no country filter.
+        $post = Post::directAccess()->with(['user', 'comments.user', 'mentions:id,name,profile_photo_path', 'images'])
             ->withCount(['likes', 'comments'])
             ->where('is_hidden', false)
             ->where('processing_status', 'completed')

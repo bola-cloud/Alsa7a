@@ -25,7 +25,11 @@ class ProfileController extends Controller
         $user = $request->user();
 
         // Eager load relationships
-        $user->loadCount(['followers', 'following', 'posts', 'upcomingEvents']);
+        // posts counted without the country filter: a profile must not report
+        // "0 posts" to a viewer browsing from another country.
+        $user->loadCount(['followers', 'following', 'upcomingEvents',
+            'posts' => fn ($q) => $q->directAccess(),
+        ]);
         $user->load([
             'club',
             'ownedClub',
@@ -33,7 +37,9 @@ class ProfileController extends Controller
             'answers.question', // Load answers with their questions
             'subscription',
             'posts' => function ($query) {
-                $query->where('is_hidden', false)
+                // Own profile — never country-filtered.
+                $query->directAccess()
+                      ->where('is_hidden', false)
                       ->where('processing_status', 'completed')
                       ->with(['images', 'mentions:id,name,profile_photo_path', 'user', 'likes' => function ($q) {
                           $q->where('user_id', auth()->id());
@@ -52,7 +58,10 @@ class ProfileController extends Controller
      */
     public function show(Request $request, $id)
     {
-        $user = User::withCount(['followers', 'following', 'posts', 'upcomingEvents'])
+        $user = User::withCount(['followers', 'following', 'upcomingEvents',
+                // Same reason as above - direct access to one profile.
+                'posts' => fn ($q) => $q->directAccess(),
+            ])
             ->with([
                 'club',
                 'ownedClub',
@@ -60,7 +69,10 @@ class ProfileController extends Controller
                 'answers.question', // Added answers
                 'subscription',
                 'posts' => function ($query) {
-                    $query->where('is_hidden', false)
+                    // Viewing one person's profile is direct access, so their
+                    // posts stay visible to people from other countries.
+                    $query->directAccess()
+                          ->where('is_hidden', false)
                           ->where('processing_status', 'completed')
                           ->with(['images', 'mentions:id,name,profile_photo_path', 'user', 'likes' => function ($q) {
                               $q->where('user_id', auth()->id());
@@ -259,7 +271,17 @@ class ProfileController extends Controller
             }
         }
 
+        // Captured before save() so we can tell a real country change apart
+        // from a profile update that just happens to resend the same value.
+        $countryChanged = $user->isDirty('country_id');
+
         $user->save();
+
+        // Everything the user owns follows them to their new country, so an
+        // old profile does not look empty to people browsing that country.
+        if ($countryChanged) {
+            \App\Services\UserCountrySync::sync($user);
+        }
 
         return response()->json([
             'status' => true,

@@ -43,7 +43,8 @@ class NewsController extends Controller
      */
     public function show(Request $request, $id)
     {
-        $news = News::with(['sport', 'media', 'comments.user'])
+        // Direct access by id - country filter must not hide it.
+        $news = News::directAccess()->with(['sport', 'media', 'comments.user'])
             ->withCount(['likes'])
             ->where('is_active', true)
             ->find($id);

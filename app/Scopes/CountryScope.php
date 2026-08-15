@@ -105,6 +105,28 @@ class CountryScope implements Scope
     }
 
     /**
+     * The country the current V2 request should be scoped to, for code that
+     * cannot rely on the global scope — most importantly anything listing
+     * User rows, which deliberately carries no global scope (it would recurse
+     * inside the sanctum guard; see App\Models\User).
+     *
+     * Returns null on V1 and on non-HTTP contexts, so V1 behaviour is never
+     * affected by callers of this method.
+     *
+     * @return mixed
+     */
+    public static function currentApiCountryId()
+    {
+        $request = request();
+
+        if (! $request || ! $request->is('api/v2/*')) {
+            return null;
+        }
+
+        return (new static)->resolveApiCountryId($request);
+    }
+
+    /**
      * Restrict the query to one country.
      *
      * @param  \Illuminate\Database\Eloquent\Builder  $builder

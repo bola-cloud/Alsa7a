@@ -48,7 +48,8 @@ class MarketController extends Controller
      */
     public function show(Request $request, $id)
     {
-        $marketRequest = MarketRequest::with(['user', 'club', 'category'])
+        // Direct access by id - country filter must not hide it.
+        $marketRequest = MarketRequest::directAccess()->with(['user', 'club', 'category'])
             ->withCount('applications')
             ->find($id);
 
