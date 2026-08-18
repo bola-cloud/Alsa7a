@@ -70,6 +70,52 @@
                     </div>
                 </div>
 
+                <div class="card border mb-3">
+                    <div class="card-header py-2">
+                        <h5 class="card-title mb-0">{{ __('admin.notifications.audience_title') }}</h5>
+                        <small class="text-muted">{{ __('admin.notifications.audience_hint') }}</small>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group mb-3">
+                            <label for="country_id" class="form-label">{{ __('admin.notifications.audience_country') }}</label>
+                            <select name="country_id" id="country_id" class="form-control">
+                                <option value="all">{{ __('admin.notifications.audience_all_countries') }}</option>
+                                @foreach($countries as $country)
+                                    <option value="{{ $country->id }}" @selected(old('country_id') == $country->id)>
+                                        {{ app()->getLocale() === 'ar' ? $country->name_ar : $country->name_en }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <div class="form-group mb-0">
+                            <label class="form-label d-block">
+                                {{ __('admin.notifications.audience_categories') }}
+                                <small class="text-muted">— {{ __('admin.notifications.audience_all_categories') }}</small>
+                            </label>
+                            <div class="row">
+                                @foreach($categories as $category)
+                                    <div class="col-md-4 col-sm-6">
+                                        <div class="form-check">
+                                            <input class="form-check-input audience-category" type="checkbox"
+                                                name="category_ids[]" value="{{ $category->id }}"
+                                                id="category_{{ $category->id }}"
+                                                @checked(in_array($category->id, (array) old('category_ids', [])))>
+                                            <label class="form-check-label" for="category_{{ $category->id }}">
+                                                {{ $category->name }}
+                                            </label>
+                                        </div>
+                                    </div>
+                                @endforeach
+                            </div>
+                        </div>
+
+                        <div class="alert alert-info mt-3 mb-0" id="audience-preview">
+                            {{ __('admin.notifications.audience_loading') }}
+                        </div>
+                    </div>
+                </div>
+
                 <div class="form-group">
                     <button type="submit" class="btn btn-primary">
                         <i class="fas fa-paper-plane me-1"></i> {{ __('admin.notifications.send_btn') }}
@@ -79,3 +125,54 @@
         </div>
     </div>
 @endsection
+
+@push('js')
+<script>
+    (function () {
+        var box = document.getElementById('audience-preview');
+        var country = document.getElementById('country_id');
+        var categories = document.querySelectorAll('.audience-category');
+        var url = @json(route('admin.notifications.audience'));
+        var template = @json(__('admin.notifications.audience_summary'));
+        var pending = null;
+
+        function refresh() {
+            var params = new URLSearchParams();
+            params.append('country_id', country.value);
+            categories.forEach(function (input) {
+                if (input.checked) {
+                    params.append('category_ids[]', input.value);
+                }
+            });
+
+            if (pending) {
+                pending.abort();
+            }
+            pending = new AbortController();
+
+            fetch(url + '?' + params.toString(), {
+                headers: { 'X-Requested-With': 'XMLHttpRequest' },
+                signal: pending.signal,
+            })
+                .then(function (res) { return res.json(); })
+                .then(function (data) {
+                    box.textContent = template
+                        .replace(':total', data.total)
+                        .replace(':reachable', data.reachable);
+                })
+                .catch(function (error) {
+                    if (error.name !== 'AbortError') {
+                        box.textContent = '—';
+                    }
+                });
+        }
+
+        country.addEventListener('change', refresh);
+        categories.forEach(function (input) {
+            input.addEventListener('change', refresh);
+        });
+
+        refresh();
+    })();
+</script>
+@endpush

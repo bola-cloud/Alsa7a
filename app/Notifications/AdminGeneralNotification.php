@@ -15,18 +15,37 @@ class AdminGeneralNotification extends Notification implements ShouldQueue
     protected $message;
     protected $imageUrl;
     protected $metaData;
+    protected $sendPush;
 
-    public function __construct($title, $message, $imageUrl = null, $metaData = [])
+    /**
+     * @param  bool  $sendPush  false when the caller pushes to OneSignal itself
+     *                          in one batched request (see the admin broadcast).
+     *                          The database record is written either way, since
+     *                          that is what the in-app notifications list reads.
+     */
+    public function __construct($title, $message, $imageUrl = null, $metaData = [], $sendPush = true)
     {
         $this->title = $title;
         $this->message = $message;
         $this->imageUrl = $imageUrl;
         $this->metaData = $metaData;
+        $this->sendPush = $sendPush;
     }
 
     public function via($notifiable): array
     {
-        return ['database', OneSignalChannel::class];
+        return $this->sendPush ? ['database', OneSignalChannel::class] : ['database'];
+    }
+
+    /**
+     * The OneSignal payload, exposed so a batched send reuses exactly the same
+     * body (image fields included) as the per-user path.
+     *
+     * @return array
+     */
+    public function oneSignalPayload(): array
+    {
+        return $this->toOneSignal(null);
     }
 
     public function toArray($notifiable): array
