@@ -22,4 +22,12 @@ class MarketApplication extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    /**
+     * What this applicant answered to the request's questions.
+     */
+    public function answers()
+    {
+        return $this->hasMany(MarketApplicationAnswer::class, 'market_application_id');
+    }
 }

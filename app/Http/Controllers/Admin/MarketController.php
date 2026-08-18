@@ -51,8 +51,17 @@ class MarketController extends Controller
      */
     public function show($id)
     {
-        $marketRequest = MarketRequest::with(['user', 'club', 'category', 'applications.user'])
-            ->findOrFail($id);
+        $marketRequest = MarketRequest::with([
+            'user', 'club', 'category', 'questions',
+            // Everything the applicants table needs, eager loaded so the page
+            // does not fire a query per applicant.
+            'applications.user.category',
+            'applications.user.club',
+            'applications.user.ownedClub',
+            'applications.user.answers.question',
+            'applications.user.ratingsReceived',
+            'applications.answers.question',
+        ])->findOrFail($id);
 
         return view('admin.market_requests.show', compact('marketRequest'));
     }

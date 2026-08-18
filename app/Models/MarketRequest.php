@@ -16,7 +16,20 @@ class MarketRequest extends Model
         'country_id',
         'title',
         'description',
+        'latitude',
+        'longitude',
+        'address',
+        'scheduled_at',
+        'cost',
         'status',
+    ];
+
+    protected $casts = [
+        // Real numbers in the API, not the strings MySQL returns for DECIMAL.
+        'latitude' => 'float',
+        'longitude' => 'float',
+        'cost' => 'float',
+        'scheduled_at' => 'datetime',
     ];
 
     /**
@@ -51,5 +64,13 @@ class MarketRequest extends Model
     public function applications()
     {
         return $this->hasMany(MarketApplication::class);
+    }
+
+    /**
+     * Questions the publisher wants every applicant to answer.
+     */
+    public function questions()
+    {
+        return $this->hasMany(MarketRequestQuestion::class)->orderBy('sort_order');
     }
 }
