@@ -8,6 +8,7 @@ use App\Models\Country;
 use App\Models\User;
 use App\Notifications\AdminGeneralNotification;
 use App\Services\OneSignalService;
+use App\Support\NotificationTarget;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -17,8 +18,9 @@ class NotificationController extends Controller
     public function create()
     {
         return view('admin.notifications.create', [
-            'countries' => Country::where('is_active', true)->orderBy('id')->get(),
+            'countries' => Country::where('is_active', true)->ordered()->get(),
             'categories' => Category::orderBy('id')->get(),
+            'targets' => NotificationTarget::options(),
         ]);
     }
 
@@ -64,16 +66,23 @@ class NotificationController extends Controller
 
     public function store(Request $request)
     {
-        $request->validate([
+        $targetType = $request->input('target_type', NotificationTarget::NONE);
+
+        $request->validate(array_merge([
             'title' => 'required|string|max:255',
             'message' => 'required|string',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-            'meta_key' => 'nullable|string|max:255',
-            'meta_value' => 'nullable|string|max:255',
             'country_id' => 'nullable',
             'category_ids' => 'nullable|array',
             'category_ids.*' => 'integer|exists:categories,id',
-        ]);
+        ], NotificationTarget::rules($targetType)));
+
+        // A dangling id would land the user on a "couldn't open" toast, which
+        // is worse than refusing to send.
+        if (! NotificationTarget::idExists($targetType, $request->input('target_id'))) {
+            return back()->withInput()
+                ->withErrors(['target_id' => __('admin.notifications.target_id_missing')]);
+        }
 
         $imageUrl = null;
         if ($request->hasFile('image')) {
@@ -81,10 +90,11 @@ class NotificationController extends Controller
             $imageUrl = asset('storage/' . $path);
         }
 
-        $metaData = [];
-        if ($request->filled('meta_key') && $request->filled('meta_value')) {
-            $metaData[$request->meta_key] = $request->meta_value;
-        }
+        $metaData = NotificationTarget::payload(
+            $targetType,
+            $request->input('target_id'),
+            $request->input('target_url')
+        );
 
         // sendPush = false: this notification only writes the in-app record.
         // The push goes out below as a single OneSignal request.
@@ -123,17 +133,8 @@ class NotificationController extends Controller
                 ->with('error', __('admin.notifications.error'));
         }
 
-        $redirect = redirect()->route('admin.notifications.create')
+        return redirect()->route('admin.notifications.create')
             ->with('success', __('admin.notifications.success') . ' (' . $recipients . ')');
-
-        // OneSignal answers 200 with an "errors" list when the filters matched
-        // no subscribed device. The in-app records are still written, so this is
-        // a warning next to the success, not a failure.
-        if (! empty($result['data']['errors'])) {
-            $redirect->with('error', __('admin.notifications.push_no_match'));
-        }
-
-        return $redirect;
     }
 
     /**

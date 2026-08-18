@@ -24,6 +24,21 @@ class Country extends Model
     ];
 
     /**
+     * Display order for every list of countries.
+     *
+     * "Other" (code ZZ) is a catch-all rather than a market, so it belongs at
+     * the bottom of the picker no matter how it sorts alphabetically. Every
+     * caller goes through this scope so the API, the admin panel and the
+     * broadcast form all agree on the order.
+     */
+    public function scopeOrdered($query)
+    {
+        return $query
+            ->orderByRaw("CASE WHEN code = 'ZZ' THEN 1 ELSE 0 END")
+            ->orderBy('name_en');
+    }
+
+    /**
      * Additive field for the mobile app: `flag` stays exactly as stored (a
      * relative path), `flag_url` is the same image as an absolute URL.
      *

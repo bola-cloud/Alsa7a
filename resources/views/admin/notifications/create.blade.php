@@ -50,22 +50,60 @@
                             @enderror
                         </div>
                     </div>
-                    <div class="col-md-6">
-                        <div class="form-group mb-3">
-                            <label for="meta_key" class="form-label">{{ __('admin.notifications.form_meta_key') }}</label>
-                            <select name="meta_key" id="meta_key" class="form-control">
-                                <option value="">{{ __('admin.notifications.meta_none') }}</option>
-                                <option value="url">{{ __('admin.notifications.meta_url') }}</option>
-                                <option value="post_id">{{ __('admin.notifications.meta_post') }}</option>
-                                <option value="user_id">{{ __('admin.notifications.meta_user') }}</option>
-                                <option value="custom">{{ __('admin.notifications.meta_custom') }}</option>
-                            </select>
-                        </div>
+                </div>
+
+                <div class="card border mb-3">
+                    <div class="card-header py-2">
+                        <h5 class="card-title mb-0">{{ __('admin.notifications.target_title') }}</h5>
+                        <small class="text-muted">{{ __('admin.notifications.target_hint') }}</small>
                     </div>
-                    <div class="col-md-6">
-                        <div class="form-group mb-3">
-                            <label for="meta_value" class="form-label">{{ __('admin.notifications.form_meta_value') }}</label>
-                            <input type="text" name="meta_value" id="meta_value" class="form-control" placeholder="{{ __('admin.notifications.meta_value_placeholder') }}">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-5">
+                                <div class="form-group mb-3">
+                                    <label for="target_type" class="form-label">{{ __('admin.notifications.target_type') }}</label>
+                                    <select name="target_type" id="target_type" class="form-control @error('target_type') is-invalid @enderror">
+                                        @foreach($targets as $target)
+                                            <option value="{{ $target['value'] }}" @selected(old('target_type') === $target['value'])>
+                                                {{ $target['label'] }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                    @error('target_type')
+                                        <span class="invalid-feedback">{{ $message }}</span>
+                                    @enderror
+                                </div>
+                            </div>
+
+                            <div class="col-md-7">
+                                <div class="form-group mb-3 d-none" id="target-id-field">
+                                    <label for="target_id" class="form-label">{{ __('admin.notifications.target_id') }}</label>
+                                    <input type="number" min="1" name="target_id" id="target_id"
+                                        class="form-control @error('target_id') is-invalid @enderror"
+                                        value="{{ old('target_id') }}"
+                                        placeholder="{{ __('admin.notifications.target_id_placeholder') }}">
+                                    @error('target_id')
+                                        <span class="invalid-feedback d-block">{{ $message }}</span>
+                                    @enderror
+                                </div>
+
+                                <div class="form-group mb-3 d-none" id="target-url-field">
+                                    <label for="target_url" class="form-label">{{ __('admin.notifications.target_url') }}</label>
+                                    <input type="url" name="target_url" id="target_url"
+                                        class="form-control @error('target_url') is-invalid @enderror"
+                                        value="{{ old('target_url') }}"
+                                        placeholder="https://example.com/page">
+                                    @error('target_url')
+                                        <span class="invalid-feedback d-block">{{ $message }}</span>
+                                    @enderror
+                                    <small class="text-muted">{{ __('admin.notifications.target_url_hint') }}</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="alert alert-secondary mb-0 d-none" id="target-preview">
+                            <span>{{ __('admin.notifications.target_preview') }}</span>
+                            <code id="target-preview-value" class="ms-1" style="direction: ltr; unicode-bidi: embed;"></code>
                         </div>
                     </div>
                 </div>
@@ -173,6 +211,54 @@
         });
 
         refresh();
+    })();
+</script>
+
+<script>
+    (function () {
+        var select = document.getElementById('target_type');
+        var idField = document.getElementById('target-id-field');
+        var urlField = document.getElementById('target-url-field');
+        var idInput = document.getElementById('target_id');
+        var urlInput = document.getElementById('target_url');
+        var preview = document.getElementById('target-preview');
+        var previewValue = document.getElementById('target-preview-value');
+
+        // The same table that drives validation on the server, so the form can
+        // never offer a field the backend would reject.
+        var targets = @json(collect($targets)->keyBy('value'));
+        var shareBase = @json(rtrim(config('app.url'), '/') . '/share/');
+
+        function selected() {
+            return targets[select.value] || { input: 'none', path: null };
+        }
+
+        function render() {
+            var target = selected();
+
+            idField.classList.toggle('d-none', target.input !== 'id');
+            urlField.classList.toggle('d-none', target.input !== 'url');
+
+            idInput.required = target.input === 'id';
+            urlInput.required = target.input === 'url';
+
+            var link = null;
+            if (target.input === 'url') {
+                link = urlInput.value.trim() || null;
+            } else if (target.path !== null && target.path !== undefined) {
+                var id = target.input === 'id' ? idInput.value.trim() : '';
+                link = shareBase + [target.path, id].filter(Boolean).join('/');
+            }
+
+            preview.classList.toggle('d-none', !link);
+            previewValue.textContent = link || '';
+        }
+
+        select.addEventListener('change', render);
+        idInput.addEventListener('input', render);
+        urlInput.addEventListener('input', render);
+
+        render();
     })();
 </script>
 @endpush

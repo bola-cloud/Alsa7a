@@ -62,8 +62,12 @@ class AdminGeneralNotification extends Notification implements ShouldQueue
         if ($this->imageUrl) {
             $data['image_url'] = $this->imageUrl;
         }
-        
+
         if (!empty($this->metaData)) {
+            // Flat, so tapping the row in the in-app list reaches the same
+            // target keys the push carries. `meta_data` stays alongside it
+            // because that is the shape older builds were handed.
+            $data = array_merge($data, $this->metaData);
             $data['meta_data'] = $this->metaData;
         }
 

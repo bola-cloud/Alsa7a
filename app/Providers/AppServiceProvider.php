@@ -41,7 +41,7 @@ class AppServiceProvider extends ServiceProvider
 
         // Share active countries with the admin layout for the global country filter
         View::composer('layouts.admin', function ($view) {
-            $view->with('adminActiveCountries', Country::where('is_active', true)->orderBy('name_en')->get());
+            $view->with('adminActiveCountries', Country::where('is_active', true)->ordered()->get());
         });
     }
 }

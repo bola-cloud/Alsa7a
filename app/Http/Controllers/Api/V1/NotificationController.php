@@ -13,7 +13,14 @@ class NotificationController extends Controller
      */
     public function index(Request $request)
     {
-        $notifications = $request->user()->notifications()->paginate(20);
+        // `notifications()` orders by created_at alone, and that column is
+        // second-precision — two notifications in the same second tie, and a
+        // tie straddling a page boundary makes MySQL repeat one row on both
+        // pages and drop the other. The id breaks the tie deterministically.
+        $notifications = $request->user()->notifications()
+            ->orderByDesc('created_at')
+            ->orderByDesc('id')
+            ->paginate(20);
         $locale = app()->getLocale() ?? 'en';
 
         $notifications->getCollection()->transform(function ($n) use ($locale) {

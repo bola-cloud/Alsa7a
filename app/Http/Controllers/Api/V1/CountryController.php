@@ -13,7 +13,7 @@ class CountryController extends Controller
      */
     public function index(Request $request)
     {
-        $countries = Country::where('is_active', true)->orderBy('name_en')->get();
+        $countries = Country::where('is_active', true)->ordered()->get();
 
         return response()->json([
             'status' => true,
