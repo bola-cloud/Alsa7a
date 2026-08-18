@@ -92,6 +92,20 @@ class MarketController extends Controller
             ], 403);
         }
 
+        // Same gate a service goes through (ServiceController@store): posting a
+        // request is the same kind of offer to other users, so the category
+        // flag and the app-wide setting apply to it too.
+        $isMandatory = (bool) $user->category->mandatory_service_verification;
+
+        if ($isMandatory || setting('mandatory_service_verification', false)) {
+            if ($user->verification_status !== 'approved') {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'You must verify your profile before creating a service.'
+                ], 403);
+            }
+        }
+
         $validator = Validator::make($request->all(), [
             'category_id' => 'required|exists:categories,id',
             'title' => 'required|string|max:255',
