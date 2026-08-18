@@ -42,6 +42,30 @@
 
                                 <div class="row">
                                     <div class="col-md-12">
+                                        <div class="alert alert-light border mb-2 py-2">
+                                            <small class="text-muted">{{ __('admin.categories.display_name_hint') }}</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="display_name_en">{{ __('admin.categories.display_name') }} (EN)</label>
+                                            <input type="text" id="display_name_en" class="form-control round"
+                                                name="display_name[en]" value="{{ $category->display_name_en }}"
+                                                placeholder="{{ $category->name_en }}">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="display_name_ar">{{ __('admin.categories.display_name') }} (AR)</label>
+                                            <input type="text" id="display_name_ar" class="form-control round"
+                                                name="display_name[ar]" value="{{ $category->display_name_ar }}"
+                                                placeholder="{{ $category->name_ar }}">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-12">
                                         <div class="form-group">
                                             <label
                                                 for="parent_category_id">{{ __('admin.parent_categories.index') }}</label>

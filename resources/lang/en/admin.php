@@ -148,6 +148,8 @@ return [
         'add_new' => 'Add New',
     ],
     'categories' => [
+        'display_name' => 'Name shown in the app',
+        'display_name_hint' => 'Leave empty to show the original name. This only changes what users see in the app; it affects no permissions or logic.',
         'index' => 'Categories',
         'create' => 'Create Category',
         'edit' => 'Edit Category',

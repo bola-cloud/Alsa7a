@@ -5,15 +5,32 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Traits\Translatable;
+use Illuminate\Support\Str;
 
 class Category extends Model
 {
     use HasFactory, Translatable;
 
+    /**
+     * Stable identity, never shown to anyone.
+     *
+     * Nine places across the backend and the app used to answer "is this the
+     * club category?" by comparing display text, which meant re-wording a
+     * category for users could silently take its permissions away. These are
+     * what that question is asked with now.
+     */
+    public const SLUG_CLUB = 'club';
+    public const SLUG_FOOTBALL_PLAYER = 'football_player';
+
+    /** Categories the app depends on existing; they cannot be deleted. */
+    public const PROTECTED_SLUGS = [self::SLUG_CLUB, self::SLUG_FOOTBALL_PLAYER];
+
     protected $fillable = [
         'name',
         'name_en',
         'name_ar',
+        'display_name_en',
+        'display_name_ar',
         'parent_category_id',
         'image',
         'description',
@@ -104,11 +121,76 @@ class Category extends Model
     }
 
     /**
-     * Check if the category is protected from edit/delete
+     * A category created from the panel gets a slug of its own, so the column
+     * stays meaningful instead of only covering the rows that existed when it
+     * was introduced. `slug` is deliberately not fillable — it is derived once
+     * here and then left alone, which is the whole point of it.
+     */
+    protected static function booted(): void
+    {
+        static::creating(function (self $category) {
+            if (! empty($category->slug)) {
+                return;
+            }
+
+            $base = Str::slug($category->name_en ?: $category->name ?: 'category', '_') ?: 'category';
+            $slug = $base;
+            $suffix = 2;
+
+            while (static::where('slug', $slug)->exists()) {
+                $slug = $base . '_' . $suffix++;
+            }
+
+            $category->slug = $slug;
+        });
+    }
+
+    /**
+     * Look a category up by what it *is*, not by what it is called.
+     *
+     *     Category::slug(Category::SLUG_CLUB)->first()
+     */
+    public function scopeSlug($query, string $slug)
+    {
+        return $query->where('slug', $slug);
+    }
+
+    /**
+     * The wording to show a user, falling back to the plain name.
+     *
+     * Only categories that have been given a deliberate display name carry
+     * one, so every other category keeps rendering exactly as before.
+     */
+    public function displayName(?string $locale = null): ?string
+    {
+        $locale = $locale ?: (app()->getLocale() ?: 'en');
+
+        if ($locale === 'ar') {
+            return $this->attributes['display_name_ar']
+                ?? $this->attributes['display_name_en']
+                ?? $this->attributes['name_ar']
+                ?? $this->attributes['name'] ?? null;
+        }
+
+        return $this->attributes['display_name_en']
+            ?? $this->attributes['display_name_ar']
+            ?? $this->attributes['name_en']
+            ?? $this->attributes['name'] ?? null;
+    }
+
+    /**
+     * Check if the category is protected from edit/delete.
+     *
+     * Keyed on the slug now. The old name list stays as a fallback so a row
+     * that somehow has no slug is still protected rather than silently
+     * becoming deletable — this check must never get *less* strict.
      */
     public function isProtected()
     {
-        // Protected categories by name (English or Arabic)
+        if (in_array($this->attributes['slug'] ?? null, self::PROTECTED_SLUGS, true)) {
+            return true;
+        }
+
         $protectedNames = ['Club', 'نادي', 'Football player', 'لاعب كرة القدم'];
         return in_array($this->name_en, $protectedNames) || in_array($this->name_ar, $protectedNames);
     }

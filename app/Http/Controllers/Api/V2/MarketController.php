@@ -476,9 +476,12 @@ class MarketController extends Controller
 
             'category' => $user->relationLoaded('category') && $user->category ? [
                 'id' => $user->category->id,
+                'slug' => $user->category->slug,
                 'name' => $user->category->name,
                 'name_en' => $user->category->name_en,
                 'name_ar' => $user->category->name_ar,
+                'display_name_en' => $user->category->display_name_en,
+                'display_name_ar' => $user->category->display_name_ar,
             ] : null,
 
             // The same four fields the mobile profile screen shows under

@@ -32,9 +32,15 @@ trait FormatsProfileData
             'cover_photo' => $user->cover_photo_path ? url('storage/' . $user->cover_photo_path) : null,
             'category' => $user->category ? [
                 'id' => data_get($user->category, 'id'),
+                // `slug` is the identity to branch on; the three name fields
+                // are unchanged text, and `display_name_*` is the wording to
+                // show. Never decide "is this a club" from a name again.
+                'slug' => data_get($user->category, 'slug'),
                 'name' => data_get($user->category, 'name'),
                 'name_en' => data_get($user->category, 'name_en'), // Restored
                 'name_ar' => data_get($user->category, 'name_ar'), // Restored
+                'display_name_en' => data_get($user->category, 'display_name_en'),
+                'display_name_ar' => data_get($user->category, 'display_name_ar'),
                 'is_service_provider' => data_get($user->category, 'is_service_provider'),
                 'is_marketplace' => (bool) data_get($user->category, 'is_marketplace'),
                 'requires_verification' => (bool) data_get($user->category, 'requires_verification'),

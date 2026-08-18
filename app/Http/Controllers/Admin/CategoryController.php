@@ -100,6 +100,16 @@ class CategoryController extends Controller
         return view('admin.categories.edit', compact('category', 'parentCategories'));
     }
 
+    /**
+     * An emptied display-name field must clear the override, not store "".
+     */
+    protected function nullIfBlank(?string $value): ?string
+    {
+        $value = trim((string) $value);
+
+        return $value === '' ? null : $value;
+    }
+
     public function update(Request $request, Category $category)
     {
         // Protected categories (e.g. "Club"/"نادي") stay editable — the admin
@@ -122,6 +132,12 @@ class CategoryController extends Controller
             'verification_requirements.en' => 'nullable|string',
             'verification_requirements.ar' => 'nullable|string',
             'verification_fields' => 'nullable|array',
+            // Wording shown in the mobile app. Editable even for a locked
+            // category, because it is display text — the identity the code
+            // matches on is the slug, which nothing here can touch.
+            'display_name' => 'nullable|array',
+            'display_name.en' => 'nullable|string|max:255',
+            'display_name.ar' => 'nullable|string|max:255',
         ];
 
         if (!$locked) {
@@ -144,6 +160,9 @@ class CategoryController extends Controller
             'verification_requirements_en' => $data['verification_requirements']['en'] ?? null,
             'verification_requirements_ar' => $data['verification_requirements']['ar'] ?? null,
             'verification_fields' => $data['verification_fields'] ?? null,
+            // Blank means "no override" — the app then falls back to the name.
+            'display_name_en' => $this->nullIfBlank($data['display_name']['en'] ?? null),
+            'display_name_ar' => $this->nullIfBlank($data['display_name']['ar'] ?? null),
         ];
 
         if (!$locked) {

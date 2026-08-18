@@ -86,7 +86,10 @@ class SearchController extends Controller
         // Filter out users in "Club" category who don't have an owned club
         $query->where(function ($q) {
             $q->whereDoesntHave('category', function ($catQ) {
-                $catQ->whereIn('name_en', ['Club'])
+                // Slug first; the names stay as a fallback so the filter cannot
+                // quietly stop matching if a row is missing its slug.
+                $catQ->where('slug', \App\Models\Category::SLUG_CLUB)
+                    ->orWhereIn('name_en', ['Club'])
                     ->orWhereIn('name_ar', ['نادي']);
             })
                 ->orWhereHas('ownedClub');

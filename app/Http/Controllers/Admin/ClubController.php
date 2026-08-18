@@ -60,9 +60,12 @@ class ClubController extends Controller
         $sports = Sport::all();
         $leagues = \App\Models\League::all();
         
-        $clubCategory = \App\Models\Category::where('name_en', 'Club')
-            ->orWhere('name_ar', 'نادي')
-            ->first();
+        // By slug, so re-wording the category for users cannot empty this list.
+        // The name match stays as a fallback for a row with no slug yet.
+        $clubCategory = \App\Models\Category::slug(\App\Models\Category::SLUG_CLUB)->first()
+            ?? \App\Models\Category::where('name_en', 'Club')
+                ->orWhere('name_ar', 'نادي')
+                ->first();
             
         $owners = User::where('category_id', $clubCategory?->id)->get();
         $countries = \App\Models\Country::all();
@@ -154,9 +157,12 @@ class ClubController extends Controller
         $sports = Sport::all();
         $leagues = \App\Models\League::all();
         
-        $clubCategory = \App\Models\Category::where('name_en', 'Club')
-            ->orWhere('name_ar', 'نادي')
-            ->first();
+        // By slug, so re-wording the category for users cannot empty this list.
+        // The name match stays as a fallback for a row with no slug yet.
+        $clubCategory = \App\Models\Category::slug(\App\Models\Category::SLUG_CLUB)->first()
+            ?? \App\Models\Category::where('name_en', 'Club')
+                ->orWhere('name_ar', 'نادي')
+                ->first();
             
         $owners = User::where('category_id', $clubCategory?->id)->get();
         $countries = \App\Models\Country::all();
