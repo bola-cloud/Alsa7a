@@ -101,7 +101,8 @@ class NotificationController extends Controller
         // The push goes out below as a single OneSignal request.
         $notification = new AdminGeneralNotification($request->title, $request->message, $imageUrl, $metaData, false);
 
-        $recipients = $this->storeDatabaseRecords($this->audienceQuery($request), $notification);
+        $audience = $this->audienceQuery($request);
+        $recipients = $this->storeDatabaseRecords(clone $audience, $notification);
 
         if ($recipients === 0) {
             return redirect()->route('admin.notifications.create')
@@ -134,18 +135,23 @@ class NotificationController extends Controller
                 ->with('error', __('admin.notifications.error'));
         }
 
-        // Two different numbers, and the admin needs both: how many people will
-        // see it in the app, and how many devices OneSignal actually accepted
-        // it for. A send that reached nobody used to look identical to a good one.
-        $devices = (int) ($result['data']['recipients'] ?? 0);
+        // OneSignal resolves a filtered audience asynchronously, so the create
+        // response carries an id and nothing else — reading `recipients` off it
+        // reported 0 devices for sends that actually reached people. The count
+        // that can be stated truthfully here is our own: how many of the
+        // recipients have a subscription at all.
+        $reachable = (clone $audience)->whereNotNull('onesignal_subscription')->count();
 
         $redirect = redirect()->route('admin.notifications.create')
             ->with('success', __('admin.notifications.sent_summary', [
                 'users' => $recipients,
-                'devices' => $devices,
+                'devices' => $reachable,
             ]));
 
-        if ($devices === 0) {
+        // OneSignal answers 200 with an `errors` list when the filters matched
+        // no subscribed device. That is the one case worth flagging — the
+        // database rows are written either way.
+        if (! empty($result['data']['errors'])) {
             $redirect->with('error', __('admin.notifications.no_devices'));
         }
 
