@@ -75,6 +75,7 @@ class NotificationController extends Controller
             'country_id' => 'nullable',
             'category_ids' => 'nullable|array',
             'category_ids.*' => 'integer|exists:categories,id',
+            'platform' => 'nullable|in:all,android,ios',
         ], NotificationTarget::rules($targetType)));
 
         // A dangling id would land the user on a "couldn't open" toast, which
@@ -112,7 +113,7 @@ class NotificationController extends Controller
         $options = array_filter([
             'big_picture' => $payload['big_picture'] ?? null,
             'ios_attachments' => $payload['ios_attachments'] ?? null,
-        ]);
+        ]) + $this->platformFlags($request->input('platform', 'all'));
 
         // One OneSignal request either way: the whole-app segment when there is
         // no filter, tag filters otherwise. Never a request per recipient --
@@ -133,8 +134,43 @@ class NotificationController extends Controller
                 ->with('error', __('admin.notifications.error'));
         }
 
-        return redirect()->route('admin.notifications.create')
-            ->with('success', __('admin.notifications.success') . ' (' . $recipients . ')');
+        // Two different numbers, and the admin needs both: how many people will
+        // see it in the app, and how many devices OneSignal actually accepted
+        // it for. A send that reached nobody used to look identical to a good one.
+        $devices = (int) ($result['data']['recipients'] ?? 0);
+
+        $redirect = redirect()->route('admin.notifications.create')
+            ->with('success', __('admin.notifications.sent_summary', [
+                'users' => $recipients,
+                'devices' => $devices,
+            ]));
+
+        if ($devices === 0) {
+            $redirect->with('error', __('admin.notifications.no_devices'));
+        }
+
+        return $redirect;
+    }
+
+    /**
+     * Restricts delivery to one mobile platform, or to both.
+     *
+     * OneSignal takes these as payload flags, so it costs nothing on our side
+     * and needs no app change — the device already told OneSignal what it is.
+     *
+     * Even "all" names the two platforms explicitly rather than sending no
+     * flags: with nothing set, the announcement would also reach the browsers
+     * admins subscribed for panel alerts, which is not who these are for.
+     *
+     * @return array<string, bool>
+     */
+    protected function platformFlags(?string $platform): array
+    {
+        return match ($platform) {
+            'android' => ['isAndroid' => true],
+            'ios' => ['isIos' => true],
+            default => ['isAndroid' => true, 'isIos' => true],
+        };
     }
 
     /**

@@ -115,6 +115,20 @@
                     </div>
                     <div class="card-body">
                         <div class="form-group mb-3">
+                            <label class="form-label d-block">{{ __('admin.notifications.audience_platform') }}</label>
+                            @foreach(['all', 'android', 'ios'] as $platform)
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="platform"
+                                        value="{{ $platform }}" id="platform_{{ $platform }}"
+                                        @checked(old('platform', 'all') === $platform)>
+                                    <label class="form-check-label" for="platform_{{ $platform }}">
+                                        {{ __('admin.notifications.platform_' . $platform) }}
+                                    </label>
+                                </div>
+                            @endforeach
+                        </div>
+
+                        <div class="form-group mb-3">
                             <label for="country_id" class="form-label">{{ __('admin.notifications.audience_country') }}</label>
                             <select name="country_id" id="country_id" class="form-control">
                                 <option value="all">{{ __('admin.notifications.audience_all_countries') }}</option>
