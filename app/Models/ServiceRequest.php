@@ -27,8 +27,10 @@ class ServiceRequest extends Model
 
     protected $casts = [
         'payment_meta' => 'array',
-        'scheduled_at' => 'datetime',
-        'end_at'       => 'datetime',
+        // Wall-clock, not instants — see UserEvent::$casts. The customer
+        // picks the hour the service happens at; nothing may shift it.
+        'scheduled_at' => 'datetime:Y-m-d\TH:i:s',
+        'end_at'       => 'datetime:Y-m-d\TH:i:s',
         'is_disputed'  => 'boolean',
         'is_free'      => 'boolean',
     ];

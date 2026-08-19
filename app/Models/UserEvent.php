@@ -19,7 +19,8 @@ class UserEvent extends Model
     ];
 
     protected $casts = [
-        'event_date' => 'datetime',
+        // Wall-clock, not an instant: no zone marker, so no client shifts it.
+        'event_date' => 'datetime:Y-m-d\TH:i:s',
         // Cast so the API returns real numbers, not the "23.5880000" strings
         // MySQL hands back for DECIMAL columns.
         'latitude' => 'float',

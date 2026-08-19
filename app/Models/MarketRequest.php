@@ -29,7 +29,8 @@ class MarketRequest extends Model
         'latitude' => 'float',
         'longitude' => 'float',
         'cost' => 'float',
-        'scheduled_at' => 'datetime',
+        // Wall-clock, not an instant — see UserEvent::$casts.
+        'scheduled_at' => 'datetime:Y-m-d\TH:i:s',
     ];
 
     /**
