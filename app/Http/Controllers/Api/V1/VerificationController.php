@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Services\AdminNotifier;
+use App\Notifications\VerificationSubmittedNotification;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Storage;
 
@@ -70,9 +72,17 @@ class VerificationController extends Controller
             $user->verification_documents = $paths;
         }
 
+        $wasAlreadyPending = $user->getOriginal('verification_status') === 'pending';
+
         $user->verification_status = 'pending';
         $user->is_approved = false;
         $user->save();
+
+        // Someone is now waiting on a human. Re-uploading while already pending
+        // is the same request again, so it does not raise a second alert.
+        if (! $wasAlreadyPending) {
+            AdminNotifier::alert(new VerificationSubmittedNotification($user));
+        }
 
         return response()->json([
             'status' => true,

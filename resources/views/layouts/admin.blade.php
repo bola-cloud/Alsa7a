@@ -212,6 +212,12 @@
                                         <a class="text-muted font-small-3" href="javascript:void(0)" id="mark-all-read">{{ __('admin.notifications.mark_all_read') }}</a>
                                         <a class="text-info font-small-3" href="javascript:void(0)" id="test-notification-sound"><i class="la la-volume-up"></i> {{ App::getLocale() == 'ar' ? 'تجربة الصوت' : 'Test Sound' }}</a>
                                     </div>
+                                    <div class="px-2 pb-1" id="push-opt-in-row" style="display:none;">
+                                        <a class="btn btn-sm btn-primary btn-block" href="javascript:void(0)" id="enable-push">
+                                            <i class="la la-bell"></i> {{ __('admin.notifications.enable_push') }}
+                                        </a>
+                                        <small class="text-muted d-block mt-1" id="push-status">{{ __('admin.notifications.enable_push_hint') }}</small>
+                                    </div>
                                 </li>
                             </ul>
                         </li>
@@ -830,6 +836,90 @@
     </script>
     @stack('js')
 
+
+    {{-- Browser push for the panel.
+
+         The bell only updates while a tab is open, which is no use to an admin
+         who is not looking at it — a verification request could sit for hours.
+         The subscription is tagged `panel_role=admin`, and the backend aims at
+         that tag, so this stays one request no matter how many admins there
+         are and needs no per-admin bookkeeping. --}}
+    @auth
+        <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+        <script>
+            window.OneSignalDeferred = window.OneSignalDeferred || [];
+
+            OneSignalDeferred.push(async function (OneSignal) {
+                try {
+                    await OneSignal.init({
+                        appId: @json(config('services.onesignal.app_id')),
+                        serviceWorkerPath: '/OneSignalSDKWorker.js',
+                        // The panel asks with its own button instead, so the
+                        // SDK's slide-down prompt stays out of the way.
+                        autoResume: true,
+                        notifyButton: { enable: false },
+                    });
+
+                    const row = document.getElementById('push-opt-in-row');
+                    const status = document.getElementById('push-status');
+                    const button = document.getElementById('enable-push');
+
+                    function render() {
+                        const permission = OneSignal.Notifications.permission;
+                        const optedIn = OneSignal.User.PushSubscription.optedIn;
+
+                        if (permission && optedIn) {
+                            row.style.display = 'block';
+                            button.style.display = 'none';
+                            status.textContent = @json(__('admin.notifications.push_enabled'));
+                            return;
+                        }
+
+                        row.style.display = 'block';
+                        button.style.display = 'block';
+
+                        if (Notification.permission === 'denied') {
+                            button.style.display = 'none';
+                            status.textContent = @json(__('admin.notifications.push_blocked'));
+                        }
+                    }
+
+                    async function tag() {
+                        // Re-applied on every load: a browser can clear site data,
+                        // and an untagged subscription silently stops matching.
+                        await OneSignal.User.addTag('panel_role', 'admin');
+                    }
+
+                    button.addEventListener('click', async function () {
+                        await OneSignal.Notifications.requestPermission();
+                        if (OneSignal.Notifications.permission) {
+                            await OneSignal.User.PushSubscription.optIn();
+                            await tag();
+                        }
+                        render();
+                    });
+
+                    if (OneSignal.Notifications.permission) {
+                        await tag();
+                    }
+
+                    // Tagging on load alone is not enough: subscribing through the
+                    // SDK's own prompt leaves the page as it is, so the tag would
+                    // not land until the next reload and the subscription would be
+                    // invisible to the backend filter until then.
+                    OneSignal.User.PushSubscription.addEventListener('change', async function (event) {
+                        if (event && event.current && event.current.optedIn) {
+                            await tag();
+                        }
+                        render();
+                    });
+                    render();
+                } catch (e) {
+                    console.warn('OneSignal panel push unavailable:', e);
+                }
+            });
+        </script>
+    @endauth
 </body>
 
 </html>
